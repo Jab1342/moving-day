@@ -96,5 +96,152 @@
     "assetId": "139537262344758",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/FUR_TV_Frac.fbx"
+  },
+  {
+    "name": "TRK_Pickup_Body",
+    "type": "Model",
+    "assetId": "94970103150551",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/TRK_Pickup_Body.fbx"
+  },
+  {
+    "name": "TRK_Pickup_Wheel",
+    "type": "Model",
+    "assetId": "129396673512851",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/TRK_Pickup_Wheel.fbx"
+  },
+  {
+    "name": "FUR_Piano",
+    "type": "Model",
+    "assetId": "128849773732698",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Piano.fbx"
+  },
+  {
+    "name": "FUR_Aquarium",
+    "type": "Model",
+    "assetId": "74019265278554",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Aquarium.fbx"
+  },
+  {
+    "name": "FUR_GrandfatherClock",
+    "type": "Model",
+    "assetId": "106572731956036",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_GrandfatherClock.fbx"
+  },
+  {
+    "name": "FUR_Bookshelf",
+    "type": "Model",
+    "assetId": "83521917526069",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Bookshelf.fbx"
+  },
+  {
+    "name": "FUR_Microwave",
+    "type": "Model",
+    "assetId": "77281682806502",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Microwave.fbx"
+  },
+  {
+    "name": "FUR_PottedPlant",
+    "type": "Model",
+    "assetId": "112246883820998",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_PottedPlant.fbx"
+  },
+  {
+    "name": "FUR_Mirror",
+    "type": "Model",
+    "assetId": "100237847405569",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Mirror.fbx"
+  },
+  {
+    "name": "FUR_Piano_Frac",
+    "type": "Model",
+    "assetId": "94513744736043",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Piano_Frac.fbx"
+  },
+  {
+    "name": "FUR_Aquarium_Frac",
+    "type": "Model",
+    "assetId": "132807304200489",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Aquarium_Frac.fbx"
+  },
+  {
+    "name": "FUR_GrandfatherClock_Frac",
+    "type": "Model",
+    "assetId": "81533731078157",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_GrandfatherClock_Frac.fbx"
+  },
+  {
+    "name": "FUR_Bookshelf_Frac",
+    "type": "Model",
+    "assetId": "140712692053458",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Bookshelf_Frac.fbx"
+  },
+  {
+    "name": "FUR_Microwave_Frac",
+    "type": "Model",
+    "assetId": "130011931181464",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Microwave_Frac.fbx"
+  },
+  {
+    "name": "FUR_PottedPlant_Frac",
+    "type": "Model",
+    "assetId": "112050751094420",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_PottedPlant_Frac.fbx"
+  },
+  {
+    "name": "FUR_Mirror_Frac",
+    "type": "Model",
+    "assetId": "91459625207203",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Mirror_Frac.fbx"
+  },
+  {
+    "name": "FUR_Couch_Frac",
+    "type": "Model",
+    "assetId": "123719792249686",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Couch_Frac.fbx"
+  },
+  {
+    "name": "FUR_CardboardBox_Frac",
+    "type": "Model",
+    "assetId": "137958496927011",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_CardboardBox_Frac.fbx"
+  },
+  {
+    "name": "FUR_Chair_Frac",
+    "type": "Model",
+    "assetId": "90116175097027",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Chair_Frac.fbx"
+  },
+  {
+    "name": "FUR_Mattress_Frac",
+    "type": "Model",
+    "assetId": "110156000261400",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Mattress_Frac.fbx"
+  },
+  {
+    "name": "FUR_Fridge_Frac",
+    "type": "Model",
+    "assetId": "75090120419562",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Fridge_Frac.fbx"
   }
 ]

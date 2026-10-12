@@ -102,6 +102,128 @@ def fridge():
     ]
 
 
+def ico(sw, r, center, scale=(1, 1, 1), name="part"):
+    bm = bmesh.new()
+    bmesh.ops.create_icosphere(bm, subdivisions=1, radius=r)
+    bmesh.ops.scale(bm, vec=scale, verts=bm.verts)
+    bmesh.ops.translate(bm, vec=center, verts=bm.verts)
+    o = _obj(bm, name)
+    paint(o, sw)
+    return o
+
+
+def piano():
+    p = [
+        box("wood_ebony", (6, 2.0, 4.35), (0, 0.6, 2.175), bevel=0.05),  # case
+        box("wood_ebony", (6, 2.0, 0.15), (0, 0.6, 4.425), bevel=0.04),  # lid
+        box("wood_mahogany", (5.4, 0.05, 1.5), (0, -0.42, 3.35)),  # upper front panel
+        box("wood_ebony", (5.8, 1.2, 0.35), (0, -1.0, 2.3)),  # keybed
+        box("white", (5.2, 0.8, 0.08), (0, -1.05, 2.51)),  # white keys
+        box("wood_ebony", (5.8, 0.15, 0.35), (0, -1.525, 2.55)),  # key slip lip
+    ]
+    for x in (-2.6, 2.6):
+        p.append(box("wood_ebony", (0.3, 0.3, 2.15), (x, -1.35, 1.075)))
+    octave = 5.2 / 6  # 6 octaves of black keys, 5 per octave
+    for o in range(6):
+        for k in (1, 2, 4, 5, 6):
+            x = -2.6 + o * octave + k * octave / 7
+            p.append(box("black", (0.06, 0.45, 0.08), (x, -1.2, 2.58)))
+    for x in (-0.3, 0, 0.3):
+        p.append(box("metal_brass", (0.12, 0.4, 0.08), (x, -0.5, 0.25)))
+    return p
+
+
+def aquarium():
+    p = [
+        box("wood_walnut", (5, 2, 2.5), (0, 0, 1.25), bevel=0.05),  # stand
+        box("wood_darkwalnut", (2.2, 0.05, 1.8), (-1.2, -1.0, 1.25)),  # cabinet doors
+        box("wood_darkwalnut", (2.2, 0.05, 1.8), (1.2, -1.0, 1.25)),
+        box("sand", (4.8, 1.8, 0.3), (0, 0, 2.65)),
+        box("water", (4.8, 1.8, 1.9), (0, 0, 3.75)),
+        box("metal_gunmetal", (5, 2, 0.15), (0, 0, 2.575)),
+        box("metal_gunmetal", (5, 2, 0.15), (0, 0, 4.925)),
+        box("fab_orange", (0.5, 0.06, 0.3), (-1.0, -0.92, 3.9)),
+        box("truck_yellow", (0.5, 0.06, 0.3), (1.2, -0.92, 3.4)),
+        box("leaf", (0.15, 0.06, 1.0), (-1.9, -0.92, 3.3)),
+        box("leaf_dark", (0.15, 0.06, 0.7), (-1.65, -0.92, 3.15)),
+    ]
+    for x in (-2.44, 2.44):
+        for y in (-0.94, 0.94):
+            p.append(box("metal_gunmetal", (0.12, 0.12, 2.5), (x, y, 3.75)))
+    return p
+
+
+def grandfather_clock():
+    return [
+        box("wood_mahogany", (1.8, 1.25, 1.5), (0, 0, 0.75), bevel=0.05),  # base
+        box("wood_mahogany", (1.4, 1.0, 3.5), (0, 0.1, 3.25)),  # trunk
+        box("mirror", (0.8, 0.05, 2.2), (0, -0.41, 3.1)),  # pendulum window
+        cyl("metal_brass", 0.3, 0.06, (0, -0.47, 2.4), seg=10, axis="Y"),  # pendulum bob
+        box("metal_brass", (0.06, 0.04, 1.2), (0, -0.45, 3.1)),  # pendulum rod
+        box("wood_mahogany", (1.8, 1.25, 1.6), (0, 0, 5.8), bevel=0.05),  # hood
+        prism("wood_mahogany", (-0.9, 0.9, -0.625, 0.625, 6.6), (-0.55, 0.55, -0.45, 0.45, 7.0)),  # crown
+        cyl("paper", 0.55, 0.05, (0, -0.68, 5.8), seg=12, axis="Y"),  # dial
+        cyl("metal_brass", 0.62, 0.03, (0, -0.65, 5.8), seg=12, axis="Y"),  # bezel
+        box("nearblack", (0.06, 0.04, 0.42), (0, -0.74, 5.95)),  # hands
+        box("nearblack", (0.3, 0.04, 0.06), (0.12, -0.74, 5.8)),
+    ]
+
+
+def bookshelf():
+    p = [
+        box("wood_oak", (0.2, 1.2, 6), (-1.9, 0, 3)),
+        box("wood_oak", (0.2, 1.2, 6), (1.9, 0, 3)),
+        box("wood_honey", (3.6, 0.1, 6), (0, 0.55, 3)),
+    ]
+    for z in (0.1, 1.5, 3.0, 4.5, 5.9):
+        p.append(box("wood_oak", (3.6, 1.1, 0.2), (0, 0, z)))
+    colours = ["fab_red", "fab_navy", "fab_mustard", "fab_forest", "fab_plum", "fab_cream", "fab_teal", "fab_brick"]
+    rng = random.Random(4)
+    for shelf_z in (0.2, 1.6, 3.1, 4.6):
+        x = -1.7
+        while x < 1.5:
+            w = rng.choice((0.18, 0.22, 0.26, 0.3))
+            h = rng.uniform(0.8, 1.15)
+            if rng.random() < 0.15:
+                x += 0.3  # gap
+                continue
+            p.append(box(rng.choice(colours), (w, 0.8, h), (x + w / 2, 0.05, shelf_z + h / 2)))
+            x += w + 0.02
+    return p
+
+
+def microwave():
+    p = [
+        box("metal_steel", (2.4, 1.6, 1.4), (0, 0.02, 0.7), bevel=0.06),
+        box("screen_off", (1.5, 0.05, 1.0), (-0.3, -0.8, 0.7)),
+        box("grey_dark", (0.6, 0.05, 1.1), (0.8, -0.8, 0.7)),
+        box("metal_chrome", (0.06, 0.08, 0.9), (0.42, -0.83, 0.7)),  # door handle
+    ]
+    for i, z in enumerate((1.05, 0.85, 0.65)):
+        p.append(box("screen_glow" if i == 0 else "grey_light", (0.4, 0.04, 0.12), (0.8, -0.83, z)))
+    return p
+
+
+def potted_plant():
+    pot = [(0.55, 0), (0.7, 0.05), (0.85, 1.1), (0.92, 1.2), (0.92, 1.3), (0.0, 1.3)]
+    soil = lambda f: "soil" if f.normal.z > 0.9 and f.calc_center_median().z > 1.25 else "terracotta"
+    p = [lathe(soil, pot, seg=10)]
+    rng = random.Random(9)
+    blobs = [(0, 0, 2.5, 0.75), (-0.55, 0.2, 2.1, 0.55), (0.55, -0.15, 2.2, 0.55), (0.1, -0.5, 2.0, 0.5), (0.2, 0.45, 2.9, 0.5), (-0.3, -0.2, 3.1, 0.45)]
+    for i, (x, y, z, r) in enumerate(blobs):
+        p.append(ico("leaf" if i % 2 == 0 else "leaf_dark", r, (x, y, z), scale=(1.1, 1.1, 0.95)))
+    p.append(box("soil", (0.12, 0.12, 0.6), (0, 0, 1.55)))  # stem
+    return p
+
+
+def mirror():
+    return [
+        box("wood_honey", (2.4, 0.3, 4.0), (0, 0, 2.0), bevel=0.05),
+        box("mirror", (2.0, 0.05, 3.6), (0, -0.16, 2.0)),
+        box("wood_honey", (0.25, 0.05, 0.25), (0, 0.17, 3.5)),  # hanging block on the back
+    ]
+
+
 BUILDERS = {
     "FUR_Couch": couch,
     "FUR_CardboardBox": cardboard_box,
@@ -111,6 +233,13 @@ BUILDERS = {
     "FUR_TV": tv,
     "FUR_Mattress": mattress,
     "FUR_Fridge": fridge,
+    "FUR_Piano": piano,
+    "FUR_Aquarium": aquarium,
+    "FUR_GrandfatherClock": grandfather_clock,
+    "FUR_Bookshelf": bookshelf,
+    "FUR_Microwave": microwave,
+    "FUR_PottedPlant": potted_plant,
+    "FUR_Mirror": mirror,
 }
 
 # name -> (chunk count, swatch for the freshly cut faces)
@@ -118,6 +247,18 @@ FRACTURE = {
     "FUR_Vase": (5, "offwhite"),
     "FUR_Lamp": (4, "grey_light"),
     "FUR_TV": (5, "charcoal"),
+    "FUR_Couch": (5, "fab_cream"),
+    "FUR_CardboardBox": (4, "cardboard_dark"),
+    "FUR_Chair": (4, "wood_pale"),
+    "FUR_Mattress": (4, "offwhite"),
+    "FUR_Fridge": (5, "grey_light"),
+    "FUR_Piano": (6, "wood_pale"),
+    "FUR_Aquarium": (6, "water_deep"),
+    "FUR_GrandfatherClock": (5, "wood_pale"),
+    "FUR_Bookshelf": (5, "wood_pale"),
+    "FUR_Microwave": (4, "grey_light"),
+    "FUR_PottedPlant": (4, "soil"),
+    "FUR_Mirror": (5, "glass"),
 }
 
 
@@ -127,6 +268,10 @@ def _preview_light():
     o = bpy.data.objects.new("PreviewSun", sun)
     o.rotation_euler = (0.9, 0.2, -0.6)  # from front-left-above
     bpy.context.collection.objects.link(o)
+
+
+# Seeds picked so every chunk stays under the 300-triangle budget.
+FRACTURE_SEEDS = {"FUR_Piano": 11}
 
 
 def build(name):
@@ -140,6 +285,7 @@ def build(name):
 
 def ship(name, seed=7):
     """Build, check, save the .blend and export FBX(es). Returns check results."""
+    seed = FRACTURE_SEEDS.get(name, seed)
     obj = build(name)
     results = [check(obj)]
     export_fbx([obj], f"{name}.fbx")

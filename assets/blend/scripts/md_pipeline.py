@@ -108,10 +108,8 @@ def budget_for(name):
 
 def finalize(obj):
     """Apply transforms and put the origin at the bottom centre of the bounding box."""
-    bpy.ops.object.select_all(action="DESELECT")
-    obj.select_set(True)
-    bpy.context.view_layer.objects.active = obj
-    bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+    obj.data.transform(obj.matrix_basis)
+    obj.matrix_basis.identity()
     xs = [v.co.x for v in obj.data.vertices]
     ys = [v.co.y for v in obj.data.vertices]
     zs = [v.co.z for v in obj.data.vertices]

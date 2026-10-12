@@ -70,5 +70,131 @@
     "operation": "operations/2b95d4f1-cc9a-457a-9381-1bd84f1a1774",
     "assetId": "139537262344758",
     "file": "assets/export/FUR_TV_Frac.fbx"
+  },
+  "TRK_Pickup_Body": {
+    "status": "REGISTERED",
+    "operation": "operations/46e05cad-d4a6-4763-a634-3b6b96c1d6c2",
+    "assetId": "94970103150551",
+    "file": "assets/export/TRK_Pickup_Body.fbx"
+  },
+  "TRK_Pickup_Wheel": {
+    "status": "REGISTERED",
+    "operation": "operations/150c86f1-a3c7-4ef3-a562-7b47c321e7f6",
+    "assetId": "129396673512851",
+    "file": "assets/export/TRK_Pickup_Wheel.fbx"
+  },
+  "FUR_Piano": {
+    "status": "REGISTERED",
+    "operation": "operations/5dc411dc-53dd-42c7-b08f-3c6c1a635c0c",
+    "assetId": "128849773732698",
+    "file": "assets/export/FUR_Piano.fbx"
+  },
+  "FUR_Aquarium": {
+    "status": "REGISTERED",
+    "operation": "operations/e3e8f24c-a52a-4b38-b7e6-7ef5567911ff",
+    "assetId": "74019265278554",
+    "file": "assets/export/FUR_Aquarium.fbx"
+  },
+  "FUR_GrandfatherClock": {
+    "status": "REGISTERED",
+    "operation": "operations/f828e98a-8638-43fd-b956-00a07d3868b3",
+    "assetId": "106572731956036",
+    "file": "assets/export/FUR_GrandfatherClock.fbx"
+  },
+  "FUR_Bookshelf": {
+    "status": "REGISTERED",
+    "operation": "operations/349f2525-afe1-4b03-a9e8-483eb7375d80",
+    "assetId": "83521917526069",
+    "file": "assets/export/FUR_Bookshelf.fbx"
+  },
+  "FUR_Microwave": {
+    "status": "REGISTERED",
+    "operation": "operations/2fc03e49-54af-4a2d-b463-23fc094f40ff",
+    "assetId": "77281682806502",
+    "file": "assets/export/FUR_Microwave.fbx"
+  },
+  "FUR_PottedPlant": {
+    "status": "REGISTERED",
+    "operation": "operations/3fc66453-a009-436c-b482-d6c66020a687",
+    "assetId": "112246883820998",
+    "file": "assets/export/FUR_PottedPlant.fbx"
+  },
+  "FUR_Mirror": {
+    "status": "REGISTERED",
+    "operation": "operations/ad4d9701-1a35-4c4c-9b8d-34c0244d4bd7",
+    "assetId": "100237847405569",
+    "file": "assets/export/FUR_Mirror.fbx"
+  },
+  "FUR_Piano_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/d857ed96-c92f-4ada-9aa3-e68c3d236a41",
+    "assetId": "94513744736043",
+    "file": "assets/export/FUR_Piano_Frac.fbx"
+  },
+  "FUR_Aquarium_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/1e35b0bf-0b82-43da-880f-63ba441754dc",
+    "assetId": "132807304200489",
+    "file": "assets/export/FUR_Aquarium_Frac.fbx"
+  },
+  "FUR_GrandfatherClock_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/17b4014b-be0b-4039-a826-6d82e9670874",
+    "assetId": "81533731078157",
+    "file": "assets/export/FUR_GrandfatherClock_Frac.fbx"
+  },
+  "FUR_Bookshelf_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/3c164e68-85a6-44a5-8891-9af92c510176",
+    "assetId": "140712692053458",
+    "file": "assets/export/FUR_Bookshelf_Frac.fbx"
+  },
+  "FUR_Microwave_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/56d088c2-6d9e-452a-ae26-8788f33ab578",
+    "assetId": "130011931181464",
+    "file": "assets/export/FUR_Microwave_Frac.fbx"
+  },
+  "FUR_PottedPlant_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/8639fe0c-b6fc-4f14-b5bf-31b0a48cab46",
+    "assetId": "112050751094420",
+    "file": "assets/export/FUR_PottedPlant_Frac.fbx"
+  },
+  "FUR_Mirror_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/41e1b7eb-15b4-4870-9109-a5eaccc8cea5",
+    "assetId": "91459625207203",
+    "file": "assets/export/FUR_Mirror_Frac.fbx"
+  },
+  "FUR_Couch_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/bac07b4a-93be-4e90-b786-db663cd3d385",
+    "assetId": "123719792249686",
+    "file": "assets/export/FUR_Couch_Frac.fbx"
+  },
+  "FUR_CardboardBox_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/3311b7df-87a7-4254-a7cb-a852d389efb5",
+    "assetId": "137958496927011",
+    "file": "assets/export/FUR_CardboardBox_Frac.fbx"
+  },
+  "FUR_Chair_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/44d80fb4-cb47-4d55-83b6-bdd42f73ddfa",
+    "assetId": "90116175097027",
+    "file": "assets/export/FUR_Chair_Frac.fbx"
+  },
+  "FUR_Mattress_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/400e98c5-55c1-47d4-9f98-da2c3c35b686",
+    "assetId": "110156000261400",
+    "file": "assets/export/FUR_Mattress_Frac.fbx"
+  },
+  "FUR_Fridge_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/088235d2-308e-4a66-8cbc-b04eb68341b2",
+    "assetId": "75090120419562",
+    "file": "assets/export/FUR_Fridge_Frac.fbx"
   }
 }

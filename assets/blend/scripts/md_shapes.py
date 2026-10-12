@@ -51,6 +51,20 @@ def cyl(sw, r, h, base=(0, 0, 0), seg=8, r_top=None, axis="Z", name="part"):
     return o
 
 
+def prism(sw, bottom, top, name="part"):
+    """Hexahedron from two axis-aligned rects: (x0, x1, y0, y1, z) at bottom and top."""
+    bm = bmesh.new()
+    v = []
+    for x0, x1, y0, y1, z in (bottom, top):
+        v += [bm.verts.new(c) for c in ((x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z))]
+    for f in ((0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)):
+        bm.faces.new([v[i] for i in f])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    o = _obj(bm, name)
+    paint(o, sw)
+    return o
+
+
 def lathe(sw, profile, seg=12, base=(0, 0, 0), name="part"):
     """Surface of revolution around Z. profile = [(radius, z), ...] bottom to top; ends are capped."""
     bm = bmesh.new()
@@ -87,14 +101,22 @@ def _rot(axis, deg):
 
 
 def join(parts, name):
-    bpy.ops.object.select_all(action="DESELECT")
+    """Merge part objects into one new object (no bpy.ops, so it works from any context)."""
+    bm = bmesh.new()
     for p in parts:
-        p.select_set(True)
-    bpy.context.view_layer.objects.active = parts[0]
-    bpy.ops.object.join()
-    o = bpy.context.view_layer.objects.active
-    o.name = name
-    o.data.name = name
+        me = p.data.copy()
+        me.transform(p.matrix_world)
+        bm.from_mesh(me)
+        bpy.data.meshes.remove(me)
+    for p in parts:
+        me = p.data
+        bpy.data.objects.remove(p, do_unlink=True)
+        if me.users == 0:
+            bpy.data.meshes.remove(me)
+    o = _obj(bm, name)
+    o.data.materials.append(palette_material())
+    for poly in o.data.polygons:
+        poly.use_smooth = False
     return o
 
 
