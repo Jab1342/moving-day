@@ -1,0 +1,27 @@
+{
+  "name": "Moving Day",
+  "servePlaceIds": [130590584225382],
+  "tree": {
+    "$className": "DataModel",
+    "$ignoreUnknownInstances": true,
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
+      "Shared": { "$path": "src/shared", "$ignoreUnknownInstances": true }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$ignoreUnknownInstances": true,
+      "Server": { "$path": "src/server", "$ignoreUnknownInstances": true }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$ignoreUnknownInstances": true,
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$ignoreUnknownInstances": true,
+        "Client": { "$path": "src/client", "$ignoreUnknownInstances": true }
+      }
+    }
+  }
+}
