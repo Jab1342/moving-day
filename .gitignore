@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+.tools/
+build/
+tmp/
+*.rbxl
+*.rbxlx
+*.lock
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+roblox.yml
+
