@@ -4,6 +4,7 @@
 -- carrier (CarrierA) the network owner. The lead's client steers those constraints here.
 -- Grip 2 sends its hand point to the server, which relays it to the lead.
 
+local CollectionService = game:GetService("CollectionService")
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,6 +20,8 @@ local DEFAULTS = {
 	SecondGripHz = 20,
 	HoldDistance = 1.6, -- studs in front of the chest, beyond the item's half depth
 	HoldHeight = 0.6, -- studs above the HumanoidRootPart
+	BedLiftRange = 14, -- near a truck bed, items lift to clear the tailgate
+	BedClearance = 1.4, -- studs above the bed floor for the item's underside
 }
 
 local CarryController = {}
@@ -185,6 +188,31 @@ local function onRotate(_, inputState: Enum.UserInputState)
 	return Enum.ContextActionResult.Sink
 end
 
+-- Near a truck bed (tagged "TruckBed"), raise the target so the item's underside clears
+-- the tailgate; otherwise loading would need a jump.
+local function liftForBed(model: Model, root: BasePart, goal: CFrame): CFrame
+	local best: BasePart? = nil
+	local bestDist = tuning.BedLiftRange
+	for _, bed in CollectionService:GetTagged("TruckBed") do
+		if bed:IsA("BasePart") and bed:IsDescendantOf(workspace) then
+			local d = Vector3.new(bed.Position.X - goal.X, 0, bed.Position.Z - goal.Z).Magnitude
+			if d < bestDist then
+				best, bestDist = bed, d
+			end
+		end
+	end
+	if not best then
+		return goal
+	end
+	local boxCf, boxSize = model:GetBoundingBox()
+	local rootAboveBottom = root.Position.Y - (boxCf.Y - boxSize.Y / 2)
+	local minY = best.Position.Y + best.Size.Y / 2 + tuning.BedClearance + rootAboveBottom
+	if goal.Y >= minY then
+		return goal
+	end
+	return goal + Vector3.new(0, minY - goal.Y, 0)
+end
+
 -- Hand point a carrier holds their grip at.
 local function handPoint(hrp: BasePart): Vector3
 	return hrp.Position + hrp.CFrame.LookVector * 1.2 + Vector3.yAxis * tuning.HoldHeight
@@ -226,6 +254,7 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 		local mine = handPoint(hrp)
 		local target = twoHandedCFrame(root, (mine + partnerHand) / 2, partnerHand - mine)
 		if target then
+			target = liftForBed(model, root, target)
 			alignPos.Position = target.Position
 			alignOri.CFrame = target.Rotation
 			return
@@ -244,6 +273,9 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 		local lift = if onDolly then -1.5 else tuning.HoldHeight
 		goal = CFrame.new(hrp.Position + hrp.CFrame.LookVector * ahead + Vector3.yAxis * lift)
 			* CFrame.Angles(0, yaw + yawOffset, 0)
+		if not onDolly then
+			goal = liftForBed(model, root, goal)
+		end
 	end
 	alignPos.Position = goal.Position
 	alignOri.CFrame = goal.Rotation
