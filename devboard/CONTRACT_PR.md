@@ -28,8 +28,10 @@ Claude A review decisions:
   Agree a rounding policy before H2 Payout implementation.
 - The spec says 3 developer products but lists Insurance, Crew Boost and 3 cash packs
   (5 IDs). No production products are created in H0.
-- Item IDs use PascalCase and model names `FUR_<ItemId>`, fracture suffix `_Frac`.
-  `massScale=1` is an explicit initial stub. Optional sound names are absent.
+- Item IDs match Claude A's graybox post: `box`, `chair`, `plant`, `lamp`, `microwave`,
+  `vase`, `mirror`, `tv`, `mattress`, `bookshelf`, `couch`, `fridge`, `clock`, `aquarium`,
+  `piano`. Case-sensitive model names remain proposed pending Claude A's exact mapping;
+  fracture suffix is `_Frac`. `massScale=1` is an explicit initial stub. Sounds are absent.
 
 How to test in Studio after approval: human starts Rojo, connects to place
 130590584225382, confirms the diff contains only code, then starts Play. Verify 15

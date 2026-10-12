@@ -1,8 +1,9 @@
 --!strict
 -- STUB(Codex): massScale = 1 pending ClaudeA feel tuning; optional sounds unset.
+-- STUB(ClaudeA): confirm case-sensitive model names on PR #1; IDs match graybox board.
 return {
-	CardboardBox = {
-		id = "CardboardBox",
+	box = {
+		id = "box",
 		displayName = "Cardboard box",
 		carry = "One",
 		value = 20,
@@ -11,8 +12,8 @@ return {
 		model = "FUR_CardboardBox",
 		fractured = "FUR_CardboardBox_Frac",
 	},
-	Chair = {
-		id = "Chair",
+	chair = {
+		id = "chair",
 		displayName = "Chair",
 		carry = "One",
 		value = 30,
@@ -21,8 +22,8 @@ return {
 		model = "FUR_Chair",
 		fractured = "FUR_Chair_Frac",
 	},
-	PottedPlant = {
-		id = "PottedPlant",
+	plant = {
+		id = "plant",
 		displayName = "Potted plant",
 		carry = "One",
 		value = 25,
@@ -31,8 +32,8 @@ return {
 		model = "FUR_PottedPlant",
 		fractured = "FUR_PottedPlant_Frac",
 	},
-	Lamp = {
-		id = "Lamp",
+	lamp = {
+		id = "lamp",
 		displayName = "Lamp",
 		carry = "One",
 		value = 40,
@@ -41,8 +42,8 @@ return {
 		model = "FUR_Lamp",
 		fractured = "FUR_Lamp_Frac",
 	},
-	Microwave = {
-		id = "Microwave",
+	microwave = {
+		id = "microwave",
 		displayName = "Microwave",
 		carry = "One",
 		value = 60,
@@ -51,8 +52,8 @@ return {
 		model = "FUR_Microwave",
 		fractured = "FUR_Microwave_Frac",
 	},
-	Vase = {
-		id = "Vase",
+	vase = {
+		id = "vase",
 		displayName = "Vase",
 		carry = "One",
 		value = 80,
@@ -61,8 +62,8 @@ return {
 		model = "FUR_Vase",
 		fractured = "FUR_Vase_Frac",
 	},
-	Mirror = {
-		id = "Mirror",
+	mirror = {
+		id = "mirror",
 		displayName = "Mirror",
 		carry = "One",
 		value = 120,
@@ -71,8 +72,8 @@ return {
 		model = "FUR_Mirror",
 		fractured = "FUR_Mirror_Frac",
 	},
-	TV = {
-		id = "TV",
+	tv = {
+		id = "tv",
 		displayName = "TV",
 		carry = "One",
 		value = 150,
@@ -81,8 +82,8 @@ return {
 		model = "FUR_TV",
 		fractured = "FUR_TV_Frac",
 	},
-	Mattress = {
-		id = "Mattress",
+	mattress = {
+		id = "mattress",
 		displayName = "Mattress",
 		carry = "Two",
 		value = 90,
@@ -91,8 +92,8 @@ return {
 		model = "FUR_Mattress",
 		fractured = "FUR_Mattress_Frac",
 	},
-	Bookshelf = {
-		id = "Bookshelf",
+	bookshelf = {
+		id = "bookshelf",
 		displayName = "Bookshelf",
 		carry = "Two",
 		value = 110,
@@ -101,8 +102,8 @@ return {
 		model = "FUR_Bookshelf",
 		fractured = "FUR_Bookshelf_Frac",
 	},
-	Couch = {
-		id = "Couch",
+	couch = {
+		id = "couch",
 		displayName = "Couch",
 		carry = "Two",
 		value = 200,
@@ -111,8 +112,8 @@ return {
 		model = "FUR_Couch",
 		fractured = "FUR_Couch_Frac",
 	},
-	Fridge = {
-		id = "Fridge",
+	fridge = {
+		id = "fridge",
 		displayName = "Fridge",
 		carry = "Two",
 		value = 250,
@@ -121,8 +122,8 @@ return {
 		model = "FUR_Fridge",
 		fractured = "FUR_Fridge_Frac",
 	},
-	GrandfatherClock = {
-		id = "GrandfatherClock",
+	clock = {
+		id = "clock",
 		displayName = "Grandfather clock",
 		carry = "Two",
 		value = 350,
@@ -131,8 +132,8 @@ return {
 		model = "FUR_GrandfatherClock",
 		fractured = "FUR_GrandfatherClock_Frac",
 	},
-	Aquarium = {
-		id = "Aquarium",
+	aquarium = {
+		id = "aquarium",
 		displayName = "Aquarium",
 		carry = "Two",
 		value = 400,
@@ -141,8 +142,8 @@ return {
 		model = "FUR_Aquarium",
 		fractured = "FUR_Aquarium_Frac",
 	},
-	Piano = {
-		id = "Piano",
+	piano = {
+		id = "piano",
 		displayName = "Piano",
 		carry = "Two",
 		value = 600,

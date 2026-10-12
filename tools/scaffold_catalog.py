@@ -20,14 +20,15 @@ ITEMS = [
 ]
 
 if __name__ == "__main__":
-    lines = ['--!strict', '-- STUB(Codex): massScale = 1 pending ClaudeA feel tuning; optional sounds unset.', 'return {']
-    for item_id, name, carry, value, fragility in ITEMS:
+    lines = ['--!strict', '-- STUB(Codex): massScale = 1 pending ClaudeA feel tuning; optional sounds unset.', '-- STUB(ClaudeA): confirm case-sensitive model names on PR #1; IDs match graybox board.', 'return {']
+    for model_id, name, carry, value, fragility in ITEMS:
+        item_id = {'CardboardBox': 'box', 'PottedPlant': 'plant', 'GrandfatherClock': 'clock'}.get(model_id, model_id.lower())
         lines.extend([
             f'\t{item_id} = {{',
             f'\t\tid = "{item_id}", displayName = "{name}", carry = "{carry}",',
             f'\t\tvalue = {value}, fragility = {fragility}, massScale = 1,',
-            f'\t\tmodel = "FUR_{item_id}", fractured = "FUR_{item_id}_Frac",',
+            f'\t\tmodel = "FUR_{model_id}", fractured = "FUR_{model_id}_Frac",',
             '\t},',
         ])
     lines.append('}')
-    (Path(__file__).resolve().parents[1] / 'src/shared/ItemDefs.luau').write_text('\n'.join(lines)+'\n', encoding='utf-8')
+    (Path(__file__).resolve().parents[1] / 'src/shared/ItemDefs.luau').write_text('\n'.join(lines)+'\n', encoding='utf-8', newline='\n')

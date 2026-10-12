@@ -11,18 +11,15 @@ for id, def in items do
 	assert(id == def.id and def.value > 0 and def.fragility > 0, "Catalogue identity and values")
 	assert(def.carry == "One" or def.carry == "Two", "Valid carry mode")
 	assert(
-		def.model == "FUR_" .. id and def.fractured == def.model .. "_Frac",
+		string.sub(def.model, 1, 4) == "FUR_" and def.fractured == def.model .. "_Frac",
 		"Model names match contract"
 	)
 	assert(not models[def.model], "Duplicate model")
 	models[def.model] = true
 end
 assert(count == 15, "Spec requires 15 furniture definitions")
-assert(items.Piano.value == 600 and items.Vase.fragility == 2.5, "Piano and vase match spec")
-assert(
-	items.Couch.carry == "Two" and items.CardboardBox.carry == "One",
-	"Couch and box carry modes"
-)
+assert(items.piano.value == 600 and items.vase.fragility == 2.5, "Piano and vase match spec")
+assert(items.couch.carry == "Two" and items.box.carry == "One", "Couch and box carry modes")
 count = 0
 local functions = 0
 for path, def in remotes do
