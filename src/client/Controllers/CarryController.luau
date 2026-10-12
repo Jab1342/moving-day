@@ -103,7 +103,10 @@ local function findTarget(): (Model?, number)
 			if state ~= "Broken" and state ~= "Delivered" then
 				if (model:GetAttribute("CarrierA") or 0) == 0 then
 					grip = 1
-				elseif model:GetAttribute("Carry") == "Two" and (model:GetAttribute("CarrierB") or 0) == 0 then
+				elseif
+					model:GetAttribute("Carry") == "Two"
+					and (model:GetAttribute("CarrierB") or 0) == 0
+				then
 					grip = 2
 				end
 			end
@@ -334,7 +337,13 @@ function CarryController.Start()
 
 	ContextActionService:BindAction("MD_Grab", onGrab, true, Enum.KeyCode.E, Enum.KeyCode.ButtonX)
 	ContextActionService:SetTitle("MD_Grab", "Grab")
-	ContextActionService:BindAction("MD_Rotate", onRotate, true, Enum.KeyCode.R, Enum.KeyCode.ButtonY)
+	ContextActionService:BindAction(
+		"MD_Rotate",
+		onRotate,
+		true,
+		Enum.KeyCode.R,
+		Enum.KeyCode.ButtonY
+	)
 	ContextActionService:SetTitle("MD_Rotate", "Rotate")
 
 	player.CharacterAdded:Connect(clearHeld)

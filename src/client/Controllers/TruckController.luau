@@ -57,7 +57,10 @@ local function findRig(seat: VehicleSeat): Rig?
 	for _, inst in wheels:GetDescendants() do
 		if inst:IsA("HingeConstraint") and inst.Name == "Motor" then
 			table.insert(motors, inst)
-		elseif inst:IsA("CylindricalConstraint") and inst.AngularActuatorType == Enum.ActuatorType.Servo then
+		elseif
+			inst:IsA("CylindricalConstraint")
+			and inst.AngularActuatorType == Enum.ActuatorType.Servo
+		then
 			table.insert(steering, inst)
 		end
 	end
@@ -109,7 +112,8 @@ local function step(rig: Rig)
 	end
 
 	local speedFactor = math.clamp(math.abs(forwardSpeed) / tuning.MaxSpeed, 0, 1)
-	local maxAngle = tuning.MaxSteerAngle + (tuning.HighSpeedSteerAngle - tuning.MaxSteerAngle) * speedFactor
+	local maxAngle = tuning.MaxSteerAngle
+		+ (tuning.HighSpeedSteerAngle - tuning.MaxSteerAngle) * speedFactor
 	for _, servo in rig.steering do
 		-- positive SteerFloat = right; servo angle is about +Y, so right turn is negative
 		servo.TargetAngle = -steer * maxAngle
