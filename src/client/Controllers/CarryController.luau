@@ -1,25 +1,32 @@
 --!strict
--- Grab, carry, rotate and drop furniture. The server (ItemService) validates every grab,
--- creates CarryAlignPosition / CarryAlignOrientation on the item's Root, and makes the lead
--- carrier (CarrierA) the network owner. The lead's client steers those constraints here.
--- Grip 2 sends its hand point to the server, which relays it to the lead.
+-- Drag furniture with the cursor or a finger: press on an item to grab it, move to steer
+-- it, release to drop. Input comes from a local DragDetector on each item (ResponseStyle
+-- Custom, so it moves nothing itself and handles mouse/touch capture on every device).
+-- Physics stays server-authorised: ItemService validates the grab, creates
+-- CarryAlignPosition / CarryAlignOrientation on the item's Root and makes the lead carrier
+-- (CarrierA) the network owner; the lead's client steers those constraints here. Grip 2
+-- sends its cursor point to the server, which relays it to the lead.
+-- Gamepad has no cursor, so ButtonX grabs the nearest item and holds it in front.
 
 local CollectionService = game:GetService("CollectionService")
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
 
 local DEFAULTS = {
 	GrabRange = 8,
+	DragReach = 9, -- max horizontal distance between the player and the dragged point
 	DollySpeedScale = 0.4,
 	TwoCarrySpeedScale = 0.75,
 	DragSpeedScale = 0.35,
+	SoloHeavyMaxVelocity = 6, -- studs/s when one player hauls a two-person item alone
 	SecondGripHz = 20,
-	HoldDistance = 1.6, -- studs in front of the chest, beyond the item's half depth
-	HoldHeight = 0.6, -- studs above the HumanoidRootPart
+	HoldHeight = 0.6, -- studs above the HumanoidRootPart for the grabbed point
+	PadHoldDistance = 3.5, -- gamepad: studs in front of the player
 	BedLiftRange = 14, -- near a truck bed, items lift to clear the tailgate
 	BedClearance = 1.4, -- studs above the bed floor for the item's underside
 }
@@ -30,10 +37,13 @@ local tuning = table.clone(DEFAULTS)
 local remotes: Folder? = nil
 local held: Model? = nil
 local myGrip = 0
-local yawOffset = 0
-local partnerHand: Vector3? = nil
+local grabLocal = Vector3.zero -- grabbed point in the item's Root space
+local yaw = 0 -- item yaw while held
+local screenPoint: Vector2? = nil -- last cursor/touch position; nil = gamepad hold
+local partnerPoint: Vector3? = nil
 local lastSecondGripSend = 0
 local baseWalkSpeed = 16
+local grabbing = false
 
 local function loadTuning()
 	local shared = ReplicatedStorage:FindFirstChild("Shared")
@@ -73,55 +83,17 @@ local function itemRoot(model: Model): BasePart?
 	return model.PrimaryPart or model:FindFirstChild("Root") :: BasePart?
 end
 
-local function isFurniture(inst: Instance): boolean
-	return inst:IsA("Model") and inst:GetAttribute("ItemUid") ~= nil
-end
-
--- Nearest grabbable item in front of the player, within GrabRange.
-local function findTarget(): (Model?, number)
-	local _, _, hrp = character()
-	if not hrp then
-		return nil, 0
+local function freeGrip(model: Model): number
+	local state = model:GetAttribute("State")
+	if state == "Broken" or state == "Delivered" then
+		return 0
 	end
-	local best: Model? = nil
-	local bestScore = math.huge
-	local bestGrip = 0
-	local params = OverlapParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = { player.Character :: Instance }
-	local parts = workspace:GetPartBoundsInRadius(hrp.Position, tuning.GrabRange, params)
-	local seen: { [Model]: boolean } = {}
-	for _, part in parts do
-		local model = part:FindFirstAncestorWhichIsA("Model")
-		while model and not isFurniture(model) do
-			model = model.Parent and model.Parent:FindFirstAncestorWhichIsA("Model") or nil
-		end
-		if model and not seen[model] then
-			seen[model] = true
-			local state = model:GetAttribute("State")
-			local grip = 0
-			if state ~= "Broken" and state ~= "Delivered" then
-				if (model:GetAttribute("CarrierA") or 0) == 0 then
-					grip = 1
-				elseif
-					model:GetAttribute("Carry") == "Two"
-					and (model:GetAttribute("CarrierB") or 0) == 0
-				then
-					grip = 2
-				end
-			end
-			local root = itemRoot(model)
-			if grip > 0 and root then
-				local offset = root.Position - hrp.Position
-				local facing = hrp.CFrame.LookVector:Dot(offset.Unit)
-				local score = offset.Magnitude - facing * 3 -- prefer items in front
-				if score < bestScore then
-					best, bestScore, bestGrip = model, score, grip
-				end
-			end
-		end
+	if (model:GetAttribute("CarrierA") or 0) == 0 then
+		return 1
+	elseif model:GetAttribute("Carry") == "Two" and (model:GetAttribute("CarrierB") or 0) == 0 then
+		return 2
 	end
-	return best, bestGrip
+	return 0
 end
 
 local function setWalkSpeed(scale: number)
@@ -132,53 +104,156 @@ local function setWalkSpeed(scale: number)
 end
 
 local function clearHeld()
+	if held then
+		local root = itemRoot(held)
+		local alignPos = root and root:FindFirstChild("CarryAlignPosition") :: AlignPosition?
+		if alignPos then
+			alignPos.MaxVelocity = math.huge
+		end
+	end
 	held = nil
 	myGrip = 0
-	yawOffset = 0
-	partnerHand = nil
+	screenPoint = nil
+	partnerPoint = nil
 	setWalkSpeed(1)
 end
 
-local function requestGrab()
-	local target, grip = findTarget()
-	if not target then
+local function grab(model: Model, hitPoint: Vector3?, atScreen: Vector2?)
+	if held or grabbing then
 		return
 	end
-	local grab = remote("Carry.RequestGrab")
-	if not grab or not grab:IsA("RemoteFunction") then
+	local grip = freeGrip(model)
+	local requestGrab = remote("Carry.RequestGrab")
+	local root = itemRoot(model)
+	if grip == 0 or not root or not requestGrab or not requestGrab:IsA("RemoteFunction") then
 		return
 	end
-	local ok, reason = grab:InvokeServer(target:GetAttribute("ItemUid"), grip)
-	if ok then
-		held = target
-		myGrip = grip
-		yawOffset = 0
-		partnerHand = nil
-		local _, humanoid = character()
-		if humanoid then
-			baseWalkSpeed = humanoid.WalkSpeed
+	grabbing = true
+	local ok, reason = requestGrab:InvokeServer(model:GetAttribute("ItemUid"), grip)
+	grabbing = false
+	if not ok then
+		if reason then
+			warn(`[Carry] grab refused: {reason}`)
 		end
-	elseif reason then
-		warn(`[Carry] grab refused: {reason}`)
+		return
+	end
+	held = model
+	myGrip = grip
+	screenPoint = atScreen
+	partnerPoint = nil
+	local _, ry = root.CFrame:ToOrientation()
+	yaw = ry
+	-- Two-person items are steered by their grips; one-person items by the clicked point.
+	if model:GetAttribute("Carry") == "Two" then
+		local g = root:FindFirstChild("Grip" .. grip) :: Attachment?
+		grabLocal = if g then g.Position else Vector3.zero
+	else
+		grabLocal = if hitPoint then root.CFrame:PointToObjectSpace(hitPoint) else Vector3.zero
+	end
+	local _, humanoid = character()
+	if humanoid then
+		baseWalkSpeed = humanoid.WalkSpeed
 	end
 end
 
-local function requestDrop()
-	local drop = remote("Carry.RequestDrop")
-	if held and drop and drop:IsA("RemoteEvent") then
-		drop:FireServer(held:GetAttribute("ItemUid"))
+local function drop()
+	local requestDrop = remote("Carry.RequestDrop")
+	if held and requestDrop and requestDrop:IsA("RemoteEvent") then
+		requestDrop:FireServer(held:GetAttribute("ItemUid"))
 	end
 	clearHeld()
 end
 
-local function onGrab(_, inputState: Enum.UserInputState)
+-- DragDetector input on each furniture item (local only: RunLocally + Custom response).
+local function attachDetector(model: Model)
+	if model:FindFirstChild("MD_Drag") or not model:GetAttribute("ItemUid") then
+		return
+	end
+	local detector = Instance.new("DragDetector")
+	detector.Name = "MD_Drag"
+	detector.RunLocally = true
+	detector.ResponseStyle = Enum.DragDetectorResponseStyle.Custom
+	detector.DragStyle = Enum.DragDetectorDragStyle.TranslateViewPlane
+	detector.MaxActivationDistance = tuning.GrabRange + 6
+	detector.CursorIcon = ""
+	detector.Parent = model
+	detector.DragStart:Connect(function(_who, cursorRay: Ray, _viewFrame, hitFrame: CFrame)
+		local camera = Workspace.CurrentCamera
+		local _, _, hrp = character()
+		if not camera or not hrp then
+			return
+		end
+		local hit = hitFrame.Position
+		if (hit - hrp.Position).Magnitude > tuning.GrabRange + 4 then
+			return -- too far: you have to walk up to furniture
+		end
+		local screen = camera:WorldToViewportPoint(cursorRay.Origin + cursorRay.Direction * 20)
+		task.spawn(grab, model, hit, Vector2.new(screen.X, screen.Y))
+	end)
+	detector.DragContinue:Connect(function(_who, cursorRay: Ray)
+		local camera = Workspace.CurrentCamera
+		if held == model and camera then
+			local screen = camera:WorldToViewportPoint(cursorRay.Origin + cursorRay.Direction * 20)
+			screenPoint = Vector2.new(screen.X, screen.Y)
+		end
+	end)
+	detector.DragEnd:Connect(function()
+		if held == model then
+			drop()
+		end
+	end)
+end
+
+local function watchFurniture()
+	local function consider(inst: Instance)
+		if inst:IsA("Model") and inst:GetAttribute("ItemUid") then
+			attachDetector(inst)
+		end
+	end
+	for _, d in Workspace:GetDescendants() do
+		consider(d)
+	end
+	Workspace.DescendantAdded:Connect(consider)
+end
+
+-- Nearest grabbable item in front of the player (gamepad path).
+local function nearestItem(): Model?
+	local _, _, hrp = character()
+	if not hrp then
+		return nil
+	end
+	local params = OverlapParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { player.Character :: Instance }
+	local best: Model? = nil
+	local bestScore = math.huge
+	for _, part in Workspace:GetPartBoundsInRadius(hrp.Position, tuning.GrabRange, params) do
+		local model = part:FindFirstAncestorWhichIsA("Model")
+		if model and model:GetAttribute("ItemUid") and freeGrip(model) > 0 then
+			local root = itemRoot(model)
+			if root then
+				local offset = root.Position - hrp.Position
+				local score = offset.Magnitude - hrp.CFrame.LookVector:Dot(offset.Unit) * 3
+				if score < bestScore then
+					best, bestScore = model, score
+				end
+			end
+		end
+	end
+	return best
+end
+
+local function onPadGrab(_, inputState: Enum.UserInputState)
 	if inputState ~= Enum.UserInputState.Begin then
 		return Enum.ContextActionResult.Pass
 	end
 	if held then
-		requestDrop()
+		drop()
 	else
-		requestGrab()
+		local target = nearestItem()
+		if target then
+			task.spawn(grab, target, nil, nil)
+		end
 	end
 	return Enum.ContextActionResult.Sink
 end
@@ -187,8 +262,40 @@ local function onRotate(_, inputState: Enum.UserInputState)
 	if inputState ~= Enum.UserInputState.Begin or not held or myGrip ~= 1 then
 		return Enum.ContextActionResult.Pass
 	end
-	yawOffset = (yawOffset + math.pi / 2) % (2 * math.pi)
+	yaw += math.pi / 2
 	return Enum.ContextActionResult.Sink
+end
+
+-- World point the player is steering toward this frame: the spot on the ground under the
+-- cursor/touch, lifted to `planeY` and clamped to arm's reach. Gamepad: in front of the player.
+local function steerPoint(hrp: BasePart, planeY: number): Vector3
+	local camera = Workspace.CurrentCamera
+	local point: Vector3
+	if screenPoint and camera then
+		local ray = camera:ViewportPointToRay(screenPoint.X, screenPoint.Y)
+		local params = RaycastParams.new()
+		params.FilterType = Enum.RaycastFilterType.Exclude
+		params.FilterDescendantsInstances = { player.Character :: Instance, held :: Instance }
+		local hit = Workspace:Raycast(ray.Origin, ray.Direction * 500, params)
+		if hit then
+			point = hit.Position
+		else
+			-- nothing under the cursor (sky): use the plane at the player's feet
+			local feetY = hrp.Position.Y - 3
+			local dy = ray.Direction.Y
+			local t = if dy < -1e-3 then (feetY - ray.Origin.Y) / dy else 0
+			point = if t > 0
+				then ray.Origin + ray.Direction * t
+				else hrp.Position + hrp.CFrame.LookVector * tuning.PadHoldDistance
+		end
+	else
+		point = hrp.Position + hrp.CFrame.LookVector * tuning.PadHoldDistance
+	end
+	local flat = Vector3.new(point.X - hrp.Position.X, 0, point.Z - hrp.Position.Z)
+	if flat.Magnitude > tuning.DragReach then
+		flat = flat.Unit * tuning.DragReach
+	end
+	return Vector3.new(hrp.Position.X + flat.X, planeY, hrp.Position.Z + flat.Z)
 end
 
 -- Near a truck bed (tagged "TruckBed"), raise the target so the item's underside clears
@@ -197,7 +304,7 @@ local function liftForBed(model: Model, root: BasePart, goal: CFrame): CFrame
 	local best: BasePart? = nil
 	local bestDist = tuning.BedLiftRange
 	for _, bed in CollectionService:GetTagged("TruckBed") do
-		if bed:IsA("BasePart") and bed:IsDescendantOf(workspace) then
+		if bed:IsA("BasePart") and bed:IsDescendantOf(Workspace) then
 			local d = Vector3.new(bed.Position.X - goal.X, 0, bed.Position.Z - goal.Z).Magnitude
 			if d < bestDist then
 				best, bestDist = bed, d
@@ -214,11 +321,6 @@ local function liftForBed(model: Model, root: BasePart, goal: CFrame): CFrame
 		return goal
 	end
 	return goal + Vector3.new(0, minY - goal.Y, 0)
-end
-
--- Hand point a carrier holds their grip at.
-local function handPoint(hrp: BasePart): Vector3
-	return hrp.Position + hrp.CFrame.LookVector * 1.2 + Vector3.yAxis * tuning.HoldHeight
 end
 
 -- Item CFrame that puts the midpoint between its two grips at `mid`, with the grip axis
@@ -249,13 +351,13 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 	local carry = model:GetAttribute("Carry")
 	local partnerId = model:GetAttribute("CarrierB") or 0
 	local onDolly = model:GetAttribute("Dolly") == true
-	local size = model:GetExtentsSize()
-	local _, yaw = hrp.CFrame:ToOrientation()
+	local holdY = hrp.Position.Y + tuning.HoldHeight
 
-	if carry == "Two" and partnerId ~= 0 and partnerHand then
+	if carry == "Two" and partnerId ~= 0 and partnerPoint then
 		setWalkSpeed(tuning.TwoCarrySpeedScale)
-		local mine = handPoint(hrp)
-		local target = twoHandedCFrame(root, (mine + partnerHand) / 2, partnerHand - mine)
+		alignPos.MaxVelocity = math.huge
+		local mine = steerPoint(hrp, holdY)
+		local target = twoHandedCFrame(root, (mine + partnerPoint) / 2, partnerPoint - mine)
 		if target then
 			target = liftForBed(model, root, target)
 			alignPos.Position = target.Position
@@ -264,18 +366,21 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 		end
 	end
 
+	local rotation = CFrame.Angles(0, yaw, 0)
 	local goal: CFrame
 	if carry == "Two" and not onDolly then
-		-- Alone on a two-person item: drag it along the floor, slowly.
+		-- Alone on a two-person item: haul it along the floor, slowly.
 		setWalkSpeed(tuning.DragSpeedScale)
-		local reach = hrp.Position + hrp.CFrame.LookVector * (size.Z / 2 + tuning.HoldDistance)
-		goal = CFrame.new(reach.X, root.Position.Y, reach.Z) * CFrame.Angles(0, yaw + yawOffset, 0)
+		alignPos.MaxVelocity = tuning.SoloHeavyMaxVelocity
+		local grabWorldY = (root.CFrame * CFrame.new(grabLocal)).Y
+		local point = steerPoint(hrp, grabWorldY)
+		goal = CFrame.new(point) * rotation * CFrame.new(-grabLocal)
+		goal = CFrame.new(goal.X, root.Position.Y, goal.Z) * rotation
 	else
 		setWalkSpeed(if onDolly then tuning.DollySpeedScale else 1)
-		local ahead = size.Z / 2 + tuning.HoldDistance
-		local lift = if onDolly then -1.5 else tuning.HoldHeight
-		goal = CFrame.new(hrp.Position + hrp.CFrame.LookVector * ahead + Vector3.yAxis * lift)
-			* CFrame.Angles(0, yaw + yawOffset, 0)
+		alignPos.MaxVelocity = math.huge
+		local planeY = if onDolly then hrp.Position.Y - 1.5 else holdY
+		goal = CFrame.new(steerPoint(hrp, planeY)) * rotation * CFrame.new(-grabLocal)
 		if not onDolly then
 			goal = liftForBed(model, root, goal)
 		end
@@ -292,7 +397,10 @@ local function stepSecond(model: Model, hrp: BasePart, now: number)
 	lastSecondGripSend = now
 	local send = remote("Carry.SecondGrip")
 	if send and send:IsA("UnreliableRemoteEvent") then
-		send:FireServer(model:GetAttribute("ItemUid"), handPoint(hrp))
+		send:FireServer(
+			model:GetAttribute("ItemUid"),
+			steerPoint(hrp, hrp.Position.Y + tuning.HoldHeight)
+		)
 	end
 end
 
@@ -307,12 +415,11 @@ local function step()
 		clearHeld()
 		return
 	end
-	local userId = player.UserId
 	-- The server is the source of truth: follow CarrierA/CarrierB, including lead hand-over.
-	if model:GetAttribute("CarrierA") == userId then
+	if model:GetAttribute("CarrierA") == player.UserId then
 		myGrip = 1
 		stepLead(model, root, hrp)
-	elseif model:GetAttribute("CarrierB") == userId then
+	elseif model:GetAttribute("CarrierB") == player.UserId then
 		myGrip = 2
 		stepSecond(model, hrp, os.clock())
 	else
@@ -320,9 +427,9 @@ local function step()
 	end
 end
 
-local function onRelay(itemUid: string, _userId: number, handPos: Vector3)
+local function onRelay(itemUid: string, _userId: number, point: Vector3)
 	if held and held:GetAttribute("ItemUid") == itemUid and myGrip == 1 then
-		partnerHand = handPos
+		partnerPoint = point
 	end
 end
 
@@ -335,8 +442,8 @@ function CarryController.Start()
 		relay.OnClientEvent:Connect(onRelay)
 	end
 
-	ContextActionService:BindAction("MD_Grab", onGrab, true, Enum.KeyCode.E, Enum.KeyCode.ButtonX)
-	ContextActionService:SetTitle("MD_Grab", "Grab")
+	watchFurniture()
+	ContextActionService:BindAction("MD_PadGrab", onPadGrab, false, Enum.KeyCode.ButtonX)
 	ContextActionService:BindAction(
 		"MD_Rotate",
 		onRotate,
