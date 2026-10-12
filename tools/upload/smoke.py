@@ -57,7 +57,7 @@ def multipart(fields, image=None):
     for name, value in fields.items():
         parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode())
     if image:
-        parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="fileContent"; filename="H0_UploadProbe.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + image.read_bytes() + b'\r\n')
+        parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="fileContent"; filename="upload.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + image.read_bytes() + b'\r\n')
     parts.append(f'--{boundary}--\r\n'.encode())
     return b''.join(parts), 'multipart/form-data; boundary=' + boundary
 
@@ -82,13 +82,23 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--upload-image', action='store_true')
     parser.add_argument('--check-products', action='store_true')
+    parser.add_argument('--image-file', type=Path)
+    parser.add_argument('--asset-name', default='H0_UploadProbe')
+    parser.add_argument('--report', default='tools/upload/smoke-results.json')
     args = parser.parse_args()
     env = read_env()
     for name, expected in [('ROBLOX_UNIVERSE_ID', UNIVERSE), ('ROBLOX_PLACE_ID', PLACE)]:
         if env.get(name, expected) != expected:
             raise SystemExit('Configured target does not match Moving Day; stopped.')
     key = env.get('ROBLOX_OPEN_CLOUD_API_KEY') or env.get('ROBLOX_API_KEY') or env.get('OPEN_CLOUD_API_KEY')
-    fixture = make_fixture()
+    if not re.fullmatch(r'[A-Za-z][A-Za-z0-9_]*', args.asset_name):
+        parser.error('Use a simple registry asset name')
+    fixture = (ROOT / args.image_file).resolve() if args.image_file else make_fixture()
+    if not fixture.is_relative_to(ROOT) or not fixture.read_bytes().startswith(b'\x89PNG\r\n\x1a\n'):
+        parser.error('Image must be a PNG inside this repository')
+    report_path = (ROOT / args.report).resolve()
+    if not report_path.is_relative_to(ROOT / 'tools/upload'):
+        parser.error('Report must be inside tools/upload')
     product = dict(name='Moving Day H0 Probe', description='Local dry-run only; never submitted.', isForSale=False, price=19, isRegionalPricingEnabled=True, isManagedPricingEnabled=True)
     assert isinstance(product['name'], str) and 0 < len(product['name']) <= 50
     assert type(product['price']) is int and product['price'] > 0
@@ -112,8 +122,8 @@ def main():
         else:
             registry_path = ROOT / 'assets/registry.json'
             registry = json.loads(registry_path.read_text(encoding='utf-8'))
-            existing = next((a for a in registry if a['name'] == 'H0_UploadProbe'), None)
-            journal_path = ROOT / 'tools/upload/image-operation.json'
+            existing = next((a for a in registry if a['name'] == args.asset_name), None)
+            journal_path = ROOT / 'tools/upload' / ('image-operation.json' if args.asset_name == 'H0_UploadProbe' else args.asset_name + '-operation.json')
             if existing:
                 report['image'] = 'ALREADY_REGISTERED'
                 report['assetId'] = existing['assetId']
@@ -125,7 +135,7 @@ def main():
                 else:
                     if not operation:
                         creator = {'userId': user} if user else {'groupId': group}
-                        payload = dict(assetType='Image', displayName='H0_UploadProbe', description='Moving Day upload pipeline color test', creationContext={'creator': creator})
+                        payload = dict(assetType='Image', displayName=args.asset_name, description='Moving Day shared image asset', creationContext={'creator': creator})
                         data, kind = multipart({'request': json.dumps(payload)}, fixture)
                         write_json(journal_path, {'status': 'SUBMITTING'})
                         status, result = request('/assets/v1/assets', key, data, kind)
@@ -145,7 +155,7 @@ def main():
                                 if asset_id.isdigit() and int(asset_id) > 0:
                                     # Re-read to preserve assets ClaudeB registered during polling.
                                     registry = json.loads(registry_path.read_text(encoding='utf-8'))
-                                    registry.append(dict(name='H0_UploadProbe', type='Image', assetId=asset_id, uploadedBy='Codex', file='assets/images/H0_UploadProbe.png'))
+                                    registry.append(dict(name=args.asset_name, type='Image', assetId=asset_id, uploadedBy='Codex', file=fixture.relative_to(ROOT).as_posix()))
                                     write_json(registry_path, registry)
                                     runpy.run_path(str(ROOT / 'tools/generate_asset_ids.py'), run_name='__main__')
                                     report['image'] = 'UPLOAD_PASS'
@@ -154,7 +164,7 @@ def main():
                                     report['image'] = 'OPERATION_FAILED'
                                 break
                             time.sleep(2)
-    write_json(ROOT / 'tools/upload/smoke-results.json', report)
+    write_json(report_path, report)
     print(json.dumps(report, indent=2))
 
 if __name__ == '__main__':

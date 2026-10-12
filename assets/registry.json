@@ -5,5 +5,19 @@
     "assetId": "136901260940248",
     "uploadedBy": "Codex",
     "file": "assets/images/H0_UploadProbe.png"
+  },
+  {
+    "name": "REF_Cube",
+    "type": "Model",
+    "assetId": "130690847988883",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/REF_Cube.fbx"
+  },
+  {
+    "name": "PAL_Palette",
+    "type": "Image",
+    "assetId": "76201554143630",
+    "uploadedBy": "Codex",
+    "file": "assets/blend/palette.png"
   }
 ]
