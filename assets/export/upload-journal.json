@@ -4,5 +4,71 @@
     "operation": "operations/6f0f7fe2-768a-4aff-85cf-857dc4216c61",
     "assetId": "130690847988883",
     "file": "assets/export/REF_Cube.fbx"
+  },
+  "FUR_Couch": {
+    "status": "REGISTERED",
+    "operation": "operations/12b10cdc-ff1d-472c-90ff-0d063beb8e20",
+    "assetId": "117885384302333",
+    "file": "assets/export/FUR_Couch.fbx"
+  },
+  "FUR_CardboardBox": {
+    "status": "REGISTERED",
+    "operation": "operations/15e24fcf-f7d4-4726-81a3-7a9cd50d5dc3",
+    "assetId": "138491826737911",
+    "file": "assets/export/FUR_CardboardBox.fbx"
+  },
+  "FUR_Chair": {
+    "status": "REGISTERED",
+    "operation": "operations/75de9296-39ab-44e7-8cec-2c1a547edbce",
+    "assetId": "87164841731172",
+    "file": "assets/export/FUR_Chair.fbx"
+  },
+  "FUR_Lamp": {
+    "status": "REGISTERED",
+    "operation": "operations/c1e5f6b1-1e85-4b19-95a2-746eca594068",
+    "assetId": "109935049563599",
+    "file": "assets/export/FUR_Lamp.fbx"
+  },
+  "FUR_Vase": {
+    "status": "REGISTERED",
+    "operation": "operations/58a297e6-b310-4e25-b9b8-eb5772dc1a04",
+    "assetId": "105037063887993",
+    "file": "assets/export/FUR_Vase.fbx"
+  },
+  "FUR_TV": {
+    "status": "REGISTERED",
+    "operation": "operations/ec9cf63d-e20d-4f6a-8931-9325f9829126",
+    "assetId": "84936548740594",
+    "file": "assets/export/FUR_TV.fbx"
+  },
+  "FUR_Mattress": {
+    "status": "REGISTERED",
+    "operation": "operations/24b937d4-c8a5-4ad2-8734-fe00f1fdc5f9",
+    "assetId": "79311550224813",
+    "file": "assets/export/FUR_Mattress.fbx"
+  },
+  "FUR_Fridge": {
+    "status": "REGISTERED",
+    "operation": "operations/1b39fec9-b95c-4d9d-a45f-13515e5bb60e",
+    "assetId": "133735701322271",
+    "file": "assets/export/FUR_Fridge.fbx"
+  },
+  "FUR_Vase_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/d729e4c2-6ed4-40a8-bcfe-97d8984b59ca",
+    "assetId": "95834630886815",
+    "file": "assets/export/FUR_Vase_Frac.fbx"
+  },
+  "FUR_Lamp_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/e3cb2e98-4a4d-434f-9b14-0f7cb122dfd5",
+    "assetId": "118296352663490",
+    "file": "assets/export/FUR_Lamp_Frac.fbx"
+  },
+  "FUR_TV_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/2b95d4f1-cc9a-457a-9381-1bd84f1a1774",
+    "assetId": "139537262344758",
+    "file": "assets/export/FUR_TV_Frac.fbx"
   }
 }

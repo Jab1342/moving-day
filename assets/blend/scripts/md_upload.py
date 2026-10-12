@@ -28,8 +28,9 @@ JOURNAL = ROOT / "assets" / "export" / "upload-journal.json"
 
 
 def _read_env():
-    path = ROOT / ".env"
-    if not path.is_file():
+    # A worktree has no .env of its own; fall back to the shared checkout's ignored copy.
+    path = next((p for p in (ROOT / ".env", ROOT.parent / "Moving Day" / ".env") if p.is_file()), None)
+    if path is None:
         return {}
     values = {}
     for line in path.read_text(encoding="utf-8-sig").splitlines():

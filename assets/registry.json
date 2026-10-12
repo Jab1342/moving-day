@@ -19,5 +19,82 @@
     "assetId": "76201554143630",
     "uploadedBy": "Codex",
     "file": "assets/blend/palette.png"
+  },
+  {
+    "name": "FUR_Couch",
+    "type": "Model",
+    "assetId": "117885384302333",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Couch.fbx"
+  },
+  {
+    "name": "FUR_CardboardBox",
+    "type": "Model",
+    "assetId": "138491826737911",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_CardboardBox.fbx"
+  },
+  {
+    "name": "FUR_Chair",
+    "type": "Model",
+    "assetId": "87164841731172",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Chair.fbx"
+  },
+  {
+    "name": "FUR_Lamp",
+    "type": "Model",
+    "assetId": "109935049563599",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Lamp.fbx"
+  },
+  {
+    "name": "FUR_Vase",
+    "type": "Model",
+    "assetId": "105037063887993",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Vase.fbx"
+  },
+  {
+    "name": "FUR_TV",
+    "type": "Model",
+    "assetId": "84936548740594",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_TV.fbx"
+  },
+  {
+    "name": "FUR_Mattress",
+    "type": "Model",
+    "assetId": "79311550224813",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Mattress.fbx"
+  },
+  {
+    "name": "FUR_Fridge",
+    "type": "Model",
+    "assetId": "133735701322271",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Fridge.fbx"
+  },
+  {
+    "name": "FUR_Vase_Frac",
+    "type": "Model",
+    "assetId": "95834630886815",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Vase_Frac.fbx"
+  },
+  {
+    "name": "FUR_Lamp_Frac",
+    "type": "Model",
+    "assetId": "118296352663490",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Lamp_Frac.fbx"
+  },
+  {
+    "name": "FUR_TV_Frac",
+    "type": "Model",
+    "assetId": "139537262344758",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_TV_Frac.fbx"
   }
 ]
