@@ -6,6 +6,8 @@ export type JobPhase = "Loading" | "Driving" | "Unloading" | "Payout"
 export type CrewAction = "Join" | "Leave" | "Start" | "Kick"
 export type StrapAction = "Strap" | "Wrap"
 export type ItemEventKind = "Damaged" | "Broken" | "Loaded" | "Delivered"
+-- Required on Damaged/Broken; capture before destroying the server item.
+export type ItemEventInfo = { itemId: string, cframe: CFrame, velocity: Vector3 }
 export type SettingKey = "assist"
 export type ItemDef = {
 	id: string,
@@ -42,6 +44,8 @@ export type PayoutReport = {
 	timeBonus: number,
 	total: number,
 	perPlayer: number,
+	-- floor(total / crewSize); +1 remainder goes to earliest-joined recipients.
+	shares: { [string]: number }, -- tostring(userId) -> awarded cash
 	xpEach: number,
 	stars: number,
 	nextJob: { tier: Tier, lotId: number },
@@ -60,7 +64,7 @@ export type Profile = {
 	firstJobDone: boolean,
 	purchases: { [string]: boolean },
 }
--- PROPOSED H0 definitions: referenced but not specified in the PDF. ClaudeA must review.
+-- H0 definitions accepted by ClaudeA in DevBoard review 1791846685_ClaudeA.
 export type PublicProfile = {
 	cash: number,
 	xp: number,
@@ -84,6 +88,8 @@ export type JobResult = {
 	elapsedSeconds: number,
 	assist: boolean,
 	lines: { PayoutLine },
+	-- Eligible players present, ordered by crew join time; length must equal crewSize.
+	memberUserIds: { number },
 	nextJob: { tier: Tier, lotId: number },
 }
 export type RoomPlacement = {

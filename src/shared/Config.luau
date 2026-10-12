@@ -45,4 +45,13 @@ return table.freeze({
 	StrapSlotsPerTier = 2,
 	InsuranceMinimumLoss = 100,
 	CrewBoostSeconds = 1800,
+	Truck = table.freeze({
+		MaxSpeed = 60,
+		ReverseSpeed = 22,
+		MaxSteerAngle = 32,
+		HighSpeedSteerAngle = 12,
+		DriveTorque = 30000,
+		BrakeTorque = 60000,
+		WheelRadius = 1.5,
+	}),
 })

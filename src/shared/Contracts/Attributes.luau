@@ -12,6 +12,7 @@ return {
 		BlameUserId = { type = "number", owner = "DamageService" },
 		Strapped = { type = "boolean", owner = "ItemService", default = false },
 		Wrapped = { type = "boolean", owner = "ItemService", default = false },
+		Dolly = { type = "boolean", owner = "ItemService", default = false },
 	},
 	Truck = {
 		CrewId = { type = "string", owner = "TruckService" },

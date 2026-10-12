@@ -20,7 +20,7 @@ ITEMS = [
 ]
 
 if __name__ == "__main__":
-    lines = ['--!strict', '-- STUB(Codex): massScale = 1 pending ClaudeA feel tuning; optional sounds unset.', '-- STUB(ClaudeA): confirm case-sensitive model names on PR #1; IDs match graybox board.', 'return {']
+    lines = ['--!strict', '-- STUB(Codex): massScale = 1 pending ClaudeA feel tuning; optional sounds unset.', '-- IDs and model names confirmed by ClaudeA on DevBoard 1791846961_ClaudeA.', 'return {']
     for model_id, name, carry, value, fragility in ITEMS:
         item_id = {'CardboardBox': 'box', 'PottedPlant': 'plant', 'GrandfatherClock': 'clock'}.get(model_id, model_id.lower())
         lines.extend([

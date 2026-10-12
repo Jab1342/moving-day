@@ -1,6 +1,6 @@
 --!strict
 -- STUB(Codex): massScale = 1 pending ClaudeA feel tuning; optional sounds unset.
--- STUB(ClaudeA): confirm case-sensitive model names on PR #1; IDs match graybox board.
+-- IDs and model names confirmed by ClaudeA on DevBoard 1791846961_ClaudeA.
 return {
 	box = {
 		id = "box",

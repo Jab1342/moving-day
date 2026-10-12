@@ -61,7 +61,13 @@ return {
 	["Job.ItemEvent"] = {
 		className = "RemoteEvent",
 		direction = "ServerToCrew",
-		args = "itemUid: string, kind: ItemEventKind, hp: number",
+		args = "itemUid: string, kind: ItemEventKind, hp: number, info: ItemEventInfo?",
+		notes = "info required on Damaged and Broken; snapshot before destroying item",
+	},
+	["Fx.Ragdoll"] = {
+		className = "RemoteEvent",
+		direction = "ServerToClient",
+		args = "duration: number, impulse: Vector3",
 	},
 	["Job.Payout"] = {
 		className = "RemoteEvent",

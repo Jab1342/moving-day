@@ -4,6 +4,7 @@ local upgrades = require("../src/shared/UpgradeDefs")
 local remotes = require("../src/shared/Contracts/Remotes")
 local enums = require("../src/shared/Contracts/Enums")
 local attributes = require("../src/shared/Contracts/Attributes")
+local carry = require("../src/shared/Contracts/Carry")
 local count = 0
 local models = {}
 for id, def in items do
@@ -36,7 +37,18 @@ for path, def in remotes do
 		)
 	end
 end
-assert(count == 15 and functions == 4, "15 remotes and 4 functions")
+assert(count == 16 and functions == 4, "16 remotes and 4 functions after ClaudeA review")
+assert(remotes["Fx.Ragdoll"].direction == "ServerToClient", "Ragdoll is server-driven")
+assert(string.find(remotes["Job.ItemEvent"].args, "ItemEventInfo", 1, true), "VFX snapshot payload")
+assert(attributes.Furniture.Dolly.owner == "ItemService", "Dolly is server-owned")
+assert(
+	carry.Attachment == "CarryAttachment" and carry.PositionMode == "OneAttachment",
+	"Carry rig contract"
+)
+assert(
+	config.Truck.WheelRadius == 1.5 and config.Truck.MaxSpeed == 60,
+	"Truck tuning matches review"
+)
 assert(
 	remotes["Carry.SecondGrip"].className == "UnreliableRemoteEvent",
 	"Grip uses unreliable transport"
