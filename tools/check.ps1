@@ -9,6 +9,8 @@ try {
     if ($LASTEXITCODE) { throw 'Selene failed' }
     & lune run tests/contracts
     if ($LASTEXITCODE) { throw 'Lune tests failed' }
+    & lune run tests/job-economy
+    if ($LASTEXITCODE) { throw 'Job/economy tests failed' }
     & rojo build -o build/moving-day.rbxlx
     if ($LASTEXITCODE) { throw 'Rojo build failed' }
     & rojo build fallback.project.json -o build/fallback.rbxlx
