@@ -1,0 +1,584 @@
+{
+ "size": 512,
+ "grid": 8,
+ "cell_px": 64,
+ "note": "row 0 = top of image. uv = centre of the swatch (Blender UV, origin bottom-left).",
+ "swatches": {
+  "white": {
+   "hex": "#F4F1EA",
+   "row": 0,
+   "col": 0,
+   "uv": [
+    0.0625,
+    0.9375
+   ]
+  },
+  "offwhite": {
+   "hex": "#E6E0D4",
+   "row": 0,
+   "col": 1,
+   "uv": [
+    0.1875,
+    0.9375
+   ]
+  },
+  "grey_light": {
+   "hex": "#C8C8C8",
+   "row": 0,
+   "col": 2,
+   "uv": [
+    0.3125,
+    0.9375
+   ]
+  },
+  "grey_mid": {
+   "hex": "#9A9A9A",
+   "row": 0,
+   "col": 3,
+   "uv": [
+    0.4375,
+    0.9375
+   ]
+  },
+  "grey_dark": {
+   "hex": "#5E5E5E",
+   "row": 0,
+   "col": 4,
+   "uv": [
+    0.5625,
+    0.9375
+   ]
+  },
+  "charcoal": {
+   "hex": "#3A3A3A",
+   "row": 0,
+   "col": 5,
+   "uv": [
+    0.6875,
+    0.9375
+   ]
+  },
+  "nearblack": {
+   "hex": "#1E1E1E",
+   "row": 0,
+   "col": 6,
+   "uv": [
+    0.8125,
+    0.9375
+   ]
+  },
+  "black": {
+   "hex": "#0F0F12",
+   "row": 0,
+   "col": 7,
+   "uv": [
+    0.9375,
+    0.9375
+   ]
+  },
+  "wood_pale": {
+   "hex": "#E8C99A",
+   "row": 1,
+   "col": 0,
+   "uv": [
+    0.0625,
+    0.8125
+   ]
+  },
+  "wood_birch": {
+   "hex": "#D9B47E",
+   "row": 1,
+   "col": 1,
+   "uv": [
+    0.1875,
+    0.8125
+   ]
+  },
+  "wood_oak": {
+   "hex": "#C08A50",
+   "row": 1,
+   "col": 2,
+   "uv": [
+    0.3125,
+    0.8125
+   ]
+  },
+  "wood_honey": {
+   "hex": "#B97A3C",
+   "row": 1,
+   "col": 3,
+   "uv": [
+    0.4375,
+    0.8125
+   ]
+  },
+  "wood_walnut": {
+   "hex": "#8A5A35",
+   "row": 1,
+   "col": 4,
+   "uv": [
+    0.5625,
+    0.8125
+   ]
+  },
+  "wood_darkwalnut": {
+   "hex": "#5E3B22",
+   "row": 1,
+   "col": 5,
+   "uv": [
+    0.6875,
+    0.8125
+   ]
+  },
+  "wood_mahogany": {
+   "hex": "#6E2E22",
+   "row": 1,
+   "col": 6,
+   "uv": [
+    0.8125,
+    0.8125
+   ]
+  },
+  "wood_ebony": {
+   "hex": "#2E1E18",
+   "row": 1,
+   "col": 7,
+   "uv": [
+    0.9375,
+    0.8125
+   ]
+  },
+  "fab_red": {
+   "hex": "#C8423A",
+   "row": 2,
+   "col": 0,
+   "uv": [
+    0.0625,
+    0.6875
+   ]
+  },
+  "fab_brick": {
+   "hex": "#A63A2E",
+   "row": 2,
+   "col": 1,
+   "uv": [
+    0.1875,
+    0.6875
+   ]
+  },
+  "fab_orange": {
+   "hex": "#E57A2E",
+   "row": 2,
+   "col": 2,
+   "uv": [
+    0.3125,
+    0.6875
+   ]
+  },
+  "fab_mustard": {
+   "hex": "#E0B13A",
+   "row": 2,
+   "col": 3,
+   "uv": [
+    0.4375,
+    0.6875
+   ]
+  },
+  "fab_cream": {
+   "hex": "#EBDDB8",
+   "row": 2,
+   "col": 4,
+   "uv": [
+    0.5625,
+    0.6875
+   ]
+  },
+  "fab_tan": {
+   "hex": "#C9A77A",
+   "row": 2,
+   "col": 5,
+   "uv": [
+    0.6875,
+    0.6875
+   ]
+  },
+  "fab_pink": {
+   "hex": "#E88AA0",
+   "row": 2,
+   "col": 6,
+   "uv": [
+    0.8125,
+    0.6875
+   ]
+  },
+  "fab_plum": {
+   "hex": "#8C4A7A",
+   "row": 2,
+   "col": 7,
+   "uv": [
+    0.9375,
+    0.6875
+   ]
+  },
+  "fab_navy": {
+   "hex": "#2F4A7A",
+   "row": 3,
+   "col": 0,
+   "uv": [
+    0.0625,
+    0.5625
+   ]
+  },
+  "fab_blue": {
+   "hex": "#3F7FD0",
+   "row": 3,
+   "col": 1,
+   "uv": [
+    0.1875,
+    0.5625
+   ]
+  },
+  "fab_sky": {
+   "hex": "#7FB8E8",
+   "row": 3,
+   "col": 2,
+   "uv": [
+    0.3125,
+    0.5625
+   ]
+  },
+  "fab_teal": {
+   "hex": "#2E9C9A",
+   "row": 3,
+   "col": 3,
+   "uv": [
+    0.4375,
+    0.5625
+   ]
+  },
+  "fab_mint": {
+   "hex": "#9ED9C0",
+   "row": 3,
+   "col": 4,
+   "uv": [
+    0.5625,
+    0.5625
+   ]
+  },
+  "fab_sage": {
+   "hex": "#8FAE7E",
+   "row": 3,
+   "col": 5,
+   "uv": [
+    0.6875,
+    0.5625
+   ]
+  },
+  "fab_forest": {
+   "hex": "#3E7A46",
+   "row": 3,
+   "col": 6,
+   "uv": [
+    0.8125,
+    0.5625
+   ]
+  },
+  "fab_olive": {
+   "hex": "#7A7A3A",
+   "row": 3,
+   "col": 7,
+   "uv": [
+    0.9375,
+    0.5625
+   ]
+  },
+  "metal_steel": {
+   "hex": "#BFC6CC",
+   "row": 4,
+   "col": 0,
+   "uv": [
+    0.0625,
+    0.4375
+   ]
+  },
+  "metal_chrome": {
+   "hex": "#DDE3E8",
+   "row": 4,
+   "col": 1,
+   "uv": [
+    0.1875,
+    0.4375
+   ]
+  },
+  "metal_brushed": {
+   "hex": "#9AA3AA",
+   "row": 4,
+   "col": 2,
+   "uv": [
+    0.3125,
+    0.4375
+   ]
+  },
+  "metal_gunmetal": {
+   "hex": "#4C545C",
+   "row": 4,
+   "col": 3,
+   "uv": [
+    0.4375,
+    0.4375
+   ]
+  },
+  "metal_brass": {
+   "hex": "#C9A44A",
+   "row": 4,
+   "col": 4,
+   "uv": [
+    0.5625,
+    0.4375
+   ]
+  },
+  "metal_copper": {
+   "hex": "#B8703E",
+   "row": 4,
+   "col": 5,
+   "uv": [
+    0.6875,
+    0.4375
+   ]
+  },
+  "appliance_white": {
+   "hex": "#F2F4F5",
+   "row": 4,
+   "col": 6,
+   "uv": [
+    0.8125,
+    0.4375
+   ]
+  },
+  "rubber": {
+   "hex": "#2A2A2A",
+   "row": 4,
+   "col": 7,
+   "uv": [
+    0.9375,
+    0.4375
+   ]
+  },
+  "glass": {
+   "hex": "#A8D8EA",
+   "row": 5,
+   "col": 0,
+   "uv": [
+    0.0625,
+    0.3125
+   ]
+  },
+  "mirror": {
+   "hex": "#D6E8F0",
+   "row": 5,
+   "col": 1,
+   "uv": [
+    0.1875,
+    0.3125
+   ]
+  },
+  "screen_off": {
+   "hex": "#1C2430",
+   "row": 5,
+   "col": 2,
+   "uv": [
+    0.3125,
+    0.3125
+   ]
+  },
+  "screen_glow": {
+   "hex": "#4FA3E0",
+   "row": 5,
+   "col": 3,
+   "uv": [
+    0.4375,
+    0.3125
+   ]
+  },
+  "water": {
+   "hex": "#3FA9D6",
+   "row": 5,
+   "col": 4,
+   "uv": [
+    0.5625,
+    0.3125
+   ]
+  },
+  "water_deep": {
+   "hex": "#1F6FA8",
+   "row": 5,
+   "col": 5,
+   "uv": [
+    0.6875,
+    0.3125
+   ]
+  },
+  "sand": {
+   "hex": "#E8D49A",
+   "row": 5,
+   "col": 6,
+   "uv": [
+    0.8125,
+    0.3125
+   ]
+  },
+  "bulb_glow": {
+   "hex": "#FFE38A",
+   "row": 5,
+   "col": 7,
+   "uv": [
+    0.9375,
+    0.3125
+   ]
+  },
+  "leaf": {
+   "hex": "#5DBB4A",
+   "row": 6,
+   "col": 0,
+   "uv": [
+    0.0625,
+    0.1875
+   ]
+  },
+  "leaf_dark": {
+   "hex": "#3C8C3A",
+   "row": 6,
+   "col": 1,
+   "uv": [
+    0.1875,
+    0.1875
+   ]
+  },
+  "terracotta": {
+   "hex": "#C8673E",
+   "row": 6,
+   "col": 2,
+   "uv": [
+    0.3125,
+    0.1875
+   ]
+  },
+  "soil": {
+   "hex": "#5A3B26",
+   "row": 6,
+   "col": 3,
+   "uv": [
+    0.4375,
+    0.1875
+   ]
+  },
+  "cardboard": {
+   "hex": "#C9A06A",
+   "row": 6,
+   "col": 4,
+   "uv": [
+    0.5625,
+    0.1875
+   ]
+  },
+  "cardboard_dark": {
+   "hex": "#A57E4C",
+   "row": 6,
+   "col": 5,
+   "uv": [
+    0.6875,
+    0.1875
+   ]
+  },
+  "tape": {
+   "hex": "#D8C08A",
+   "row": 6,
+   "col": 6,
+   "uv": [
+    0.8125,
+    0.1875
+   ]
+  },
+  "paper": {
+   "hex": "#F3EBD8",
+   "row": 6,
+   "col": 7,
+   "uv": [
+    0.9375,
+    0.1875
+   ]
+  },
+  "truck_red": {
+   "hex": "#D63A2F",
+   "row": 7,
+   "col": 0,
+   "uv": [
+    0.0625,
+    0.0625
+   ]
+  },
+  "truck_yellow": {
+   "hex": "#F2C230",
+   "row": 7,
+   "col": 1,
+   "uv": [
+    0.1875,
+    0.0625
+   ]
+  },
+  "truck_blue": {
+   "hex": "#2F6FD6",
+   "row": 7,
+   "col": 2,
+   "uv": [
+    0.3125,
+    0.0625
+   ]
+  },
+  "truck_white": {
+   "hex": "#EDEDED",
+   "row": 7,
+   "col": 3,
+   "uv": [
+    0.4375,
+    0.0625
+   ]
+  },
+  "tire": {
+   "hex": "#222222",
+   "row": 7,
+   "col": 4,
+   "uv": [
+    0.5625,
+    0.0625
+   ]
+  },
+  "headlight": {
+   "hex": "#FFF4C8",
+   "row": 7,
+   "col": 5,
+   "uv": [
+    0.6875,
+    0.0625
+   ]
+  },
+  "taillight": {
+   "hex": "#E0302A",
+   "row": 7,
+   "col": 6,
+   "uv": [
+    0.8125,
+    0.0625
+   ]
+  },
+  "hazard_orange": {
+   "hex": "#FF8C1A",
+   "row": 7,
+   "col": 7,
+   "uv": [
+    0.9375,
+    0.0625
+   ]
+  }
+ }
+}
