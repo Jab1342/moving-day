@@ -19,6 +19,10 @@ try {
     if ($LASTEXITCODE) { throw 'Item service tests failed' }
     & lune run tests/profile-data
     if ($LASTEXITCODE) { throw 'Profile data tests failed' }
+    & lune run tests/crews
+    if ($LASTEXITCODE) { throw 'Crew tests failed' }
+    & lune run tests/jobs
+    if ($LASTEXITCODE) { throw 'Job lifecycle tests failed' }
     & lune run tests/upgrades
     if ($LASTEXITCODE) { throw 'Upgrade tests failed' }
     & lune run tests/pings

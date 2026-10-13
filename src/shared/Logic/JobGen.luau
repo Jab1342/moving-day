@@ -48,6 +48,11 @@ function JobGen.generate(seed: number, tier: string)
 	local groundRooms = math.ceil((count - 1) / 2)
 	while #rooms < count do
 		local desiredFloor = if tier == "Starter" or #rooms <= groundRooms then 0 else 1
+		local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
+		for _, room in rooms do
+			minX, maxX = math.min(minX, room.gridX), math.max(maxX, room.gridX)
+			minZ, maxZ = math.min(minZ, room.gridZ), math.max(maxZ, room.gridZ)
+		end
 		local frontier, seen = {}, {}
 		for _, room in rooms do
 			for floor = room.floor, room.floor + RoomDefs[room.template].floors - 1 do
@@ -59,6 +64,8 @@ function JobGen.generate(seed: number, tier: string)
 						and not occupied[key]
 						and not seen[key]
 						and (floor == 0 or occupied[cellKey(x, z, 0)])
+						and math.max(maxX, x) - math.min(minX, x) < Config.RoomGridWidth
+						and math.max(maxZ, z) - math.min(minZ, z) < Config.RoomGridWidth
 					then
 						seen[key] = true
 						table.insert(frontier, { x, z, floor })
@@ -73,9 +80,12 @@ function JobGen.generate(seed: number, tier: string)
 	-- Replace the lowest-capacity ordinary room until the whole manifest fits.
 	-- Footprints/doors stay identical, so this preserves the connected layout.
 	local richest = ordinary[1]
+	local function score(def)
+		return #def.small * (if tier == "Starter" then Config.ItemCount.Starter else 1) + #def.large
+	end
 	for _, name in ordinary do
 		local a, b = RoomDefs[name], RoomDefs[richest]
-		if #a.small + #a.large > #b.small + #b.large then
+		if score(a) > score(b) then
 			richest = name
 		end
 	end
@@ -86,11 +96,15 @@ function JobGen.generate(seed: number, tier: string)
 			local size = #def.small + #def.large
 			capacity += size
 			largeCount += #def.large
-			if def.floors == 1 and size < lowest then
-				poorest, lowest = index, size
+			if def.floors == 1 and score(def) < lowest then
+				poorest, lowest = index, score(def)
 			end
 		end
-		if capacity >= Config.ItemCount[tier] and largeCount > 0 then
+		if
+			capacity >= Config.ItemCount[tier]
+			and largeCount > 0
+			and (tier ~= "Starter" or capacity - largeCount >= Config.ItemCount.Starter - 1)
+		then
 			break
 		end
 		assert(
