@@ -586,16 +586,50 @@ function CarryController.Start()
 
 	watchFurniture()
 	ContextActionService:BindAction("MD_PadGrab", onPadGrab, false, Enum.KeyCode.ButtonX)
-	ContextActionService:BindAction(
-		"MD_Rotate",
-		onRotate,
-		true,
-		Enum.KeyCode.R,
-		Enum.KeyCode.ButtonY
-	)
-	ContextActionService:SetTitle("MD_Rotate", "Rotate")
-	ContextActionService:BindAction("MD_Strap", onStrap, true, Enum.KeyCode.F, Enum.KeyCode.ButtonB)
-	ContextActionService:SetTitle("MD_Strap", "Strap")
+	-- Rotate and Strap only exist when they can do something, so touch screens stay clean.
+	local rotateBound, strapBound, strapTitle = false, false, ""
+	local acc = 0
+	RunService.Heartbeat:Connect(function(dt)
+		acc += dt
+		if acc < 0.3 then
+			return
+		end
+		acc = 0
+		local wantRotate = held ~= nil and myGrip == 1
+		if wantRotate ~= rotateBound then
+			rotateBound = wantRotate
+			if wantRotate then
+				ContextActionService:BindAction(
+					"MD_Rotate",
+					onRotate,
+					true,
+					Enum.KeyCode.R,
+					Enum.KeyCode.ButtonY
+				)
+				ContextActionService:SetTitle("MD_Rotate", "Rotate")
+			else
+				ContextActionService:UnbindAction("MD_Rotate")
+			end
+		end
+		local wantStrap = held ~= nil or nearestCargo() ~= nil
+		local title = if held then "Wrap" else "Strap"
+		if wantStrap ~= strapBound or (wantStrap and title ~= strapTitle) then
+			strapBound = wantStrap
+			strapTitle = title
+			if wantStrap then
+				ContextActionService:BindAction(
+					"MD_Strap",
+					onStrap,
+					true,
+					Enum.KeyCode.F,
+					Enum.KeyCode.ButtonB
+				)
+				ContextActionService:SetTitle("MD_Strap", title)
+			else
+				ContextActionService:UnbindAction("MD_Strap")
+			end
+		end
+	end)
 
 	player.CharacterAdded:Connect(clearHeld)
 	RunService.Heartbeat:Connect(step)

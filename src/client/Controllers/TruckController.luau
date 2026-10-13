@@ -4,6 +4,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ContextActionService = game:GetService("ContextActionService")
 local RunService = game:GetService("RunService")
 
 local DEFAULTS = {
@@ -120,6 +121,26 @@ local function step(rig: Rig)
 	end
 end
 
+-- Horn: H / L3 / touch button while driving. Local-only sound for v1.
+local function onHorn(_, state: Enum.UserInputState)
+	if state ~= Enum.UserInputState.Begin or not active then
+		return Enum.ContextActionResult.Pass
+	end
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local horn = assets
+		and assets:FindFirstChild("Sounds")
+		and assets.Sounds:FindFirstChild("SFX_Horn")
+	if horn and horn:IsA("Sound") then
+		local s = horn:Clone()
+		s.Parent = active.chassis
+		s:Play()
+		task.delay(3, function()
+			s:Destroy()
+		end)
+	end
+	return Enum.ContextActionResult.Sink
+end
+
 local function onSeated(isSeated: boolean, seatPart: BasePart?)
 	if active then
 		release(active)
@@ -129,6 +150,7 @@ local function onSeated(isSeated: boolean, seatPart: BasePart?)
 		stepConn:Disconnect()
 		stepConn = nil
 	end
+	ContextActionService:UnbindAction("MD_Horn")
 	if not isSeated or not seatPart or not seatPart:IsA("VehicleSeat") then
 		return
 	end
@@ -137,6 +159,9 @@ local function onSeated(isSeated: boolean, seatPart: BasePart?)
 		return
 	end
 	active = rig
+	-- the horn button only exists while you're driving
+	ContextActionService:BindAction("MD_Horn", onHorn, true, Enum.KeyCode.H, Enum.KeyCode.ButtonL3)
+	ContextActionService:SetTitle("MD_Horn", "Horn")
 	stepConn = RunService.Heartbeat:Connect(function()
 		if active and active.seat.Occupant then
 			step(active)
@@ -151,6 +176,7 @@ end
 
 function TruckController.Start()
 	tuning = loadTuning()
+
 	local player = Players.LocalPlayer
 	if player.Character then
 		bindCharacter(player.Character)

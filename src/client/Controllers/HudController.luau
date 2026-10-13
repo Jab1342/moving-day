@@ -318,6 +318,15 @@ local function showPayout(report: any)
 	end
 
 	payoutGui.Parent = player:WaitForChild("PlayerGui")
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local cash = assets
+		and assets:FindFirstChild("Sounds")
+		and assets.Sounds:FindFirstChild("SFX_Cash")
+	if cash and cash:IsA("Sound") then
+		local s = cash:Clone()
+		s.Parent = payoutGui
+		s:Play()
+	end
 end
 
 local function requireShared(name: string): any
