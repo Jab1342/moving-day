@@ -55,6 +55,8 @@ local grabbing = false
 -- server answered is dropped instead of held.
 local dragGen = 0
 local toast: (text: string) -> () -- short on-screen hint, defined below
+local dollyTier = 0 -- PublicProfile.upgrades.Dolly
+local dollyTierScales: { number } = { 0.55, 0.70 }
 
 local function loadTuning()
 	local shared = ReplicatedStorage:FindFirstChild("Shared")
@@ -67,8 +69,17 @@ local function loadTuning()
 					tuning[key] = config[key]
 				end
 			end
+			if type(config.DollyTierSpeedScale) == "table" then
+				dollyTierScales = config.DollyTierSpeedScale
+			end
 		end
 	end
+end
+
+-- Dolly walk speed: tier 0 is Config.DollySpeedScale, bought tiers use DollyTierSpeedScale.
+local function dollySpeedScale(): number
+	local scale = dollyTier > 0 and dollyTierScales[math.min(dollyTier, #dollyTierScales)]
+	return if type(scale) == "number" then scale else tuning.DollySpeedScale
 end
 
 local function remote(path: string): Instance?
@@ -561,7 +572,7 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 		goal = CFrame.new(point) * rotation * CFrame.new(-grabLocal)
 		goal = CFrame.new(goal.X, root.Position.Y, goal.Z) * rotation
 	else
-		setWalkSpeed(if onDolly then tuning.DollySpeedScale else 1)
+		setWalkSpeed(if onDolly then dollySpeedScale() else 1)
 		alignPos.MaxVelocity = tuning.MaxCarrySpeed
 		local planeY = if onDolly then hrp.Position.Y - 1.5 else holdY
 		goal = CFrame.new(steerPoint(hrp, planeY)) * rotation * CFrame.new(-grabLocal)
@@ -634,6 +645,15 @@ function CarryController.Start()
 	if relay and relay:IsA("UnreliableRemoteEvent") then
 		relay.OnClientEvent:Connect(onRelay)
 	end
+	task.spawn(function()
+		local profile = (remotes :: Folder)
+				:WaitForChild("Data")
+				:WaitForChild("Profile") :: RemoteEvent
+		profile.OnClientEvent:Connect(function(p)
+			local tier = type(p) == "table" and type(p.upgrades) == "table" and p.upgrades.Dolly
+			dollyTier = if type(tier) == "number" then tier else 0
+		end)
+	end)
 
 	watchFurniture()
 	ContextActionService:BindAction("MD_PadGrab", onPadGrab, false, Enum.KeyCode.ButtonX)
