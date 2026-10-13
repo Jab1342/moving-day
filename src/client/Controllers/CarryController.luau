@@ -42,7 +42,8 @@ local DEFAULTS = {
 	DollyDeckHeight = 1.1, -- dolly loads ride this high, enough to roll over 1-stud kerbs
 	HipToGround = 3, -- HumanoidRootPart centre to floor for the default rig
 	DollyLeashSlack = 3, -- studs a dolly load may lag before the walker is down to the minimum
-	DollyLeashMinScale = 0.1,
+	DollyLeashMinScale = 0, -- a snagged load stops you; walking back toward it frees it
+	DollyTrailStep = 0.5, -- studs between recorded footsteps for the dolly trail
 }
 
 local CarryController = {}
@@ -64,6 +65,7 @@ local dragGen = 0
 local toast: (text: string) -> () -- short on-screen hint, defined below
 local dollyTier = 0 -- PublicProfile.upgrades.Dolly
 local dollyAligned = false -- first dolly frame resets yaw to "along the walking direction"
+local dollyTrail: { Vector3 } = {} -- flat footsteps behind a dolly load, oldest first
 local dollyTierScales: { number } = { 0.55, 0.70 }
 
 local function loadTuning()
@@ -188,6 +190,7 @@ local function clearHeld()
 	held = nil
 	myGrip = 0
 	dollyAligned = false
+	dollyTrail = {}
 	screenPoint = nil
 	partnerPoint = nil
 	setWalkSpeed(1)
@@ -663,10 +666,31 @@ local function twoHandedCFrame(root: BasePart, mid: Vector3, toPartner: Vector3)
 	return CFrame.new(mid) * CFrame.Angles(0, worldYaw - localYaw, 0) * CFrame.new(-gripMid)
 end
 
--- Dolly: the load hangs `reach` from you on an invisible tow bar, long side along the bar,
--- lifted off the floor like it sits on the dolly's deck. Walking away drags it along your
--- own path like a trailer, so it follows through the doorway you just used instead of
--- swinging into the jamb. `yaw` turns it in quarter steps from there (Rotate).
+-- Point `reach` back along the dolly trail from `head`, the unit direction from there
+-- toward the head, and the trail index it fell on (older points can be dropped).
+local function trailPoint(head: Vector3, reach: number): (Vector3?, Vector3?, number)
+	local left = reach
+	local nearer = head
+	for i = #dollyTrail, 1, -1 do
+		local p = dollyTrail[i]
+		local seg = nearer - p
+		local len = seg.Magnitude
+		if len > 1e-3 then
+			if len >= left then
+				return nearer - seg.Unit * left, seg.Unit, i
+			end
+			left -= len
+		end
+		nearer = p
+	end
+	return nil, nil, 1
+end
+
+-- Dolly: the load follows your own footsteps. It sits `reach` behind you measured ALONG the
+-- path you walked (breadcrumbs), long side along that path, lifted off the floor like it
+-- sits on the dolly's deck, so on a turn it retraces your line through the doorway instead
+-- of cutting the corner into the jamb. Walking back toward it pushes it ahead on a rigid
+-- bar. `yaw` turns it in quarter steps from there (Rotate).
 local function dollyGoal(model: Model, root: BasePart, hrp: BasePart): (CFrame, number)
 	local boxCf, size = model:GetBoundingBox()
 	local longIsX = size.X >= size.Z
@@ -675,15 +699,37 @@ local function dollyGoal(model: Model, root: BasePart, hrp: BasePart): (CFrame, 
 		then math.min(size.X, size.Z) / 2
 		else math.max(size.X, size.Z) / 2
 	local reach = halfDepth + tuning.DollyGap
-	local away = Vector3.new(root.Position.X - hrp.Position.X, 0, root.Position.Z - hrp.Position.Z)
-	if away.Magnitude < 0.5 then
-		local look = hrp.CFrame.LookVector
-		away = Vector3.new(look.X, 0, look.Z)
+	local head = Vector3.new(hrp.Position.X, 0, hrp.Position.Z)
+	local load = Vector3.new(root.Position.X, 0, root.Position.Z)
+	if #dollyTrail == 0 then
+		dollyTrail = { load }
 	end
-	away = if away.Magnitude > 1e-3 then away.Unit else Vector3.new(0, 0, -1)
-	local flat = -away -- the bar points from the load to you
+	if (head - dollyTrail[#dollyTrail]).Magnitude > tuning.DollyTrailStep then
+		table.insert(dollyTrail, head)
+	end
+	local _, humanoid = character()
+	local towardLoad = (load - head).Magnitude > 1e-3
+		and humanoid ~= nil
+		and humanoid.MoveDirection:Dot((load - head).Unit) > 0.3
+	local point, toward, index = trailPoint(head, reach)
+	if towardLoad or not point or not toward then
+		-- pushing (or the trail is too short): rigid bar from you to where the load is now
+		local away = load - head
+		if away.Magnitude < 0.5 then
+			local look = hrp.CFrame.LookVector
+			away = Vector3.new(look.X, 0, look.Z)
+		end
+		away = if away.Magnitude > 1e-3 then away.Unit else Vector3.new(0, 0, -1)
+		point, toward = head + away * reach, -away
+		dollyTrail = { point :: Vector3 }
+	else
+		for _ = 1, index - 2 do
+			table.remove(dollyTrail, 1)
+		end
+	end
+	local flat = toward :: Vector3 -- along the path, pointing at you
 	local base = if longIsX then math.atan2(-flat.Z, flat.X) else math.atan2(-flat.X, -flat.Z)
-	local centre = hrp.Position + away * reach
+	local centre = point :: Vector3
 	local rootAboveBottom = root.Position.Y - (boxCf.Y - size.Y / 2)
 	local groundY = hrp.Position.Y - tuning.HipToGround
 	return CFrame.new(centre.X, groundY + tuning.DollyDeckHeight + rootAboveBottom, centre.Z)
