@@ -149,22 +149,35 @@ local function stopPose()
 	end
 end
 
-local function playPose(twoPerson: boolean)
-	stopPose()
+-- An Action-priority track for an AssetIds animation, or nil until it's registered.
+local function loadTrack(names: { string }, looped: boolean): AnimationTrack?
 	local _, humanoid = character()
 	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
-	local id = assetId(if twoPerson then "ANIM_CarryTwo" else "ANIM_Carry") or assetId("ANIM_Carry")
+	local id: string? = nil
+	for _, name in names do
+		id = id or assetId(name)
+	end
 	if not animator or not id then
-		return
+		return nil
 	end
 	local animation = Instance.new("Animation")
 	animation.AnimationId = id
 	local ok, track = pcall(function()
 		return (animator :: Animator):LoadAnimation(animation)
 	end)
-	if ok and track then
-		track.Priority = Enum.AnimationPriority.Action
-		track.Looped = true
+	if not ok or not track then
+		return nil
+	end
+	track.Priority = Enum.AnimationPriority.Action
+	track.Looped = looped
+	return track
+end
+
+local function playPose(twoPerson: boolean)
+	stopPose()
+	local track =
+		loadTrack(if twoPerson then { "ANIM_CarryTwo", "ANIM_Carry" } else { "ANIM_Carry" }, true)
+	if track then
 		track:Play(0.15)
 		poseTrack = track
 	end
@@ -537,11 +550,19 @@ local function onStrap(_, inputState: Enum.UserInputState)
 		return Enum.ContextActionResult.Sink
 	end
 	toast(if action == "Strap" then "Strapping..." else "Wrapping...")
+	-- strap pull loops for as long as the server holds the strap pending (StrapSeconds)
+	local strapTrack = if action == "Strap" then loadTrack({ "ANIM_Strap" }, true) else nil
+	if strapTrack then
+		strapTrack:Play(0.15)
+	end
 	task.spawn(function()
 		local ok, reason = (request :: RemoteFunction):InvokeServer(
 			target:GetAttribute("ItemUid"),
 			action
 		)
+		if strapTrack then
+			strapTrack:Stop(0.2) -- done or cancelled
+		end
 		if ok then
 			toast(if action == "Strap" then "Strapped down" else "Wrapped")
 		else
