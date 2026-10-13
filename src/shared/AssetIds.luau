@@ -40,6 +40,7 @@ return {
 	FUR_Vase = "rbxassetid://105037063887993",
 	FUR_Vase_Frac = "rbxassetid://95834630886815",
 	H0_UploadProbe = "rbxassetid://136901260940248",
+	ICON_GameDraft_v1 = "rbxassetid://83033014562407",
 	PAL_Palette = "rbxassetid://76201554143630",
 	PING_Drop = "rbxassetid://118857631682383",
 	PING_Go = "rbxassetid://125848513634652",
