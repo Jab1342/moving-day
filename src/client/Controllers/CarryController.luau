@@ -42,6 +42,8 @@ local DEFAULTS = {
 	DollyDeckHeight = 1.1, -- dolly loads ride this high, enough to roll over 1-stud kerbs
 	HipToGround = 3, -- HumanoidRootPart centre to floor for the default rig
 	DollyTurnRate = math.rad(120), -- rad/s a dolly load turns toward your walking direction
+	DollyLeashSlack = 3, -- studs a dolly load may lag before the walker is down to the minimum
+	DollyLeashMinScale = 0.1,
 }
 
 local CarryController = {}
@@ -668,7 +670,7 @@ end
 -- Dolly: the item rides centred in front of the player, long side along the walking
 -- direction (so it lines up with doors and the loading ramp), lifted off the floor like it
 -- sits on the dolly's deck. `yaw` turns it in quarter steps from there (Rotate).
-local function dollyGoal(model: Model, root: BasePart, hrp: BasePart): CFrame
+local function dollyGoal(model: Model, root: BasePart, hrp: BasePart): (CFrame, number)
 	local look = hrp.CFrame.LookVector
 	local facing = Vector3.new(look.X, 0, look.Z)
 	facing = if facing.Magnitude > 0.1 then facing.Unit else Vector3.new(0, 0, -1)
@@ -694,11 +696,13 @@ local function dollyGoal(model: Model, root: BasePart, hrp: BasePart): CFrame
 	local halfDepth = if quarterTurns == 1
 		then math.min(size.X, size.Z) / 2
 		else math.max(size.X, size.Z) / 2
-	local centre = hrp.Position + flat * (halfDepth + tuning.DollyGap)
+	local reach = halfDepth + tuning.DollyGap
+	local centre = hrp.Position + flat * reach
 	local rootAboveBottom = root.Position.Y - (boxCf.Y - size.Y / 2)
 	local groundY = hrp.Position.Y - tuning.HipToGround
 	return CFrame.new(centre.X, groundY + tuning.DollyDeckHeight + rootAboveBottom, centre.Z)
-		* CFrame.Angles(0, base + yaw, 0)
+		* CFrame.Angles(0, base + yaw, 0),
+		reach
 end
 
 local function stepLead(model: Model, root: BasePart, hrp: BasePart)
@@ -741,9 +745,15 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 			dollyAligned = true
 			yaw = 0
 		end
-		setWalkSpeed(dollySpeedScale())
 		alignPos.MaxVelocity = tuning.MaxCarrySpeed
-		goal = dollyGoal(model, root, hrp)
+		local reach
+		goal, reach = dollyGoal(model, root, hrp)
+		-- Soft leash: when the load snags (a door jamb, a wall on a turn) and falls behind,
+		-- the walker slows to a crawl instead of walking on until the server drops it.
+		local offset = root.Position - hrp.Position
+		local lag = Vector3.new(offset.X, 0, offset.Z).Magnitude - reach
+		local slow = math.clamp(1 - lag / tuning.DollyLeashSlack, tuning.DollyLeashMinScale, 1)
+		setWalkSpeed(dollySpeedScale() * slow)
 	else
 		setWalkSpeed(1)
 		alignPos.MaxVelocity = tuning.MaxCarrySpeed
