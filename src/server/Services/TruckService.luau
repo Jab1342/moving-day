@@ -226,11 +226,9 @@ function TruckService:Ownership(truck, player)
 	end
 	for root in roots do
 		if root:CanSetNetworkOwnership() then
-			if player then
-				root:SetNetworkOwner(player)
-			else
-				root:SetNetworkOwnershipAuto()
-			end
+			-- A parked truck must stay on the server. Automatic ownership gives nearby
+			-- pedestrians the chassis and produces false moving/ramp-stow readings.
+			root:SetNetworkOwner(player)
 		end
 	end
 	for _, rec in self.items.records do
@@ -249,8 +247,8 @@ function TruckService:UpdateDriver(truck)
 	end
 	truck.driverId = if player then player.UserId else 0
 	truck.model:SetAttribute("DriverUserId", truck.driverId)
-	self:UpdateRamp(truck)
 	self:Ownership(truck, player)
+	self:UpdateRamp(truck)
 end
 
 function TruckService:Spawn(crewId, cframe, upgrades)

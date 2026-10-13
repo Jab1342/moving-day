@@ -27,6 +27,9 @@ local Service = luau.load(fs.readFile("src/server/Services/TruckService.luau"), 
 						GetPlayerByUserId = function()
 							return driver
 						end,
+						GetPlayerFromCharacter = function(_, character)
+							return character.player
+						end,
 					}
 				end
 				return {
@@ -161,6 +164,66 @@ service:Step(1 / 60)
 assert(
 	records.loose.weld == nil and records.strapped.weld == nil,
 	"Severe tilt releases both welds"
+)
+-- Reproduce the ownership transition behind the parked-ramp Studio failure.
+local function assembly(anchored, canOwn)
+	return {
+		Anchored = anchored,
+		calls = 0,
+		IsA = function(_, kind)
+			return kind == "BasePart"
+		end,
+		CanSetNetworkOwnership = function()
+			return canOwn
+		end,
+		SetNetworkOwner = function(self, owner)
+			self.owner, self.calls = owner, self.calls + 1
+		end,
+		SetNetworkOwnershipAuto = function()
+			error("A parked truck cannot go back to automatic ownership")
+		end,
+	}
+end
+service, truck, records = scenario()
+local chassis, wheel, decoration, constrainedToAnchor =
+	assembly(false, true), assembly(false, true), assembly(true, true), assembly(false, false)
+local sharedRootPart = assembly(false, true)
+sharedRootPart.AssemblyRootPart = chassis
+truck.model.GetDescendants = function()
+	return { chassis, sharedRootPart, wheel, decoration, constrainedToAnchor }
+end
+local driverAttribute
+truck.model.SetAttribute = function(_, key, value)
+	assert(key == "DriverUserId", "Only the driver attribute changes")
+	driverAttribute = value
+end
+truck.seat = { Occupant = { Parent = { player = driver } } }
+service:UpdateDriver(truck)
+assert(chassis.owner == driver and wheel.owner == driver, "Driver owns every vehicle assembly")
+assert(chassis.calls == 1 and sharedRootPart.calls == 0, "Welded roots assigned only once")
+assert(decoration.calls == 0 and constrainedToAnchor.calls == 0, "Skip anchored mechanisms")
+assert(driverAttribute == driver.UserId and records.loose.owner == driver, "Driver and cargo agree")
+truck.seat.Occupant = nil
+service:UpdateDriver(truck)
+assert(chassis.owner == nil and wheel.owner == nil, "Exit assigns parked vehicle to server")
+assert(chassis.calls == 2 and wheel.calls == 2, "Exit explicitly disables automatic ownership")
+assert(
+	records.loose.owner == nil and records.loose.automatic == false,
+	"Parked cargo also stays server-owned"
+)
+assert(driverAttribute == 0 and truck.driverId == 0, "No parked driver attribute")
+truck.seat.Occupant = {
+	Parent = { player = {
+		GetAttribute = function()
+			return "other-crew"
+		end,
+	} },
+	Sit = true,
+}
+service:UpdateDriver(truck)
+assert(
+	not truck.seat.Occupant.Sit and chassis.owner == nil,
+	"Foreign crew cannot take vehicle ownership"
 )
 print(
 	"PASS TruckService: loose/strapped weld decisions at 30/60/120Hz, explicit ownership and short spill grace; physical sliding still requires Studio"
