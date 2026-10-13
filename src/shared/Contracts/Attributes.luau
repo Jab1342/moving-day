@@ -17,6 +17,11 @@ return {
 	Truck = {
 		CrewId = { type = "string", owner = "TruckService" },
 		DriverUserId = { type = "number", owner = "TruckService", default = 0 },
+		-- Optional finite positive overrides. Absent values use Config.Truck.
+		MD_MaxSpeed = { type = "number", owner = "TruckService", min = 0 },
+		MD_MaxSteerAngle = { type = "number", owner = "TruckService", min = 0 },
+		MD_HighSpeedSteerAngle = { type = "number", owner = "TruckService", min = 0 },
+		RampLoose = { type = "boolean", owner = "TruckService", default = false },
 	},
 	Player = {
 		CrewId = { type = "string", owner = "CrewService" },

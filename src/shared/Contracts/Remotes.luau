@@ -80,6 +80,19 @@ return {
 		args = "upgradeId: string, tier: number",
 		checks = "at HQ; server price; prerequisites",
 	},
+	["Monetization.RequestPurchase"] = {
+		className = "RemoteFunction",
+		direction = "ClientToServer",
+		args = "sku: PurchaseSku, jobId: string?",
+		checks = "rate limit; profile and verified pass state ready; configured/implemented SKU; first grab; one prompt per job; job context; no outstanding prompt; no client price or grant",
+		notes = "server opens Roblox prompt after validation; ok means prompt requested, never purchase granted; unsupported effects return NotReady",
+	},
+	["Monetization.State"] = {
+		className = "RemoteEvent",
+		direction = "ServerToClient",
+		args = "state: MonetizationState",
+		notes = "pass ownership comes from Roblox server API; availability requires real configured IDs and implemented effects",
+	},
 	["Data.Profile"] = {
 		className = "RemoteEvent",
 		direction = "ServerToClient",

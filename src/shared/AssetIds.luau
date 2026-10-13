@@ -3,6 +3,8 @@
 return {
 	ANIM_Carry = "rbxassetid://70718766583193",
 	ANIM_CarryTwo = "rbxassetid://75293060457689",
+	ANIM_Recover = "rbxassetid://131746353444789",
+	ANIM_Strap = "rbxassetid://90693162364539",
 	COS_Beanie = "rbxassetid://73223630436678",
 	COS_HardHat = "rbxassetid://117361836869359",
 	COS_HardHatGold = "rbxassetid://138662877759792",
