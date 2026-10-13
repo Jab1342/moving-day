@@ -12,6 +12,7 @@ return table.freeze({
 	DollyGap = 1.5,
 	DollyDeckHeight = 1.1,
 	HipToGround = 3,
+	DollyTierSpeedScale = table.freeze({ 0.55, 0.70 }),
 	BedSettleSeconds = 1.0,
 	BedBreakG = 0.4,
 	StrappedBreakG = 1.6,

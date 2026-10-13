@@ -1,6 +1,6 @@
 --!strict
 -- Free solo dolly is an entitlement, tier 1/2 are purchased speed tiers.
--- STUB(Codex): dolly speed tiers await client movement acceptance.
+-- Physical upgrade/client tradeoffs require Studio acceptance before release.
 return {
 	Dolly = {
 		displayName = "Dolly",

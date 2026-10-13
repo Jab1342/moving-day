@@ -248,9 +248,14 @@ function ItemService:ApplyCarriers(rec)
 			crewCount += 1
 		end
 	end
+	local owner = Players:GetPlayerByUserId(rec.a)
+	local purchasedDolly = owner and self.upgrades and self.upgrades:DollyTier(owner) > 0
 	rec.model:SetAttribute(
 		"Dolly",
-		rec.def.carry == "Two" and rec.a ~= 0 and rec.b == 0 and crewCount == 1
+		rec.def.carry == "Two"
+			and rec.a ~= 0
+			and rec.b == 0
+			and (crewCount == 1 or purchasedDolly == true)
 	)
 	self:SetState(rec, if rec.a ~= 0 then "Carried" else "Idle")
 	position.Enabled = rec.a ~= 0
