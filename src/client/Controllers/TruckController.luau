@@ -38,6 +38,19 @@ local function loadTuning()
 	return DEFAULTS
 end
 
+-- Per-truck overrides (upgrades): a number attribute MD_<Key> on the truck model replaces
+-- that tuning value, e.g. MD_MaxSpeed on a soft-suspension truck, MD_MaxSteerAngle on a box truck.
+local function withTruckOverrides(base: typeof(DEFAULTS), model: Model): typeof(DEFAULTS)
+	local merged = table.clone(base)
+	for key in DEFAULTS do
+		local value = model:GetAttribute("MD_" .. key)
+		if type(value) == "number" then
+			merged[key] = value
+		end
+	end
+	return merged
+end
+
 type Rig = {
 	model: Model,
 	seat: VehicleSeat,
@@ -99,6 +112,7 @@ end
 
 local TruckController = {}
 
+local baseTuning = DEFAULTS
 local tuning = DEFAULTS
 local active: Rig? = nil
 local stepConn: RBXScriptConnection? = nil
@@ -205,6 +219,7 @@ local function onSeated(isSeated: boolean, seatPart: BasePart?)
 		return
 	end
 	active = rig
+	tuning = withTruckOverrides(baseTuning, rig.model)
 	for _, motor in rig.motors do
 		motor.MotorMaxAcceleration = tuning.MotorMaxAcceleration
 	end
@@ -224,7 +239,8 @@ local function bindCharacter(character: Model)
 end
 
 function TruckController.Start()
-	tuning = loadTuning()
+	baseTuning = loadTuning()
+	tuning = baseTuning
 
 	local player = Players.LocalPlayer
 	if player.Character then
