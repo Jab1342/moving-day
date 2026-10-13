@@ -44,6 +44,8 @@ local DEFAULTS = {
 	DollyLeashSlack = 3, -- studs a dolly load may lag before the walker is down to the minimum
 	DollyLeashMinScale = 0, -- a snagged load stops you; walking back toward it frees it
 	DollyTrailStep = 0.5, -- studs between recorded footsteps for the dolly trail
+	DollyMaxPitch = math.rad(45), -- steepest a dolly load tilts to follow stairs/ramps
+	DollySlideMax = 1.5, -- studs a dolly target may slide sideways to clear a jamb
 }
 
 local CarryController = {}
@@ -65,7 +67,8 @@ local dragGen = 0
 local toast: (text: string) -> () -- short on-screen hint, defined below
 local dollyTier = 0 -- PublicProfile.upgrades.Dolly
 local dollyAligned = false -- first dolly frame resets yaw to "along the walking direction"
-local dollyTrail: { Vector3 } = {} -- flat footsteps behind a dolly load, oldest first
+local dollyTrail: { Vector3 } = {} -- floor-level footsteps behind a dolly load, oldest first
+local dollyPushing = false -- walking at the load: rigid push bar instead of trailing
 local dollyTierScales: { number } = { 0.55, 0.70 }
 
 local function loadTuning()
@@ -191,6 +194,7 @@ local function clearHeld()
 	myGrip = 0
 	dollyAligned = false
 	dollyTrail = {}
+	dollyPushing = false
 	screenPoint = nil
 	partnerPoint = nil
 	setWalkSpeed(1)
@@ -666,24 +670,62 @@ local function twoHandedCFrame(root: BasePart, mid: Vector3, toPartner: Vector3)
 	return CFrame.new(mid) * CFrame.Angles(0, worldYaw - localYaw, 0) * CFrame.new(-gripMid)
 end
 
--- Point `reach` back along the dolly trail from `head`, the unit direction from there
--- toward the head, and the trail index it fell on (older points can be dropped).
-local function trailPoint(head: Vector3, reach: number): (Vector3?, Vector3?, number)
+-- Point `reach` (horizontal arc length) back along the dolly trail from `head`, with its
+-- floor height, the flat unit direction from there toward the head, that stretch's slope
+-- (rise per stud toward the head) and the trail index it fell on (older points can go).
+local function trailPoint(head: Vector3, reach: number): (Vector3?, Vector3?, number, number)
 	local left = reach
 	local nearer = head
 	for i = #dollyTrail, 1, -1 do
 		local p = dollyTrail[i]
 		local seg = nearer - p
-		local len = seg.Magnitude
-		if len > 1e-3 then
-			if len >= left then
-				return nearer - seg.Unit * left, seg.Unit, i
+		local flatLen = Vector3.new(seg.X, 0, seg.Z).Magnitude
+		if flatLen > 1e-3 then
+			if flatLen >= left then
+				local dir = Vector3.new(seg.X, 0, seg.Z) / flatLen
+				return nearer - seg * (left / flatLen), dir, seg.Y / flatLen, i
 			end
-			left -= len
+			left -= flatLen
 		end
 		nearer = p
 	end
-	return nil, nil, 1
+	return nil, nil, 0, 1
+end
+
+-- Nudge a dolly target sideways (up to DollySlideMax studs) when its footprint would sit
+-- in a wall or door jamb, so a load hugging the inside of a turn slips through the door.
+local function slideClear(model: Model, goal: CFrame, size: Vector3, side: Vector3): CFrame
+	local params = OverlapParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local ignore: { Instance } = { model }
+	for _, other in Players:GetPlayers() do
+		if other.Character then
+			table.insert(ignore, other.Character)
+		end
+	end
+	params.FilterDescendantsInstances = ignore
+	local probe = size * Vector3.new(0.9, 0.7, 0.9)
+	local function blocked(cf: CFrame): boolean
+		for _, part in Workspace:GetPartBoundsInBox(cf, probe, params) do
+			if part.CanCollide then
+				return true
+			end
+		end
+		return false
+	end
+	if not blocked(goal) then
+		return goal
+	end
+	local step = tuning.DollySlideMax / 3
+	for i = 1, 3 do
+		for _, sign in { 1, -1 } do
+			local moved = goal + side * (sign * step * i)
+			if not blocked(moved) then
+				return moved
+			end
+		end
+	end
+	return goal
 end
 
 -- Dolly: the load follows your own footsteps. It sits `reach` behind you measured ALONG the
@@ -699,28 +741,38 @@ local function dollyGoal(model: Model, root: BasePart, hrp: BasePart): (CFrame, 
 		then math.min(size.X, size.Z) / 2
 		else math.max(size.X, size.Z) / 2
 	local reach = halfDepth + tuning.DollyGap
-	local head = Vector3.new(hrp.Position.X, 0, hrp.Position.Z)
-	local load = Vector3.new(root.Position.X, 0, root.Position.Z)
+	local rootAboveBottom = root.Position.Y - (boxCf.Y - size.Y / 2)
+	-- breadcrumbs are floor points (feet), so the load follows you up and down stairs
+	local head = Vector3.new(hrp.Position.X, hrp.Position.Y - tuning.HipToGround, hrp.Position.Z)
+	local load = Vector3.new(root.Position.X, head.Y, root.Position.Z) -- seed on your floor
 	if #dollyTrail == 0 then
 		dollyTrail = { load }
 	end
 	if (head - dollyTrail[#dollyTrail]).Magnitude > tuning.DollyTrailStep then
 		table.insert(dollyTrail, head)
 	end
+	-- Pushing is sticky: it starts when you walk at the load and lasts until you clearly
+	-- walk away from it, so a pushed load doesn't swing round to trail behind you.
+	local toLoad = Vector3.new(load.X - head.X, 0, load.Z - head.Z)
 	local _, humanoid = character()
-	local towardLoad = (load - head).Magnitude > 1e-3
-		and humanoid ~= nil
-		and humanoid.MoveDirection:Dot((load - head).Unit) > 0.3
-	local point, toward, index = trailPoint(head, reach)
-	if towardLoad or not point or not toward then
+	if humanoid and toLoad.Magnitude > 1e-3 and humanoid.MoveDirection.Magnitude > 0.1 then
+		local dot = humanoid.MoveDirection:Dot(toLoad.Unit)
+		if dot > 0.3 then
+			dollyPushing = true
+		elseif dot < -0.2 then
+			dollyPushing = false
+		end
+	end
+	local point, toward, slope, index = trailPoint(head, reach)
+	if dollyPushing or not point or not toward then
 		-- pushing (or the trail is too short): rigid bar from you to where the load is now
-		local away = load - head
+		local away = toLoad
 		if away.Magnitude < 0.5 then
 			local look = hrp.CFrame.LookVector
 			away = Vector3.new(look.X, 0, look.Z)
 		end
 		away = if away.Magnitude > 1e-3 then away.Unit else Vector3.new(0, 0, -1)
-		point, toward = head + away * reach, -away
+		point, toward, slope = head + away * reach, -away, 0
 		dollyTrail = { point :: Vector3 }
 	else
 		for _ = 1, index - 2 do
@@ -730,11 +782,16 @@ local function dollyGoal(model: Model, root: BasePart, hrp: BasePart): (CFrame, 
 	local flat = toward :: Vector3 -- along the path, pointing at you
 	local base = if longIsX then math.atan2(-flat.Z, flat.X) else math.atan2(-flat.X, -flat.Z)
 	local centre = point :: Vector3
-	local rootAboveBottom = root.Position.Y - (boxCf.Y - size.Y / 2)
-	local groundY = hrp.Position.Y - tuning.HipToGround
-	return CFrame.new(centre.X, groundY + tuning.DollyDeckHeight + rootAboveBottom, centre.Z)
-		* CFrame.Angles(0, base + yaw, 0),
-		reach
+	local rotation = CFrame.Angles(0, base + yaw, 0)
+	if quarterTurns == 0 then
+		-- tilt the long side to the slope of the stairs/ramp it is on
+		local pitch = math.clamp(math.atan(slope), -tuning.DollyMaxPitch, tuning.DollyMaxPitch)
+		pitch = if math.cos(yaw) < 0 then -pitch else pitch
+		rotation *= if longIsX then CFrame.Angles(0, 0, pitch) else CFrame.Angles(pitch, 0, 0)
+	end
+	local goal = CFrame.new(centre.X, centre.Y + tuning.DollyDeckHeight + rootAboveBottom, centre.Z)
+		* rotation
+	return slideClear(model, goal, size, Vector3.new(-flat.Z, 0, flat.X)), reach
 end
 
 local function stepLead(model: Model, root: BasePart, hrp: BasePart)
