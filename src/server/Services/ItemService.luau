@@ -486,6 +486,8 @@ function ItemService:Step(dt)
 			rec.model:PivotTo(rec.lastPivot)
 			rec.root.AssemblyLinearVelocity = Vector3.zero
 			rec.root.AssemblyAngularVelocity = Vector3.zero
+			-- A server correction is not an impact; discard its pre-teleport sample.
+			self:Grace(rec)
 			local strike = self.strikes[offender]
 			if not strike or os.clock() - strike.at > Config.StrikeWindowSeconds then
 				strike = { at = os.clock(), count = 0 }
