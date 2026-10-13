@@ -5,6 +5,28 @@ local RoomDefs = require("../src/shared/RoomDefs")
 local Economy = require("../src/shared/Logic/Economy")
 local Payout = require("../src/shared/Logic/Payout")
 local JobGen = require("../src/shared/Logic/JobGen")
+local DoorRules = require("../src/shared/Logic/DoorRules")
+
+-- Independent expected world directions for positive-Y rotations of local W/E.
+for q, blocked in { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } } do
+	for _, template in { "Stairs_A", "Stairs_B" } do
+		local sign = if template == "Stairs_A" then 1 else -1
+		local room = { template = template, quarterTurns = q - 1, floor = 0, gridX = 0, gridZ = 0 }
+		local dx, dz = blocked[1] * sign, blocked[2] * sign
+		local neighbor =
+			{ template = "Kitchen_A", quarterTurns = 0, floor = 0, gridX = dx, gridZ = dz }
+		assert(
+			not DoorRules.connected(room, neighbor, 0)
+				and not DoorRules.connected(neighbor, room, 0),
+			"Both walls stay shut at blocked ramp side"
+		)
+		assert(
+			DoorRules.connected(room, neighbor, 1),
+			"Upper landing doors are not ramp-side blocked"
+		)
+		assert(DoorRules.canExit(room, -dx, -dz, 0), "Opposite ground door remains usable")
+	end
+end
 
 local function rejects(callback)
 	assert(not pcall(callback), "Malformed input must fail closed")
@@ -246,13 +268,33 @@ for seed = 1, 1000 do
 						nextRoom == originRoom
 						and RoomDefs[layout.rooms[originRoom].template].floors == 2
 					)
-				if nextRoom and not reached[key] and verticalAllowed then
+				local doorAllowed = d[3] ~= 0
+					or (
+						nextRoom
+						and DoorRules.connected(
+							layout.rooms[originRoom],
+							layout.rooms[nextRoom],
+							c[3]
+						)
+					)
+				if nextRoom and not reached[key] and verticalAllowed and doorAllowed then
 					reached[key] = true
 					table.insert(queue, nextCell)
 				end
 			end
 		end
 		assert(#queue == #cells, "Every room must be reachable through doors/stairs")
+		local hasFrontDoor = false
+		for _, room in layout.rooms do
+			if
+				room.floor == 0
+				and not occupied[cell(room.gridX, room.gridZ - 1, 0)]
+				and DoorRules.canExit(room, 0, -1, 0)
+			then
+				hasFrontDoor = true
+			end
+		end
+		assert(hasFrontDoor, "Every layout has a usable street-facing ground entrance")
 		local used, couch, hero = {}, false, false
 		local twoPersonCount = 0
 		for _, item in layout.items do
