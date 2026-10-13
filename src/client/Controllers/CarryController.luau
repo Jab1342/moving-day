@@ -6,7 +6,7 @@
 -- CarryAlignPosition / CarryAlignOrientation on the item's Root and makes the lead carrier
 -- (CarrierA) the network owner; the lead's client steers those constraints here. Grip 2
 -- sends its cursor point to the server, which relays it to the lead.
--- Gamepad has no cursor, so ButtonX grabs the nearest item and holds it in front.
+-- Gamepad has no cursor, so ButtonX grabs the nearest item and holds it in front (no DragDetector input).
 
 local CollectionService = game:GetService("CollectionService")
 local ContextActionService = game:GetService("ContextActionService")
