@@ -495,5 +495,61 @@
     "assetId": "75293060457689",
     "uploadedBy": "Codex",
     "file": "assets/anim/MD_CarryTwo.rbxm"
+  },
+  {
+    "name": "PRP_DoorInsert",
+    "type": "Model",
+    "assetId": "73049433537860",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_DoorInsert.fbx"
+  },
+  {
+    "name": "PRP_DoorFrameOpen",
+    "type": "Model",
+    "assetId": "120244037397616",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_DoorFrameOpen.fbx"
+  },
+  {
+    "name": "PRP_WindowInsert",
+    "type": "Model",
+    "assetId": "131024323807739",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_WindowInsert.fbx"
+  },
+  {
+    "name": "PRP_YardSign",
+    "type": "Model",
+    "assetId": "138441082816700",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_YardSign.fbx"
+  },
+  {
+    "name": "PRP_TrafficCone",
+    "type": "Model",
+    "assetId": "106145664748298",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_TrafficCone.fbx"
+  },
+  {
+    "name": "PRP_Pallet",
+    "type": "Model",
+    "assetId": "103449501563569",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Pallet.fbx"
+  },
+  {
+    "name": "PRP_RampWedge",
+    "type": "Model",
+    "assetId": "106924156878308",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_RampWedge.fbx"
+  },
+  {
+    "name": "PRP_RampRails",
+    "type": "Model",
+    "assetId": "70840011041414",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_RampRails.fbx"
   }
 ]
