@@ -39,6 +39,27 @@ assert(allowed, "Token refill")
 local g = Cargo.accelerationG(57, 0.1, 196.2)
 assert(g > 2.9 and g < 3, "Acceleration uses dt")
 assert(Cargo.shouldBreak(g, 0, false, Config), "Hard stop breaks loose weld")
-assert(not Cargo.shouldBreak(g, 0, true, Config), "Same stop preserves strapped weld")
+assert(Cargo.shouldBreak(g, 0, true, Config), "Extreme collision can break straps")
+for _, hz in { 30, 60, 120 } do
+	local smooth = 0
+	for _ = 1, math.floor(hz * 0.4) do
+		smooth = Cargo.smooth(smooth, 0.9, 1 / hz, Config.BedAccelerationFilterSeconds)
+	end
+	assert(Cargo.shouldBreak(smooth, 0, false, Config), "Measured hard stop spills loose cargo")
+	assert(not Cargo.shouldBreak(smooth, 0, true, Config), "Measured hard stop preserves straps")
+	local chatter = 0
+	for frame = 1, hz do
+		chatter = Cargo.smooth(
+			chatter,
+			if frame % 2 == 0 then 1.2 else -1.2,
+			1 / hz,
+			Config.BedAccelerationFilterSeconds
+		)
+		assert(
+			not Cargo.shouldBreak(math.abs(chatter), 0, false, Config),
+			"Alternating suspension noise does not spill cargo"
+		)
+	end
+end
 assert(Cargo.shouldBreak(0, 36, true, Config), "Tilt breaks both")
 print("PASS: damage, carry authorization/handover, rate limits, cargo acceleration")

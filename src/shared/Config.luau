@@ -1,6 +1,7 @@
 --!strict
 return table.freeze({
 	DamageThreshold = 14,
+	CarriedDamageThreshold = 28,
 	DamagePerStudPerSec = 6,
 	GrabGraceSeconds = 0.75,
 	MaxDeltaVAccepted = 120,
@@ -8,8 +9,9 @@ return table.freeze({
 	GrabRange = 8,
 	DollySpeedScale = 0.4,
 	BedSettleSeconds = 1.0,
-	BedBreakG = 2.2,
-	StrappedBreakG = 4.5,
+	BedBreakG = 0.55,
+	StrappedBreakG = 1.6,
+	BedAccelerationFilterSeconds = 0.15,
 	SoloPayoutScale = 1.0,
 	CrewPayoutScale = table.freeze({ 1.0, 1.15, 1.25, 1.35 }),
 	AssistDamageScale = 0.5,
@@ -138,6 +140,9 @@ return table.freeze({
 		HighSpeedSteerAngle = 12,
 		DriveTorque = 30000,
 		BrakeTorque = 60000,
+		BrakeDecelG = 0.65,
+		CoastDecelG = 0.05,
+		MotorMaxAcceleration = 400,
 		WheelRadius = 1.5,
 	}),
 })
