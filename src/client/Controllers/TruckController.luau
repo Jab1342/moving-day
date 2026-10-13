@@ -17,9 +17,15 @@ local DEFAULTS = {
 	WheelRadius = 1.5,
 	-- Arcade brakes: wheel motors alone stop the truck far too slowly, so braking also
 	-- pushes the chassis back at this fraction of gravity. Hard stops are what shift cargo.
+	-- While braking above HoldSpeed the wheels roll free and only that force slows the truck,
+	-- so a full stop is exactly BrakeDecelG (locked wheels on top measured > 1.1 g from 60).
 	BrakeDecelG = 0.65,
 	CoastDecelG = 0.05,
+	HoldSpeed = 2, -- below this the wheel motors lock to hold the truck still
 	MotorMaxAcceleration = 400, -- lets locked wheels actually lock
+	-- Launch cap: drive torque is limited to what pushes the truck's mass at DriveAccelG
+	-- (0-60 in ~1 s). At full DriveTorque it launched at ~1 g and threw loose cargo out.
+	DriveAccelG = 0.3,
 }
 
 local function loadTuning()
@@ -36,6 +42,19 @@ local function loadTuning()
 		end
 	end
 	return DEFAULTS
+end
+
+-- Per-truck overrides (upgrades): a number attribute MD_<Key> on the truck model replaces
+-- that tuning value, e.g. MD_MaxSpeed on a soft-suspension truck, MD_MaxSteerAngle on a box truck.
+local function withTruckOverrides(base: typeof(DEFAULTS), model: Model): typeof(DEFAULTS)
+	local merged = table.clone(base)
+	for key in DEFAULTS do
+		local value = model:GetAttribute("MD_" .. key)
+		if type(value) == "number" then
+			merged[key] = value
+		end
+	end
+	return merged
 end
 
 type Rig = {
@@ -99,6 +118,7 @@ end
 
 local TruckController = {}
 
+local baseTuning = DEFAULTS
 local tuning = DEFAULTS
 local active: Rig? = nil
 local stepConn: RBXScriptConnection? = nil
@@ -134,23 +154,32 @@ local function step(rig: Rig)
 	-- the chassis LookVector (-Z) is the truck's front
 	local forwardSpeed = rig.chassis.CFrame.LookVector:Dot(rig.chassis.AssemblyLinearVelocity)
 	local radius = tuning.WheelRadius
+	-- per-wheel torque that accelerates the whole truck (cargo included) at DriveAccelG
+	local driveTorque = math.min(
+		tuning.DriveTorque,
+		rig.chassis.AssemblyMass
+			* tuning.DriveAccelG
+			* workspace.Gravity
+			* radius
+			/ math.max(#rig.motors, 1)
+	)
 
 	if throttle > 0 then
-		if forwardSpeed < -2 then
-			setMotors(rig, 0, tuning.BrakeTorque) -- braking out of reverse
+		if forwardSpeed < -tuning.HoldSpeed then
+			setMotors(rig, 0, 0) -- braking out of reverse: free wheels, brake force only
 			setBrake(rig, tuning.BrakeDecelG)
 		else
 			-- negative angular velocity about +X rolls the truck toward -Z
-			setMotors(rig, -throttle * tuning.MaxSpeed / radius, tuning.DriveTorque)
+			setMotors(rig, -throttle * tuning.MaxSpeed / radius, driveTorque)
 			-- wheel slip lets the truck creep past MaxSpeed downhill; trim it back gently
 			setBrake(rig, if forwardSpeed > tuning.MaxSpeed then 0.15 else 0)
 		end
 	elseif throttle < 0 then
-		if forwardSpeed > 2 then
-			setMotors(rig, 0, tuning.BrakeTorque) -- braking
+		if forwardSpeed > tuning.HoldSpeed then
+			setMotors(rig, 0, 0) -- braking: free wheels, brake force only
 			setBrake(rig, tuning.BrakeDecelG)
 		else
-			setMotors(rig, -throttle * tuning.ReverseSpeed / radius, tuning.DriveTorque)
+			setMotors(rig, -throttle * tuning.ReverseSpeed / radius, driveTorque)
 			setBrake(rig, 0)
 		end
 	else
@@ -205,6 +234,7 @@ local function onSeated(isSeated: boolean, seatPart: BasePart?)
 		return
 	end
 	active = rig
+	tuning = withTruckOverrides(baseTuning, rig.model)
 	for _, motor in rig.motors do
 		motor.MotorMaxAcceleration = tuning.MotorMaxAcceleration
 	end
@@ -224,7 +254,8 @@ local function bindCharacter(character: Model)
 end
 
 function TruckController.Start()
-	tuning = loadTuning()
+	baseTuning = loadTuning()
+	tuning = baseTuning
 
 	local player = Players.LocalPlayer
 	if player.Character then
