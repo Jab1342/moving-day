@@ -491,8 +491,10 @@ end
 
 function ItemService:Step(dt)
 	for _, rec in self.records do
-		if not rec.model.Parent then
-			self:Remove(rec, false)
+		if not rec.model.Parent or not rec.root.Parent then
+			-- FallenPartsDestroyHeight can remove the root but leave its Model behind.
+			-- Lost undelivered cargo is a completed loss, never an endless manifest entry.
+			self:Remove(rec, rec.state ~= "Delivered")
 			continue
 		end
 		if rec.a == 0 then

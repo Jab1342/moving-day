@@ -164,7 +164,7 @@ assert(
 	"Missing geometry cannot charge"
 )
 service.isReady = function(id)
-	return id ~= "Dolly"
+	return id == "LoadingRamp" or id == "BoxTruck" or id == "SoftSuspension"
 end
 for _, id in { "LoadingRamp", "BoxTruck", "SoftSuspension" } do
 	assert(service:Buy(player, id, 1), "Ready truck upgrade purchase")
@@ -176,8 +176,8 @@ assert(
 	"Repeat truck purchase cannot debit"
 )
 assert(
-	not service:Buy(player, "Dolly", 1) and data.profile.cash == 1000,
-	"Unready independent effect remains unavailable"
+	not service:Buy(player, "Unknown", 1) and data.profile.cash == 1000,
+	"Unimplemented effect remains unavailable"
 )
 assert(
 	service:StrapSlots("A") == 4 and service:StrapSlots("B") == 2,
