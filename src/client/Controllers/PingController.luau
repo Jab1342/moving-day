@@ -11,19 +11,82 @@ local player = Players.LocalPlayer
 local Gate = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Gate"))
 local Scale = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Scale"))
 
--- Order and IDs follow Contracts/Enums.Ping.
+-- Order and IDs follow Contracts/Enums.Ping. `icon` is the AssetIds key (PING_<name>).
 local PINGS = {
-	{ id = 1, label = "Lift!", color = Color3.fromRGB(70, 160, 255) },
-	{ id = 2, label = "Drop!", color = Color3.fromRGB(255, 120, 60) },
-	{ id = 3, label = "Stop!", color = Color3.fromRGB(235, 60, 60) },
-	{ id = 4, label = "Go!", color = Color3.fromRGB(90, 200, 90) },
-	{ id = 5, label = "Pivot left", color = Color3.fromRGB(170, 120, 230) },
-	{ id = 6, label = "Pivot right", color = Color3.fromRGB(170, 120, 230) },
-	{ id = 7, label = "Over here", color = Color3.fromRGB(255, 200, 40) },
-	{ id = 8, label = "Nice!", color = Color3.fromRGB(80, 210, 200) },
+	{ id = 1, label = "Lift!", icon = "PING_Lift", color = Color3.fromRGB(70, 160, 255) },
+	{ id = 2, label = "Drop!", icon = "PING_Drop", color = Color3.fromRGB(255, 120, 60) },
+	{ id = 3, label = "Stop!", icon = "PING_Stop", color = Color3.fromRGB(235, 60, 60) },
+	{ id = 4, label = "Go!", icon = "PING_Go", color = Color3.fromRGB(90, 200, 90) },
+	{
+		id = 5,
+		label = "Pivot left",
+		icon = "PING_PivotLeft",
+		color = Color3.fromRGB(170, 120, 230),
+	},
+	{
+		id = 6,
+		label = "Pivot right",
+		icon = "PING_PivotRight",
+		color = Color3.fromRGB(170, 120, 230),
+	},
+	{ id = 7, label = "Over here", icon = "PING_OverHere", color = Color3.fromRGB(255, 200, 40) },
+	{ id = 8, label = "Nice!", icon = "PING_Nice", color = Color3.fromRGB(80, 210, 200) },
 }
 local SHOW_SECONDS = 2.5
-local WHEEL_RADIUS = 120
+local WHEEL_RADIUS = 130
+
+local assetIds: { [string]: any }? = nil
+local function iconFor(name: string): string?
+	if assetIds == nil then
+		local shared = ReplicatedStorage:FindFirstChild("Shared")
+		local module = shared and shared:FindFirstChild("AssetIds")
+		local ok, ids = false, nil
+		if module and module:IsA("ModuleScript") then
+			ok, ids = pcall(require, module)
+		end
+		assetIds = if ok and type(ids) == "table" then ids else {}
+	end
+	local id = (assetIds :: { [string]: any })[name]
+	return if type(id) == "string" then id else nil
+end
+
+-- Icon on the left, label on the right; falls back to a centred label with no icon.
+local function iconAndLabel(
+	parent: GuiObject,
+	p: { icon: string, label: string },
+	textSize: number?
+)
+	local image = iconFor(p.icon)
+	local label = Instance.new("TextLabel")
+	label.Name = "Label"
+	label.BackgroundTransparency = 1
+	label.Text = p.label
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.Font = Enum.Font.GothamBold
+	if textSize then
+		label.TextSize = textSize
+	else
+		label.TextScaled = true
+	end
+	if image then
+		local icon = Instance.new("ImageLabel")
+		icon.Name = "Icon"
+		icon.BackgroundTransparency = 1
+		icon.AnchorPoint = Vector2.new(0, 0.5)
+		icon.Position = UDim2.new(0, 6, 0.5, 0)
+		icon.Size = UDim2.new(1, 0, 1, -8)
+		icon.SizeConstraint = Enum.SizeConstraint.RelativeYY
+		icon.ScaleType = Enum.ScaleType.Fit
+		icon.Image = image
+		icon.Parent = parent
+		label.Position = UDim2.fromScale(0.3, 0)
+		label.Size = UDim2.new(0.7, -6, 1, 0)
+		label.TextXAlignment = Enum.TextXAlignment.Left
+	else
+		label.Size = UDim2.fromScale(1, 1)
+	end
+	label.Parent = parent
+end
 
 local PingController = {}
 
@@ -109,13 +172,11 @@ local function buildWheel()
 		b.AnchorPoint = Vector2.new(0.5, 0.5)
 		b.Position =
 			UDim2.new(0.5, math.cos(angle) * WHEEL_RADIUS, 0.5, math.sin(angle) * WHEEL_RADIUS)
-		b.Size = UDim2.fromOffset(104, 48)
+		b.Size = UDim2.fromOffset(136, 52)
 		b.BackgroundColor3 = p.color
-		b.Text = p.label
-		b.TextColor3 = Color3.new(1, 1, 1)
-		b.Font = Enum.Font.GothamBold
-		b.TextSize = 18
+		b.Text = ""
 		b.AutoButtonColor = true
+		iconAndLabel(b, p, 18)
 		local corner = Instance.new("UICorner")
 		corner.CornerRadius = UDim.new(0, 12)
 		corner.Parent = b
@@ -149,21 +210,22 @@ local function showOverHead(userId: number, id: number)
 	end
 	local bb = Instance.new("BillboardGui")
 	bb.Name = "MD_Ping"
-	bb.Size = UDim2.fromOffset(140, 44)
+	bb.Size = UDim2.fromOffset(160, 46)
 	bb.StudsOffset = Vector3.new(0, 3, 0)
 	bb.AlwaysOnTop = true
 	bb.MaxDistance = 200
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundColor3 = p.color
-	label.Text = p.label
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.Font = Enum.Font.GothamBold
-	label.TextScaled = true
+	local chip = Instance.new("Frame")
+	chip.Size = UDim2.fromScale(1, 1)
+	chip.BackgroundColor3 = p.color
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 10)
-	corner.Parent = label
-	label.Parent = bb
+	corner.Parent = chip
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, 4)
+	pad.PaddingBottom = UDim.new(0, 4)
+	pad.Parent = chip
+	iconAndLabel(chip, p, nil)
+	chip.Parent = bb
 	bb.Parent = head
 	task.delay(SHOW_SECONDS, function()
 		if bb.Parent then
