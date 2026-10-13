@@ -25,6 +25,8 @@ try {
     if ($LASTEXITCODE) { throw 'Job lifecycle tests failed' }
     & lune run tests/upgrades
     if ($LASTEXITCODE) { throw 'Upgrade tests failed' }
+    & lune run tests/receipts
+    if ($LASTEXITCODE) { throw 'Receipt tests failed' }
     & lune run tests/pings
     if ($LASTEXITCODE) { throw 'Ping tests failed' }
     & rojo build -o build/moving-day.rbxlx
