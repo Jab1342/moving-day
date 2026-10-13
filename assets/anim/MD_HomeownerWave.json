@@ -1,0 +1,52 @@
+{
+  "format": 2,
+  "name": "MD_HomeownerWave",
+  "author": "ClaudeB",
+  "rig": "R15",
+  "loop": true,
+  "priority": "Action",
+  "length": 1.5,
+  "note": "Homeowner waves both arms overhead while the crew's truck approaches. Arms raised out to the sides (shoulder Z), forearms swing in opposite phase, small torso sway and head tilt. Legs are not keyed (Weight 0) so idle keeps them. Frame 1.5 equals frame 0.0 for a seamless loop.",
+  "easing": ["Cubic", "InOut"],
+  "hierarchy": {
+    "HumanoidRootPart": {
+      "LowerTorso": {
+        "UpperTorso": {
+          "Head": {},
+          "RightUpperArm": { "RightLowerArm": { "RightHand": {} } },
+          "LeftUpperArm": { "LeftLowerArm": { "LeftHand": {} } }
+        },
+        "RightUpperLeg": { "RightLowerLeg": { "RightFoot": {} } },
+        "LeftUpperLeg": { "LeftLowerLeg": { "LeftFoot": {} } }
+      }
+    }
+  },
+  "animated": ["UpperTorso", "Head", "RightUpperArm", "RightLowerArm", "LeftUpperArm", "LeftLowerArm"],
+  "frames": [
+    { "time": 0.0, "poses": {
+      "UpperTorso": { "rot": [0, 0, 3] }, "Head": { "rot": [8, 0, -5] },
+      "RightUpperArm": { "rot": [0, 0, 130] }, "RightLowerArm": { "rot": [0, 0, 28] },
+      "LeftUpperArm": { "rot": [0, 0, -145] }, "LeftLowerArm": { "rot": [0, 0, 12] }
+    }},
+    { "time": 0.375, "poses": {
+      "UpperTorso": { "rot": [0, 0, -3] }, "Head": { "rot": [8, 0, 5] },
+      "RightUpperArm": { "rot": [0, 0, 145] }, "RightLowerArm": { "rot": [0, 0, -12] },
+      "LeftUpperArm": { "rot": [0, 0, -130] }, "LeftLowerArm": { "rot": [0, 0, -28] }
+    }},
+    { "time": 0.75, "poses": {
+      "UpperTorso": { "rot": [0, 0, 3] }, "Head": { "rot": [8, 0, -5] },
+      "RightUpperArm": { "rot": [0, 0, 130] }, "RightLowerArm": { "rot": [0, 0, 28] },
+      "LeftUpperArm": { "rot": [0, 0, -145] }, "LeftLowerArm": { "rot": [0, 0, 12] }
+    }},
+    { "time": 1.125, "poses": {
+      "UpperTorso": { "rot": [0, 0, -3] }, "Head": { "rot": [8, 0, 5] },
+      "RightUpperArm": { "rot": [0, 0, 145] }, "RightLowerArm": { "rot": [0, 0, -12] },
+      "LeftUpperArm": { "rot": [0, 0, -130] }, "LeftLowerArm": { "rot": [0, 0, -28] }
+    }},
+    { "time": 1.5, "poses": {
+      "UpperTorso": { "rot": [0, 0, 3] }, "Head": { "rot": [8, 0, -5] },
+      "RightUpperArm": { "rot": [0, 0, 130] }, "RightLowerArm": { "rot": [0, 0, 28] },
+      "LeftUpperArm": { "rot": [0, 0, -145] }, "LeftLowerArm": { "rot": [0, 0, 12] }
+    }}
+  ]
+}
