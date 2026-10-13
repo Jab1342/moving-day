@@ -123,6 +123,9 @@ return table.freeze({
 		HighSpeedSteerAngle = 12,
 		DriveTorque = 30000,
 		BrakeTorque = 60000,
+		BrakeDecelG = 0.65,
+		CoastDecelG = 0.05,
+		MotorMaxAcceleration = 400,
 		WheelRadius = 1.5,
 	}),
 })
