@@ -6,11 +6,11 @@ local Cargo = require("../src/shared/Logic/CargoRules")
 local def = { fragility = 1 }
 local mods = { protection = 0, assist = false }
 assert(Damage.impactDamage(14, def, mods) == 0, "No damage below threshold")
-assert(Damage.impactDamage(24, def, mods) == 60, "Impact scale")
-assert(Damage.impactDamage(24, { fragility = 2 }, mods) == 120, "Fragility scale")
+assert(Damage.impactDamage(24, def, mods) == 25, "Impact scale")
+assert(Damage.impactDamage(24, { fragility = 2 }, mods) == 50, "Fragility scale")
 assert(Damage.impactDamage(999, def, mods) == Damage.impactDamage(120, def, mods), "DeltaV clamped")
 assert(
-	Damage.impactDamage(24, def, { protection = 1, assist = true }) == 30,
+	Damage.impactDamage(24, def, { protection = 1, assist = true }) == 12.5,
 	"Combined protection capped at 50%"
 )
 assert(Damage.impactDamage(0 / 0, def, mods) == 0, "NaN cannot cause damage")
