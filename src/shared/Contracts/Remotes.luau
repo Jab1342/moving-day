@@ -6,7 +6,7 @@ return {
 		className = "RemoteFunction",
 		direction = "ClientToServer",
 		args = "itemUid: string, grip: 1 | 2",
-		checks = "same crew; range <= Config.GrabRange; grip free; not Broken",
+		checks = "same crew; range to requested physical grip <= Config.GrabRange; first Two carrier may use either grip as CarrierA; second uses opposite LeadGrip; not Broken",
 	},
 	["Carry.RequestDrop"] = {
 		className = "RemoteEvent",
@@ -18,7 +18,7 @@ return {
 		className = "UnreliableRemoteEvent",
 		direction = "ClientToServer",
 		args = "itemUid: string, handPos: Vector3",
-		checks = "caller holds grip 2; finite vector; Config.SecondGripHz; relay to lead",
+		checks = "caller is CarrierB; range to opposite LeadGrip attachment; finite vector; Config.SecondGripHz; relay to CarrierA",
 	},
 	["Carry.SecondGripRelay"] = {
 		className = "UnreliableRemoteEvent",

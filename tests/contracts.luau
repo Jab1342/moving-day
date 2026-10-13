@@ -42,6 +42,12 @@ assert(remotes["Fx.Ragdoll"].direction == "ServerToClient", "Ragdoll is server-d
 assert(string.find(remotes["Job.ItemEvent"].args, "ItemEventInfo", 1, true), "VFX snapshot payload")
 assert(attributes.Furniture.Dolly.owner == "ItemService", "Dolly is server-owned")
 assert(
+	attributes.Furniture.LeadGrip.owner == "ItemService"
+		and attributes.Furniture.LeadGrip.default == 1
+		and attributes.Furniture.LeadGrip.max == 2,
+	"Server owns physical grip mapping; absent attribute preserves old lead grip"
+)
+assert(
 	carry.Attachment == "CarryAttachment" and carry.PositionMode == "OneAttachment",
 	"Carry rig contract"
 )
