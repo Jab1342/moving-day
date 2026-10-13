@@ -113,7 +113,51 @@ local function setWalkSpeed(scale: number)
 	end
 end
 
+-- Carry pose: a looping Action animation while holding, so everyone sees you lifting.
+-- Plays only once ANIM_Carry / ANIM_CarryTwo exist in AssetIds.
+local poseTrack: AnimationTrack? = nil
+local function assetId(name: string): string?
+	local shared = ReplicatedStorage:FindFirstChild("Shared")
+	local module = shared and shared:FindFirstChild("AssetIds")
+	if module and module:IsA("ModuleScript") then
+		local ok, ids = pcall(require, module)
+		if ok and type(ids) == "table" and type(ids[name]) == "string" then
+			return ids[name]
+		end
+	end
+	return nil
+end
+
+local function stopPose()
+	if poseTrack then
+		poseTrack:Stop(0.2)
+		poseTrack = nil
+	end
+end
+
+local function playPose(twoPerson: boolean)
+	stopPose()
+	local _, humanoid = character()
+	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
+	local id = assetId(if twoPerson then "ANIM_CarryTwo" else "ANIM_Carry") or assetId("ANIM_Carry")
+	if not animator or not id then
+		return
+	end
+	local animation = Instance.new("Animation")
+	animation.AnimationId = id
+	local ok, track = pcall(function()
+		return (animator :: Animator):LoadAnimation(animation)
+	end)
+	if ok and track then
+		track.Priority = Enum.AnimationPriority.Action
+		track.Looped = true
+		track:Play(0.15)
+		poseTrack = track
+	end
+end
+
 local function clearHeld()
+	stopPose()
 	if held then
 		local root = itemRoot(held)
 		local alignPos = root and root:FindFirstChild("CarryAlignPosition") :: AlignPosition?
@@ -172,6 +216,7 @@ local function grab(model: Model, hitPoint: Vector3?, atScreen: Vector2?, gen: n
 	if humanoid then
 		baseWalkSpeed = humanoid.WalkSpeed
 	end
+	playPose(model:GetAttribute("Carry") == "Two")
 end
 
 local function drop()
