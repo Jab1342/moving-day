@@ -481,5 +481,19 @@
     "assetId": "98460559205600",
     "uploadedBy": "Codex",
     "file": "assets/images/PING_Nice.png"
+  },
+  {
+    "name": "ANIM_Carry",
+    "type": "Animation",
+    "assetId": "70718766583193",
+    "uploadedBy": "Codex",
+    "file": "assets/anim/MD_Carry.rbxm"
+  },
+  {
+    "name": "ANIM_CarryTwo",
+    "type": "Animation",
+    "assetId": "75293060457689",
+    "uploadedBy": "Codex",
+    "file": "assets/anim/MD_CarryTwo.rbxm"
   }
 ]

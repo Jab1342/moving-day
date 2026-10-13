@@ -192,7 +192,10 @@ for seed = 1, 1000 do
 			"Tier room count bounds"
 		)
 		local occupied, stairs, cells = {}, 0, {}
+		local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
 		for roomIndex, room in layout.rooms do
+			minX, maxX = math.min(minX, room.gridX), math.max(maxX, room.gridX)
+			minZ, maxZ = math.min(minZ, room.gridZ), math.max(maxZ, room.gridZ)
 			local def = RoomDefs[room.template]
 			assert(
 				def
@@ -215,6 +218,10 @@ for seed = 1, 1000 do
 			end
 		end
 		assert(stairs == (if tier == "Starter" then 0 else 1), "Tier staircase requirement")
+		assert(
+			maxX - minX < Config.RoomGridWidth and maxZ - minZ < Config.RoomGridWidth,
+			"House fits authored lot/delivery footprint"
+		)
 		for _, c in cells do
 			assert(
 				c[3] == 0 or occupied[cell(c[1], c[2], 0)],
@@ -247,9 +254,13 @@ for seed = 1, 1000 do
 		end
 		assert(#queue == #cells, "Every room must be reachable through doors/stairs")
 		local used, couch, hero = {}, false, false
+		local twoPersonCount = 0
 		for _, item in layout.items do
 			local room = layout.rooms[item.roomIndex]
 			local size = if ItemDefs[item.itemId].carry == "Two" then "large" else "small"
+			if size == "large" then
+				twoPersonCount += 1
+			end
 			assert(
 				table.find(RoomDefs[room.template][size], item.socketName),
 				"Manifest needs matching socket"
@@ -261,6 +272,10 @@ for seed = 1, 1000 do
 			hero = hero or item.itemId == "piano" or item.itemId == "aquarium"
 		end
 		assert(tier ~= "Starter" or couch, "Starter always has couch")
+		assert(
+			tier ~= "Starter" or twoPersonCount == 1,
+			"Starter has exactly one couch and five One items"
+		)
 		assert(tier ~= "Big" or hero, "Big always has piano or aquarium")
 		variants[layout.rooms[1].template] = true
 	end
