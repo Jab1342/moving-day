@@ -106,6 +106,27 @@ local function show(position: Vector3, label: string)
 	end
 end
 
+-- The beacon over the destination stands on the house's roof, so a two-floor house doesn't
+-- swallow the chevron; the zone floor when no house is found in it.
+local function houseTopY(zone: BasePart): number
+	local floorY = zone.Position.Y - zone.Size.Y / 2
+	local runtime = Workspace:FindFirstChild("MovingDayRuntime")
+	local houses = runtime and runtime:FindFirstChild("Houses")
+	if not houses then
+		return floorY
+	end
+	for _, house in houses:GetChildren() do
+		if house:IsA("Model") then
+			local cf, size = house:GetBoundingBox()
+			local p = zone.CFrame:PointToObjectSpace(cf.Position)
+			if math.abs(p.X) <= zone.Size.X / 2 and math.abs(p.Z) <= zone.Size.Z / 2 then
+				return cf.Y + size.Y / 2
+			end
+		end
+	end
+	return floorY
+end
+
 local function onState(state: any)
 	if type(state) ~= "table" or player:GetAttribute("CrewId") ~= state.crewId then
 		return
@@ -119,10 +140,7 @@ local function onState(state: any)
 	if state.phase == "Unloading" then
 		local zone = lot:FindFirstChild("DeliveryZone")
 		if zone and zone:IsA("BasePart") then
-			show(
-				Vector3.new(zone.Position.X, zone.Position.Y - zone.Size.Y / 2, zone.Position.Z),
-				"Unload here"
-			)
+			show(Vector3.new(zone.Position.X, houseTopY(zone), zone.Position.Z), "Unload here")
 			return
 		end
 	end
