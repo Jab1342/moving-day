@@ -12,8 +12,9 @@ local Workspace = game:GetService("Workspace")
 local player = Players.LocalPlayer
 
 local COLOR = Color3.fromRGB(255, 200, 60)
-local HEIGHT = 40
-local HOVER = 12 -- chevron/label height above the target
+local HEIGHT = 40 -- fallback column height
+local LABEL_HEIGHT = 17 -- just above PRP_Beacon's chevron tip (12)
+local SPIN = 0.8 -- rad/s; a slow turn reads as a marker at distance
 
 local NavController = {}
 
@@ -33,10 +34,21 @@ local function buildFallback(): Model
 	column.Transparency = 0.55
 	column.Parent = model
 	model.PrimaryPart = column
+	model.WorldPivot = CFrame.new() -- pivot at the column's foot, upright
+	return model
+end
+
+-- "Park here" / "Unload here" floating LABEL_HEIGHT studs above the beacon's foot.
+local function addLabel(model: Model)
+	local primary = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart")
+	if not primary then
+		return
+	end
+	model:PivotTo(CFrame.new())
 	local tag = Instance.new("BillboardGui")
 	tag.Name = "Label"
-	tag.Size = UDim2.fromOffset(160, 64)
-	tag.StudsOffsetWorldSpace = Vector3.new(0, HOVER - HEIGHT / 2, 0)
+	tag.Size = UDim2.fromOffset(170, 56)
+	tag.StudsOffsetWorldSpace = Vector3.new(0, LABEL_HEIGHT - primary.Position.Y, 0)
 	tag.AlwaysOnTop = true
 	tag.LightInfluence = 0
 	local text = Instance.new("TextLabel")
@@ -48,9 +60,7 @@ local function buildFallback(): Model
 	text.TextColor3 = COLOR
 	text.TextStrokeTransparency = 0.3
 	text.Parent = tag
-	tag.Parent = column
-	model.WorldPivot = CFrame.new() -- pivot at the column's foot, upright
-	return model
+	tag.Parent = primary
 end
 
 local function ensureBeacon(): Model
@@ -69,6 +79,9 @@ local function ensureBeacon(): Model
 			d.CanTouch = false
 			d.CastShadow = false
 		end
+	end
+	if not model:FindFirstChild("Text", true) then
+		addLabel(model)
 	end
 	model.Parent = Workspace.CurrentCamera -- local only
 	beacon = model
@@ -132,10 +145,14 @@ function NavController.Start()
 			hide()
 		end
 	end)
-	-- gentle bob so it reads as a marker, not scenery
+	-- gentle bob and spin so it reads as a marker, not scenery
 	RunService.RenderStepped:Connect(function()
 		if beacon and target then
-			beacon:PivotTo(CFrame.new(target + Vector3.new(0, math.sin(os.clock() * 2) * 0.6, 0)))
+			local t = os.clock()
+			beacon:PivotTo(
+				CFrame.new(target + Vector3.new(0, math.sin(t * 2) * 0.6, 0))
+					* CFrame.Angles(0, t * SPIN, 0)
+			)
 		end
 	end)
 end
