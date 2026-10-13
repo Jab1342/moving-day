@@ -42,7 +42,9 @@ function UpgradeService:Buy(player, id, tier)
 	end
 	-- Do not charge for upgrades whose physical effects are not implemented yet.
 	if id ~= "Straps" and id ~= "MovingBlankets" then
-		return false, "NotReady"
+		if not self.isReady or not self.isReady(id) then
+			return false, "NotReady"
+		end
 	end
 	return self.data:Update(player, function(profile)
 		local ok, reason, price = Rules.purchase(profile, id, tier)

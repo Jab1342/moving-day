@@ -111,7 +111,12 @@ function JobService:StartJob(crew)
 		local house, sockets = HouseBuilder.Build(layout, pickup, self.folder)
 		job.house = house
 		job.destinationHouse = HouseBuilder.Build(layout, destination, self.folder)
-		local truck, why = self.trucks:Spawn(crew.id, truckSpawn.WorldCFrame)
+		local leaderProfile = self.data:Get(crew.members[1])
+		local truck, why = self.trucks:Spawn(
+			crew.id,
+			truckSpawn.WorldCFrame,
+			leaderProfile and leaderProfile.upgrades
+		)
 		assert(truck, why or "TruckUnavailable")
 		job.truck = truck
 		for _, item in layout.items do
