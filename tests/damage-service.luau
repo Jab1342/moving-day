@@ -130,3 +130,32 @@ assert(removed.dropped, "Same speed after release retains normal damage threshol
 print(
 	"PASS carried impact tuning: gentle doorway bumps spared, severe impacts and released drops still damage"
 )
+
+items.records = {}
+events, removed = {}, {}
+for index = 1, Config.MaxActiveAssemblies do
+	item("batch-" .. index, Defs.vase)
+end
+local frames = 600
+local started = os.clock()
+for _ = 1, frames do
+	clock += 1 / 60
+	damage:Step()
+end
+local milliseconds = (os.clock() - started) * 1000 / frames
+assert(#events == 0, "Stationary full-capacity batch emits no damage events")
+for _, rec in items.records do
+	rec.previousVelocity = V.new(0, -37, 0)
+end
+damage:Step()
+assert(
+	next(items.records) == nil and #events == Config.MaxActiveAssemblies,
+	"Every broken record is processed once while removing the full batch"
+)
+print(
+	string.format(
+		"PASS damage batch: %d active items, 600 stationary frames, %.3f ms/Step in Lune mocks (not Studio/mobile profiling), then all simultaneous breaks",
+		Config.MaxActiveAssemblies,
+		milliseconds
+	)
+)
