@@ -57,6 +57,25 @@ function ItemService:Allowed(player, action, highRate)
 end
 
 function ItemService:Fire(rec, kind, info)
+	if self.analytics then
+		local actor = Players:GetPlayerByUserId(
+			if kind == "Broken" and rec.truck then rec.truck.driverId else rec.lastCarrier
+		)
+		if actor then
+			if kind == "Loaded" then
+				self.analytics:Funnel(actor, 3)
+			elseif kind == "Delivered" then
+				self.analytics:Funnel(actor, 5)
+			elseif kind == "Broken" then
+				self.analytics:Custom(
+					actor,
+					"ItemBroken",
+					1,
+					{ [Enum.AnalyticsCustomFieldKeys.CustomField01.Name] = rec.def.id }
+				)
+			end
+		end
+	end
 	for _, player in Players:GetPlayers() do
 		if player:GetAttribute("CrewId") == rec.crewId then
 			self.remotes.Job.ItemEvent:FireClient(
@@ -75,9 +94,11 @@ function ItemService:SetState(rec, state)
 	rec.model:SetAttribute("State", state)
 end
 
-function ItemService:Grace(rec)
-	rec.graceUntil = os.clock() + Config.GrabGraceSeconds
+function ItemService:Grace(rec, seconds)
+	rec.graceUntil = os.clock() + (seconds or Config.GrabGraceSeconds)
 	rec.previousVelocity = rec.root.AssemblyLinearVelocity
+	rec.previousBedVelocity = nil
+	rec.damageTruck = nil
 end
 
 function ItemService:SetOwner(rec, player, automatic)
@@ -209,7 +230,9 @@ function ItemService:ApplyCarriers(rec)
 	if rec.a ~= 0 and not character(lead) then
 		return false
 	end
-	if not self:SetOwner(rec, lead, rec.a == 0) then
+	-- Explicit server ownership after release gives DamageService unsmoothed landing
+	-- samples; automatic ownership may immediately assign the dropped item back to its carrier.
+	if not self:SetOwner(rec, lead, false) then
 		return false
 	end
 	for _, part in rec.model:GetDescendants() do
@@ -225,14 +248,20 @@ function ItemService:ApplyCarriers(rec)
 			crewCount += 1
 		end
 	end
+	local owner = Players:GetPlayerByUserId(rec.a)
+	local purchasedDolly = owner and self.upgrades and self.upgrades:DollyTier(owner) > 0
 	rec.model:SetAttribute(
 		"Dolly",
-		rec.def.carry == "Two" and rec.a ~= 0 and rec.b == 0 and crewCount == 1
+		rec.def.carry == "Two"
+			and rec.a ~= 0
+			and rec.b == 0
+			and (crewCount == 1 or purchasedDolly == true)
 	)
 	self:SetState(rec, if rec.a ~= 0 then "Carried" else "Idle")
 	position.Enabled = rec.a ~= 0
 	orientation.Enabled = rec.a ~= 0
-	self:Grace(rec)
+	-- A released item must be vulnerable before a chest-height fall lands.
+	self:Grace(rec, if rec.a == 0 then Config.DropGraceSeconds else Config.GrabGraceSeconds)
 	return true
 end
 
@@ -302,6 +331,9 @@ function ItemService:Grab(player, uid, grip)
 		return false, "OwnershipUnavailable"
 	end
 	rec.lastPivot = rec.model:GetPivot()
+	if self.analytics then
+		self.analytics:Funnel(player, 2)
+	end
 	return true, nil
 end
 
@@ -459,8 +491,10 @@ end
 
 function ItemService:Step(dt)
 	for _, rec in self.records do
-		if not rec.model.Parent then
-			self:Remove(rec, false)
+		if not rec.model.Parent or not rec.root.Parent then
+			-- FallenPartsDestroyHeight can remove the root but leave its Model behind.
+			-- Lost undelivered cargo is a completed loss, never an endless manifest entry.
+			self:Remove(rec, rec.state ~= "Delivered")
 			continue
 		end
 		if rec.a == 0 then
@@ -489,6 +523,8 @@ function ItemService:Step(dt)
 			rec.model:PivotTo(rec.lastPivot)
 			rec.root.AssemblyLinearVelocity = Vector3.zero
 			rec.root.AssemblyAngularVelocity = Vector3.zero
+			-- A server correction is not an impact; discard its pre-teleport sample.
+			self:Grace(rec)
 			local strike = self.strikes[offender]
 			if not strike or os.clock() - strike.at > Config.StrikeWindowSeconds then
 				strike = { at = os.clock(), count = 0 }

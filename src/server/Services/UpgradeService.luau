@@ -41,26 +41,45 @@ function UpgradeService:Buy(player, id, tier)
 		return false, "InJob"
 	end
 	-- Do not charge for upgrades whose physical effects are not implemented yet.
-	if id ~= "Straps" and id ~= "MovingBlankets" then
-		return false, "NotReady"
+	if id ~= "Straps" and id ~= "MovingBlankets" and id ~= "Dolly" then
+		if not self.isReady or not self.isReady(id) then
+			return false, "NotReady"
+		end
 	end
-	return self.data:Update(player, function(profile)
+	local charged = 0
+	local success, failure = self.data:Update(player, function(profile)
 		local ok, reason, price = Rules.purchase(profile, id, tier)
 		if not ok then
 			return false, reason
 		end
 		profile.cash -= price
 		profile.upgrades[id] = tier
+		charged = price
 	end)
+	if success and self.analytics then
+		self.analytics:Funnel(player, 7)
+		self.analytics:Economy(player, -charged, self.data:Get(player).cash, id .. ":" .. tier)
+	end
+	return success, failure
+end
+function UpgradeService:DollyTier(player)
+	local profile = self.data:Get(player)
+	return if profile then profile.upgrades.Dolly or 0 else 0
 end
 function UpgradeService:PayWrap(player)
-	return self.data:Update(player, function(profile)
+	local charged = 0
+	local success, failure = self.data:Update(player, function(profile)
 		local ok, reason, price = Rules.wrap(profile)
 		if not ok then
 			return false, reason
 		end
 		profile.cash -= price
+		charged = price
 	end)
+	if success and self.analytics then
+		self.analytics:Economy(player, -charged, self.data:Get(player).cash, "MovingBlanketUse")
+	end
+	return success, failure
 end
 function UpgradeService:StrapSlots(crewId)
 	-- Crew benefits from the highest currently-present member tier, never summed.

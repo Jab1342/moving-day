@@ -1,6 +1,6 @@
 --!strict
 -- Free solo dolly is an entitlement, tier 1/2 are purchased speed tiers.
--- STUB(Codex): dolly tier speeds and suspension/box-truck tuning await feel tests.
+-- Physical upgrade/client tradeoffs require Studio acceptance before release.
 return {
 	Dolly = {
 		displayName = "Dolly",

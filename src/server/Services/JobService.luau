@@ -111,7 +111,12 @@ function JobService:StartJob(crew)
 		local house, sockets = HouseBuilder.Build(layout, pickup, self.folder)
 		job.house = house
 		job.destinationHouse = HouseBuilder.Build(layout, destination, self.folder)
-		local truck, why = self.trucks:Spawn(crew.id, truckSpawn.WorldCFrame)
+		local leaderProfile = self.data:Get(crew.members[1])
+		local truck, why = self.trucks:Spawn(
+			crew.id,
+			truckSpawn.WorldCFrame,
+			leaderProfile and leaderProfile.upgrades
+		)
 		assert(truck, why or "TruckUnavailable")
 		job.truck = truck
 		for _, item in layout.items do
@@ -149,6 +154,14 @@ function JobService:StartJob(crew)
 		return nil
 	end
 	self:Push(job)
+	if self.analytics then
+		for _, player in crew.members do
+			local profile = self.data:Get(player)
+			if profile and profile.stats.jobs >= 1 then
+				self.analytics:Funnel(player, 8)
+			end
+		end
+	end
 	return job.id
 end
 function JobService:Removed(rec, broken)
@@ -159,7 +172,12 @@ function JobService:Removed(rec, broken)
 	local snap = job.snapshots[rec.uid]
 	snap.state = if rec.state == "Delivered" then "Delivered" else "Broken"
 	snap.hp = if broken then 0 else rec.model:GetAttribute("HP") or 0
-	snap.blame = rec.model:GetAttribute("BlameUserId") or rec.lastCarrier or 0
+	local blame = rec.model:GetAttribute("BlameUserId")
+	if type(blame) ~= "number" or blame == 0 then
+		local driver = rec.truck and rec.truck.driverId
+		blame = if type(driver) == "number" and driver ~= 0 then driver else rec.lastCarrier or 0
+	end
+	snap.blame = blame
 	job.manifest[rec.uid] = snap.state
 	job.dirty = true
 end

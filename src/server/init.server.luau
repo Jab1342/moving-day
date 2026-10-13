@@ -75,18 +75,34 @@ for path, definition in definitions do
 end
 
 local services = script:WaitForChild("Services")
+local analytics = require(services.AnalyticsService).new()
+analytics:Start()
+local antiExploit = require(services.AntiExploitService).new(remotes)
+antiExploit.onPing = function(player, pingId)
+	analytics:Custom(player, "PingUsed", 1, { CustomField01 = tostring(pingId) })
+end
+antiExploit:Start()
 local data = require(services.DataService).new(remotes, require(script.Vendor.ProfileStore))
 data:Start()
+local monetization = require(services.MonetizationService).new(data)
+monetization:Start()
 local upgrades = require(services.UpgradeService).new(data, remotes)
+upgrades.analytics = analytics
 upgrades:Start()
 local runtime = folder(workspace, "MovingDayRuntime")
 local items = require(services.ItemService).new(folder(runtime, "Items"), remotes)
 local trucks = require(services.TruckService).new(folder(runtime, "Trucks"), items)
+upgrades.isReady = function(id)
+	return trucks:CanUseUpgrade(id)
+end
 local damage = require(services.DamageService).new(items)
 items.trucks = trucks
 items.damage = damage
+items.analytics = analytics
+trucks.analytics = analytics
 local crews = require(services.CrewService).new(remotes)
 local payouts = require(services.PayoutService).new(data, remotes)
+payouts.analytics = analytics
 local jobs = require(services.JobService).new(
 	crews,
 	items,
@@ -97,6 +113,7 @@ local jobs = require(services.JobService).new(
 	folder(runtime, "Houses")
 )
 jobs:Bind()
+jobs.analytics = analytics
 crews:Bind()
 items.onCrewRemove = function(player)
 	crews:Remove(player)

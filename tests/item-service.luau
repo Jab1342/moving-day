@@ -39,11 +39,13 @@ local function object(class)
 	function methods:SetNetworkOwner(player)
 		ownerSet = true
 		values.owner = player
+		values.automatic = false
 		table.insert(events, "owner")
 	end
 	function methods:SetNetworkOwnershipAuto()
 		ownerSet = true
 		values.owner = nil
+		values.automatic = true
 		table.insert(events, "auto")
 	end
 	function methods:GetPivot()
@@ -193,9 +195,24 @@ assert(
 )
 assert(root.owner == p1 and root.CollisionGroup == "Carried", "Ownership and collision")
 assert(events[#events] == "enable", "Ownership before constraints")
+assert(
+	model:GetAttribute("Dolly") == false,
+	"Unpaid crew member hauling alone has no purchased dolly"
+)
+items.upgrades = {
+	DollyTier = function(_, candidate)
+		return if candidate == p1 then 1 else 0
+	end,
+}
+assert(
+	items:ApplyCarriers(rec) and model:GetAttribute("Dolly"),
+	"Purchased dolly works while alone on a grip in a crew"
+)
 assert(not items:Grab(p1, "item", 2), "No double grip")
 ownerSet = false
 assert(items:Grab(p2, "item", 2), "Second grab")
+assert(not model:GetAttribute("Dolly"), "Two carriers switch away from dolly")
+items.upgrades = nil
 items:Relay(p3, "item", V.zero)
 assert(relay == nil, "Noncarrier relay rejected")
 items:Relay(p2, "item", V.new(0 / 0, 0, 0))
@@ -214,6 +231,14 @@ assert(
 	"Last drop clears state"
 )
 assert(root.children.CarryAlignPosition.Enabled == false, "Last drop disables constraint")
+assert(
+	root.owner == nil and root.automatic == false,
+	"Released furniture is explicitly server-owned for authoritative landing samples"
+)
+assert(
+	rec.graceUntil - os.clock() <= config.DropGraceSeconds,
+	"Drop does not inherit the full grab grace window"
+)
 local released = false
 items.trucks = {
 	Release = function(_, r)
@@ -310,3 +335,20 @@ assert(
 print(
 	"PASS: server ownership/handover; strap completion/cancellation; wrap cancellation, single charge and rejected debit"
 )
+rec.state, rec.a, rec.b, rec.truck = "Idle", 0, 0, nil
+model.Parent = { children = {} }
+root.Parent = nil
+local lost
+items.onRemoved = function(removedRecord, broken)
+	lost = { rec = removedRecord, broken = broken }
+end
+items:Step(1 / 60)
+assert(
+	lost and lost.rec == rec and lost.broken and items.records[rec.uid] == nil,
+	"Missing root retires an undelivered manifest item as broken"
+)
+rec.state = "Delivered"
+model.Parent = { children = {} }
+items.records[rec.uid] = rec
+items:Step(1 / 60)
+assert(lost.broken == false, "Already delivered cargo retains its credited value on removal")

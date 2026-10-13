@@ -17,14 +17,26 @@ try {
     if ($LASTEXITCODE) { throw 'Server logic tests failed' }
     & lune run tests/item-service
     if ($LASTEXITCODE) { throw 'Item service tests failed' }
+    & lune run tests/damage-service
+    if ($LASTEXITCODE) { throw 'Damage service tests failed' }
+    & lune run tests/truck-cargo
+    if ($LASTEXITCODE) { throw 'Truck cargo tests failed' }
+    & lune run tests/truck-upgrades
+    if ($LASTEXITCODE) { throw 'Truck upgrade tests failed' }
     & lune run tests/profile-data
     if ($LASTEXITCODE) { throw 'Profile data tests failed' }
     & lune run tests/crews
     if ($LASTEXITCODE) { throw 'Crew tests failed' }
     & lune run tests/jobs
     if ($LASTEXITCODE) { throw 'Job lifecycle tests failed' }
+    & lune run tests/analytics
+    if ($LASTEXITCODE) { throw 'Analytics tests failed' }
     & lune run tests/upgrades
     if ($LASTEXITCODE) { throw 'Upgrade tests failed' }
+    & lune run tests/pings
+    if ($LASTEXITCODE) { throw 'Ping tests failed' }
+    & lune run tests/receipts
+    if ($LASTEXITCODE) { throw 'Receipt tests failed' }
     & rojo build -o build/moving-day.rbxlx
     if ($LASTEXITCODE) { throw 'Rojo build failed' }
     & rojo build fallback.project.json -o build/fallback.rbxlx

@@ -163,6 +163,7 @@ local env = {
 	script = { Parent = { HouseBuilder = builder } },
 	CFrame = CF,
 	Vector3 = V,
+	Enum = rb.Enum,
 	require = function(value)
 		return value
 	end,
@@ -186,6 +187,9 @@ function items:Spawn(id, crewId, cf)
 		Parent = true,
 		GetAttribute = function(_, key)
 			return attrs[key]
+		end,
+		SetAttribute = function(_, key, value)
+			attrs[key] = value
 		end,
 		GetDescendants = function()
 			return { root }
@@ -225,7 +229,8 @@ function items:Remove(rec, broken)
 	self.records[rec.uid] = nil
 end
 local trucks = { trucks = {} }
-function trucks:Spawn(crewId, cf)
+function trucks:Spawn(crewId, cf, upgrades)
+	self.spawnedUpgrades = upgrades
 	local truck = { root = part(cf.Position) }
 	self.trucks[crewId] = truck
 	return truck
@@ -234,9 +239,24 @@ function trucks:Remove(crewId)
 	self.trucks[crewId] = nil
 end
 local payouts = PayoutService.new(data, remotes)
+local payoutAnalytics = { sources = 0, steps = 0, completions = 0 }
+function payoutAnalytics:Funnel(_, step)
+	assert(step == 6, "Payout emits only first payout funnel hook")
+	self.steps += 1
+end
+function payoutAnalytics:Economy(_, amount, endingBalance)
+	assert(amount > 0 and endingBalance == data.saved.cash, "Only committed cash is reported")
+	self.sources += 1
+end
+function payoutAnalytics:Custom(_, event)
+	assert(event == "JobCompleted", "Completion custom event")
+	self.completions += 1
+end
+payouts.analytics = payoutAnalytics
 local jobs = JobService.new(crews, items, trucks, payouts, data, remotes, {})
 jobs:Bind()
 local id = jobs:StartJob(crew)
+assert(trucks.spawnedUpgrades == data.saved.upgrades, "Truck receives the leader's saved upgrades")
 assert(id and jobs.jobs[crew.id], "Start first-session job")
 local job = jobs.jobs[crew.id]
 assert(#job.order == 6 and player.Character.position, "Starter manifest and direct arrival")
@@ -277,6 +297,10 @@ assert(
 	data.saved.cash == balance and data.updates == 1,
 	"Repeated payout ticks cannot duplicate awards"
 )
+assert(
+	payoutAnalytics.sources == 1 and payoutAnalytics.steps == 1 and payoutAnalytics.completions == 1,
+	"Payout retries do not duplicate analytics"
+)
 stamp += Config.PayoutDisplaySeconds
 jobs:Step(Config.JobPollSeconds)
 assert(
@@ -293,9 +317,28 @@ assert(
 crew.members, crews.crews[1] = { player }, crew
 assert(jobs:StartJob(crew), "Returning crew starts next job")
 job = jobs.jobs[crew.id]
-for _, rec in table.clone(items.records) do
+for index, uid in job.order do
+	local rec = items.records[uid]
+	if index == 1 then
+		rec.lastCarrier = 99
+	elseif index == 2 then
+		rec.lastCarrier, rec.truck = 99, { driverId = 55 }
+	elseif index == 3 then
+		rec.model:SetAttribute("BlameUserId", 77)
+		rec.lastCarrier = 99
+	elseif index == 4 then
+		rec.lastCarrier = -12
+	end
 	items:Remove(rec, true)
 end
+assert(job.snapshots[job.order[1]].blame == 99, "Zero sentinel falls back to last carrier")
+assert(job.snapshots[job.order[2]].blame == 55, "Lost truck cargo falls back to driver")
+assert(job.snapshots[job.order[3]].blame == 77, "Explicit impact blame is preserved")
+assert(job.snapshots[job.order[4]].blame == -12, "Studio player identities remain valid")
+assert(
+	job.snapshots[job.order[5]].blame == 0 and job.snapshots[job.order[5]].hp == 0,
+	"Unassigned loss has zero value and unknown blame"
+)
 jobs:Step(Config.JobPollSeconds)
 assert(
 	job.phase == "Payout" and data.saved.cash == balance + Config.JobFee.Starter,

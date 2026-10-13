@@ -11,6 +11,7 @@ local ServerStorage = game:GetService("ServerStorage")
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared.Config)
 local RoomDefs = require(Shared.RoomDefs)
+local DoorRules = require(Shared.Logic.DoorRules)
 
 local CELL = Config.RoomGridStuds
 local LEVEL = Config.RoomFloorStuds
@@ -58,12 +59,12 @@ function HouseBuilder.Build(layout: any, lot: Model, parent: Instance): (Model, 
 	local base = origin.WorldCFrame
 
 	-- occupancy and layout centre
-	local occupied: { [string]: boolean } = {}
+	local occupied: { [string]: any } = {}
 	local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
 	for _, room in layout.rooms do
 		local floors = RoomDefs[room.template].floors
 		for f = room.floor, room.floor + floors - 1 do
-			occupied[cellKey(room.gridX, room.gridZ, f)] = true
+			occupied[cellKey(room.gridX, room.gridZ, f)] = room
 		end
 		minX, maxX = math.min(minX, room.gridX), math.max(maxX, room.gridX)
 		minZ, maxZ = math.min(minZ, room.gridZ), math.max(maxZ, room.gridZ)
@@ -100,9 +101,15 @@ function HouseBuilder.Build(layout: any, lot: Model, parent: Instance): (Model, 
 					- cellFrame(room.gridX, room.gridZ, 0, centre).Position
 				local dx = if math.abs(offset.X) > CELL / 4 then math.sign(offset.X) else 0
 				local dz = if math.abs(offset.Z) > CELL / 4 then math.sign(offset.Z) else 0
-				if occupied[cellKey(room.gridX + dx, room.gridZ + dz, level)] then
+				local neighbor = occupied[cellKey(room.gridX + dx, room.gridZ + dz, level)]
+				if neighbor and DoorRules.connected(room, neighbor, level) then
 					plug:Destroy()
-				elseif level == 0 and dz == -1 then
+				elseif
+					not neighbor
+					and level == 0
+					and dz == -1
+					and DoorRules.canExit(room, dx, dz, level)
+				then
 					table.insert(frontCandidates, { plug = plug, x = room.gridX, z = room.gridZ })
 				end
 			end
