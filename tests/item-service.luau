@@ -198,8 +198,8 @@ assert(
 	"Unpaid crew member hauling alone has no purchased dolly"
 )
 items.upgrades = {
-	DollyTier = function(player)
-		return if player == p1 then 1 else 0
+	DollyTier = function(_, candidate)
+		return if candidate == p1 then 1 else 0
 	end,
 }
 assert(
