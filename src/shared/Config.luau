@@ -11,6 +11,7 @@ return table.freeze({
 	DollySpeedScale = 0.4,
 	DollyGap = 1.5,
 	DollyDeckHeight = 1.1,
+	DollyTurnRate = math.rad(120),
 	HipToGround = 3,
 	DollyTierSpeedScale = table.freeze({ 0.55, 0.70 }),
 	BedSettleSeconds = 1.0,
