@@ -397,5 +397,33 @@
     "assetId": "105483131149950",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/PRP_Rug.fbx"
+  },
+  {
+    "name": "PRP_BathroomSink",
+    "type": "Model",
+    "assetId": "103058974589632",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_BathroomSink.fbx"
+  },
+  {
+    "name": "PRP_Fireplace",
+    "type": "Model",
+    "assetId": "110304456914061",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Fireplace.fbx"
+  },
+  {
+    "name": "TRK_Pickup_Body_Blue",
+    "type": "Model",
+    "assetId": "71286573606711",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/TRK_Pickup_Body_Blue.fbx"
+  },
+  {
+    "name": "TRK_Pickup_Body_Yellow",
+    "type": "Model",
+    "assetId": "115156075815657",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/TRK_Pickup_Body_Yellow.fbx"
   }
 ]

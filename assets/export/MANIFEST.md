@@ -67,3 +67,7 @@ rotation in MeshPart.PivotOffset; fix on insert with `part.PivotOffset = CFrame.
 | PRP_Toilet.fbx | 110191635761827 | RoomTemplates (replaces placeholder part) | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
 | PRP_BedFrame.fbx | 126820018402703 | RoomTemplates (replaces placeholder part) | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
 | PRP_Rug.fbx | 105483131149950 | RoomTemplates (replaces placeholder part) | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| PRP_BathroomSink.fbx | 103058974589632 | RoomTemplates (replaces placeholder part) | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| PRP_Fireplace.fbx | 110304456914061 | RoomTemplates (replaces placeholder part) | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| TRK_Pickup_Body_Blue.fbx | 71286573606711 | Assets.Trucks | Hull (CanCollide=false, visual only) | clean | rig parts stay as collision; paint variant, same rig placement |
+| TRK_Pickup_Body_Yellow.fbx | 115156075815657 | Assets.Trucks | Hull (CanCollide=false, visual only) | clean | rig parts stay as collision; paint variant, same rig placement |

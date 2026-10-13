@@ -9,7 +9,7 @@ import os
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 CLEAN_FROM = "PRP_Tree"  # first upload exported with bake_space_transform
 UPGRADE_PROPS = {"PRP_Dolly", "PRP_LoadingRamp"}
-ROOM_DRESSING = {"PRP_KitchenCounter", "PRP_Bathtub", "PRP_Toilet", "PRP_BedFrame", "PRP_Rug"}
+ROOM_DRESSING = {"PRP_KitchenCounter", "PRP_Bathtub", "PRP_Toilet", "PRP_BedFrame", "PRP_Rug", "PRP_BathroomSink", "PRP_Fireplace"}
 
 
 def target(n):
@@ -19,8 +19,9 @@ def target(n):
         return "Assets.Fractured", "Box", "4-6 chunks, client-only debris"
     if n.startswith("FUR_"):
         return "Assets.Furniture", "Hull", ""
-    if n.startswith("TRK_") and n.endswith("_Body"):
-        return "Assets.Trucks", "Hull (CanCollide=false, visual only)", "rig parts stay as collision"
+    if n.startswith("TRK_") and "_Body" in n:
+        note = "rig parts stay as collision" + ("; paint variant, same rig placement" if not n.endswith("_Body") else "")
+        return "Assets.Trucks", "Hull (CanCollide=false, visual only)", note
     if n.startswith("TRK_"):
         return "Assets.Trucks", "Hull", ""
     if n in UPGRADE_PROPS:

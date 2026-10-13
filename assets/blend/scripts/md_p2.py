@@ -216,7 +216,35 @@ def rug():  # Rug 12 x 0.1 x 10
     ]
 
 
+def bathroom_sink():
+    return [
+        prism("white", (-0.35, 0.35, -0.3, 0.3, 0), (-0.25, 0.25, -0.2, 0.25, 2.4)),  # pedestal
+        box("white", (1.8, 1.4, 0.5), (0, 0, 2.65), bevel=0.06),  # basin block
+        box("metal_brushed", (1.2, 0.8, 0.04), (0, -0.1, 2.9)),  # bowl
+        box("metal_chrome", (0.12, 0.12, 0.35), (0, 0.5, 3.07)),  # tap
+        box("metal_chrome", (0.1, 0.35, 0.08), (0, 0.38, 3.2)),
+    ]
+
+
+def fireplace():
+    p = [
+        box("fab_brick", (6, 2, 5.5), (0, 0, 2.75)),  # chimney breast
+        box("nearblack", (3.2, 0.2, 2.6), (0, -0.92, 1.6)),  # firebox opening
+        box("grey_mid", (6.6, 2.6, 0.3), (0, -0.2, 0.15)),  # hearth
+        box("wood_walnut", (6.6, 2.4, 0.35), (0, -0.15, 4.0), bevel=0.04),  # mantel
+        box("fab_brick", (4.4, 1.6, 2.0), (0, 0.2, 6.5)),  # flue
+    ]
+    for i, (x, rot) in enumerate(((-0.5, 0), (0.5, 0), (0, 1))):
+        p.append(box("wood_darkwalnut", (1.6 if rot else 0.4, 0.4 if rot else 1.2, 0.35), (x, -0.6, 0.5 + 0.35 * rot)))
+    p.append(box("hazard_orange", (1.2, 0.05, 0.6), (0, -0.82, 0.95)))  # flame glow
+    return p
+
+
 P2 = {
+    "PRP_BathroomSink": bathroom_sink,
+    "PRP_Fireplace": fireplace,
+    "TRK_Pickup_Body_Blue": lambda: pickup_body("truck_blue"),
+    "TRK_Pickup_Body_Yellow": lambda: pickup_body("truck_yellow"),
     "PRP_KitchenCounter": kitchen_counter,
     "PRP_Bathtub": bathtub,
     "PRP_Toilet": toilet,
