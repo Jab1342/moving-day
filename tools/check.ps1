@@ -27,6 +27,8 @@ try {
     if ($LASTEXITCODE) { throw 'Analytics tests failed' }
     & lune run tests/upgrades
     if ($LASTEXITCODE) { throw 'Upgrade tests failed' }
+    & lune run tests/pings
+    if ($LASTEXITCODE) { throw 'Ping tests failed' }
     & rojo build -o build/moving-day.rbxlx
     if ($LASTEXITCODE) { throw 'Rojo build failed' }
     & rojo build fallback.project.json -o build/fallback.rbxlx

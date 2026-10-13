@@ -77,6 +77,11 @@ end
 local services = script:WaitForChild("Services")
 local analytics = require(services.AnalyticsService).new()
 analytics:Start()
+local antiExploit = require(services.AntiExploitService).new(remotes)
+antiExploit.onPing = function(player, pingId)
+	analytics:Custom(player, "PingUsed", 1, { CustomField01 = tostring(pingId) })
+end
+antiExploit:Start()
 local data = require(services.DataService).new(remotes, require(script.Vendor.ProfileStore))
 data:Start()
 local upgrades = require(services.UpgradeService).new(data, remotes)
