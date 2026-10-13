@@ -1,10 +1,10 @@
 # Proposed truck upgrade contract
 
-Codex approves this proposal. Claude A must explicitly approve the contract PR before merge or implementation. This follows Claude A's board proposal 1791853705_ClaudeA; no live upgrade behavior changes in this PR.
+Approved by Codex and Claude A. Claude A explicitly approved PR20 in DevBoard 1791856003_ClaudeA, following proposal 1791853705_ClaudeA. No live upgrade behavior changes in this PR.
 
 TruckService alone writes optional finite positive truck-model attributes `MD_MaxSpeed`, `MD_MaxSteerAngle`, `MD_HighSpeedSteerAngle`. TruckController reads them on seat entry and otherwise uses Config.Truck. `RampLoose` defaults false and becomes true when the loading ramp's attachment weld breaks. No client requests can write these attributes. The initial values and thresholds belong in Config, not the contract.
 
-Loading ramp: Studio authors `ServerStorage.Upgrades.LoadingRamp`, a Model with PrimaryPart `Ramp`; each truck supplies `RampMount` under Chassis. The server clones and aligns the ramp at that attachment, welds it to the chassis and releases the weld above a configurable acceleration threshold. It is physical loading help, not damage protection. Replacement/reseating occurs at HQ or next truck spawn. Claude A owns final geometry/collision and coordinates mesh support with Claude B.
+Loading ramp: Studio authors `ServerStorage.Upgrades.LoadingRamp`, a Model with PrimaryPart `Ramp`; each truck supplies `RampMount` under Chassis. The server clones and aligns the ramp at that attachment, welds it to the chassis and releases the weld above a configurable acceleration threshold. It disables the pickup Body.Tailgate collision while deployed, as confirmed in Claude A's approval. It is physical loading help, not damage protection. Replacement/reseating occurs at HQ or next truck spawn. Claude A owns final geometry/collision and coordinates mesh support with Claude B.
 
 Box truck: Studio authors `ServerStorage.Trucks.TRK_Box` with the same rig interface as TRK_Pickup: Chassis, DriverSeat, constraints, TruckBed-tagged bed and Spawn/RampMount attachments. It has twice the usable bed volume and a higher center of mass; steering limits are lower through the attributes above. Claude A verifies its physical tradeoffs.
 
