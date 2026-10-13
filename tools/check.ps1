@@ -23,6 +23,8 @@ try {
     if ($LASTEXITCODE) { throw 'Crew tests failed' }
     & lune run tests/jobs
     if ($LASTEXITCODE) { throw 'Job lifecycle tests failed' }
+    & lune run tests/upgrades
+    if ($LASTEXITCODE) { throw 'Upgrade tests failed' }
     & rojo build -o build/moving-day.rbxlx
     if ($LASTEXITCODE) { throw 'Rojo build failed' }
     & rojo build fallback.project.json -o build/fallback.rbxlx

@@ -77,6 +77,8 @@ end
 local services = script:WaitForChild("Services")
 local data = require(services.DataService).new(remotes, require(script.Vendor.ProfileStore))
 data:Start()
+local upgrades = require(services.UpgradeService).new(data, remotes)
+upgrades:Start()
 local runtime = folder(workspace, "MovingDayRuntime")
 local items = require(services.ItemService).new(folder(runtime, "Items"), remotes)
 local trucks = require(services.TruckService).new(folder(runtime, "Trucks"), items)
@@ -98,6 +100,14 @@ jobs:Bind()
 crews:Bind()
 items.onCrewRemove = function(player)
 	crews:Remove(player)
+end
+items.upgrades = upgrades
+trucks.strapSlotsForCrew = function(crewId)
+	return upgrades:StrapSlots(crewId)
+end
+upgrades.isInJob = function(player)
+	local crew = crews:CrewOf(player)
+	return crew ~= nil and (crew.jobId ~= nil or crew.starting == true)
 end
 items:Start()
 game:GetService("RunService").Heartbeat:Connect(function(dt)

@@ -65,6 +65,7 @@ return table.freeze({
 	ProfileStudioMock = true,
 	ProfileInitialResendSeconds = 2,
 	MaxProfileValue = 1000000000000,
+	ShopRange = 12,
 	-- Balance defaults: level L starts at LevelXpBase * (L - 1)^2 XP.
 	LevelXpBase = 100,
 	PayoutStarBands = table.freeze({ 0, 0.25, 0.5, 0.75, 0.9 }),

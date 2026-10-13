@@ -123,7 +123,6 @@ local services = {
 		end,
 	},
 }
-local pending = {}
 local relay
 local environment = {
 	game = {
@@ -138,8 +137,8 @@ local environment = {
 	Enum = roblox.Enum,
 	Vector3 = V,
 	task = {
-		delay = function(_, callback)
-			table.insert(pending, callback)
+		wait = function(seconds)
+			coroutine.yield(seconds)
 		end,
 	},
 }
@@ -237,13 +236,77 @@ assert(
 items:DropUser(101)
 rec.state = "InTruck"
 rec.truck = { pendingStraps = 0 }
-assert(items:Strap(p1, "item", "Strap"), "Strap reserves slot")
-assert(rec.truck.pendingStraps == 1 and #pending == 1, "Reservation persists during delay")
+local strap = coroutine.create(function()
+	return items:Strap(p1, "item", "Strap")
+end)
+local ran, seconds = coroutine.resume(strap)
+assert(
+	ran and seconds == config.StrapSeconds and coroutine.status(strap) == "suspended",
+	"Wait for strap completion before success"
+)
+assert(rec.truck.pendingStraps == 1, "Reservation persists during delay")
 assert(not items:Strap(p1, "item", "Strap"), "Cannot double-reserve")
 p1.crew = "B"
-pending[1]()
+local resumed, completed, reason = coroutine.resume(strap)
+assert(resumed and not completed and reason == "Cancelled", "Cancelled strap returns failure")
 assert(
 	not model:GetAttribute("Strapped") and rec.truck.pendingStraps == 0,
 	"Crew change cancels strap and refunds reservation"
 )
-print("PASS: server grab/relay/handover/ownership order and strap cancellation")
+p1.crew = "A"
+strap = coroutine.create(function()
+	return items:Strap(p1, "item", "Strap")
+end)
+assert(coroutine.resume(strap), "Start strap again")
+resumed, completed = coroutine.resume(strap)
+assert(
+	resumed and completed and model:GetAttribute("Strapped"),
+	"Strap success waits for actual attribute"
+)
+local charges = 0
+items.upgrades = {
+	PayWrap = function()
+		charges += 1
+		return true
+	end,
+}
+rec.state, rec.a, rec.b = "Carried", p1.UserId, 0
+rec.truck = nil
+model:SetAttribute("Wrapped", false)
+local wrapping = coroutine.create(function()
+	return items:Wrap(p1, rec)
+end)
+assert(coroutine.resume(wrapping), "Start wrap")
+assert(charges == 0 and not model:GetAttribute("Wrapped"), "Do not charge before wrap finishes")
+assert(not items:Wrap(p1, rec), "Only one pending wrap")
+items.holding[p1.UserId] = rec.uid
+items:DropUser(p1.UserId)
+resumed, completed = coroutine.resume(wrapping)
+assert(resumed and not completed and charges == 0, "Drop cancels without charging")
+rec.state, rec.a = "Carried", p1.UserId
+wrapping = coroutine.create(function()
+	return items:Wrap(p1, rec)
+end)
+assert(coroutine.resume(wrapping), "Retry wrap")
+resumed, completed = coroutine.resume(wrapping)
+assert(
+	resumed and completed and charges == 1 and model:GetAttribute("Wrapped"),
+	"Successful wrap charges once"
+)
+assert(not items:Wrap(p1, rec) and charges == 1, "Cannot pay twice for same wrapping")
+model:SetAttribute("Wrapped", false)
+items.upgrades.PayWrap = function()
+	return false, "NotEnoughCash"
+end
+wrapping = coroutine.create(function()
+	return items:Wrap(p1, rec)
+end)
+assert(coroutine.resume(wrapping), "Start unfunded wrap")
+resumed, completed = coroutine.resume(wrapping)
+assert(
+	resumed and not completed and not model:GetAttribute("Wrapped"),
+	"No free blanket on failed debit"
+)
+print(
+	"PASS: server ownership/handover; strap completion/cancellation; wrap cancellation, single charge and rejected debit"
+)

@@ -313,6 +313,7 @@ function ItemService:DropUser(userId)
 		return
 	end
 	rec.a, rec.b = Rules.drop(rec.a, rec.b, userId)
+	rec.pendingWrap = nil
 	if rec.a ~= 0 and not character(Players:GetPlayerByUserId(rec.a)) then
 		self.holding[rec.a] = nil
 		rec.a = 0
@@ -351,6 +352,41 @@ function ItemService:Relay(player, uid, handPos)
 	end
 end
 
+function ItemService:Wrap(player, rec)
+	if not self.upgrades then
+		return false, "NotReady"
+	end
+	if rec.state ~= "Carried" or (rec.a ~= player.UserId and rec.b ~= player.UserId) then
+		return false, "NotCarrier"
+	end
+	if rec.model:GetAttribute("Wrapped") or rec.pendingWrap then
+		return false, "AlreadyWrapped"
+	end
+	local token = {}
+	rec.pendingWrap = token
+	task.wait(Config.WrapSeconds)
+	local current = character(player)
+	local valid = self.records[rec.uid] == rec
+		and rec.pendingWrap == token
+		and rec.state == "Carried"
+		and (rec.a == player.UserId or rec.b == player.UserId)
+		and current
+		and player:GetAttribute("CrewId") == rec.crewId
+		and (rec.root.Position - current.Position).Magnitude <= Config.GrabRange
+	if rec.pendingWrap == token then
+		rec.pendingWrap = nil
+	end
+	if not valid then
+		return false, "Cancelled"
+	end
+	local paid, reason = self.upgrades:PayWrap(player)
+	if not paid then
+		return false, reason
+	end
+	rec.model:SetAttribute("Wrapped", true)
+	return true
+end
+
 function ItemService:Strap(player, uid, action)
 	if not self:Allowed(player, "Strap") then
 		return false, "RateLimited"
@@ -367,8 +403,8 @@ function ItemService:Strap(player, uid, action)
 		return false, "OutOfRange"
 	end
 	if action == "Wrap" then
-		return false, "NotReady"
-	end -- STUB(Codex): DataService atomic cash debit/unlock required.
+		return self:Wrap(player, rec)
+	end
 	if action ~= "Strap" or not rec.truck or rec.state ~= "InTruck" then
 		return false, "NotInTruck"
 	end
@@ -381,25 +417,25 @@ function ItemService:Strap(player, uid, action)
 	end
 	local token = {}
 	rec.pendingStrap = token
-	task.delay(Config.StrapSeconds, function()
-		truck.pendingStraps -= 1
-		if rec.pendingStrap ~= token then
-			return
-		end
-		rec.pendingStrap = nil
-		local current = character(player)
-		if
-			self.records[uid] == rec
-			and rec.truck == truck
-			and rec.state == "InTruck"
-			and current
-			and player:GetAttribute("CrewId") == rec.crewId
-			and (rec.root.Position - current.Position).Magnitude <= Config.GrabRange
-		then
-			rec.model:SetAttribute("Strapped", true)
-		end
-	end)
-	return true, nil
+	task.wait(Config.StrapSeconds)
+	truck.pendingStraps -= 1
+	if rec.pendingStrap ~= token then
+		return false, "Cancelled"
+	end
+	rec.pendingStrap = nil
+	local current = character(player)
+	if
+		self.records[uid] == rec
+		and rec.truck == truck
+		and rec.state == "InTruck"
+		and current
+		and player:GetAttribute("CrewId") == rec.crewId
+		and (rec.root.Position - current.Position).Magnitude <= Config.GrabRange
+	then
+		rec.model:SetAttribute("Strapped", true)
+		return true
+	end
+	return false, "Cancelled"
 end
 
 function ItemService:Remove(rec, broken)
