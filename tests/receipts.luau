@@ -35,7 +35,12 @@ end
 local Shared = {
 	Config = "Config",
 	ProductIds = "ProductIds",
-	Logic = { ReceiptRules = "Rules", ProfileSchema = "Schema", RateLimit = "RateLimit" },
+	Logic = {
+		ReceiptRules = "Rules",
+		ProfileSchema = "Schema",
+		RateLimit = "RateLimit",
+		PurchaseRules = "PurchaseRules",
+	},
 }
 local marketplace = {}
 local fakeGame = {}
@@ -68,6 +73,7 @@ local environment = {
 			Rules = Rules,
 			Schema = Schema,
 			RateLimit = RateLimit,
+			PurchaseRules = require("../src/shared/Logic/PurchaseRules"),
 		})[name]
 	end,
 	os = {
