@@ -147,8 +147,8 @@ function TruckService:Release(rec)
 	rec.pendingStrap = nil
 	rec.model:SetAttribute("Strapped", false)
 	self.items:SetState(rec, "Idle")
-	self.items:SetOwner(rec, nil, true)
-	self.items:Grace(rec)
+	self.items:SetOwner(rec, nil, false)
+	self.items:Grace(rec, Config.DropGraceSeconds)
 end
 
 function TruckService:Step(dt)
@@ -162,11 +162,17 @@ function TruckService:Step(dt)
 			self:UpdateDriver(truck)
 		end
 		local velocity = truck.bed.AssemblyLinearVelocity
-		truck.acceleration = CargoRules.accelerationG(
-			(velocity - truck.previousVelocity).Magnitude,
+		local acceleration = if dt > 0
+			then (velocity - truck.previousVelocity) / dt
+			else Vector3.zero
+		truck.filteredAcceleration = CargoRules.smooth(
+			truck.filteredAcceleration or Vector3.zero,
+			acceleration,
 			dt,
-			workspace.Gravity
+			Config.BedAccelerationFilterSeconds
 		)
+		truck.acceleration =
+			CargoRules.accelerationG(truck.filteredAcceleration.Magnitude, 1, workspace.Gravity)
 		truck.previousVelocity = velocity
 		truck.tilt =
 			math.deg(math.acos(math.clamp(truck.bed.CFrame.UpVector:Dot(Vector3.yAxis), -1, 1)))

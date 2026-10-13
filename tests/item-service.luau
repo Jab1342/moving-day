@@ -39,11 +39,13 @@ local function object(class)
 	function methods:SetNetworkOwner(player)
 		ownerSet = true
 		values.owner = player
+		values.automatic = false
 		table.insert(events, "owner")
 	end
 	function methods:SetNetworkOwnershipAuto()
 		ownerSet = true
 		values.owner = nil
+		values.automatic = true
 		table.insert(events, "auto")
 	end
 	function methods:GetPivot()
@@ -214,6 +216,14 @@ assert(
 	"Last drop clears state"
 )
 assert(root.children.CarryAlignPosition.Enabled == false, "Last drop disables constraint")
+assert(
+	root.owner == nil and root.automatic == false,
+	"Released furniture is explicitly server-owned for authoritative landing samples"
+)
+assert(
+	rec.graceUntil - os.clock() <= config.DropGraceSeconds,
+	"Drop does not inherit the full grab grace window"
+)
 local released = false
 items.trucks = {
 	Release = function(_, r)
