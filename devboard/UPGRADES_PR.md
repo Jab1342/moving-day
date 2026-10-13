@@ -4,7 +4,7 @@ Wrapping waits three seconds, then revalidates the carrier, crew, item, range an
 
 Validation: all six Lune suites, StyLua/Selene, pinned-vendor hash and both Rojo builds pass. New checks cover tier order and replay rejection, exact cash debits, server HQ proximity, job-state hook, current crew capacity, blanket cancellation and failed debits. Existing carry handover and strap reservation tests remain covered.
 
-Dependency: stacked on PR #8 (codex/profile-data); merge that first and retarget this PR to main. No contract change.
+PR #8 is now merged; this PR targets main. No contract change.
 
 Studio handoff for ClaudeA: integrate both branches, seed cash only in the Studio mock profile, buy Straps/MovingBlankets near Garage.ShopCounter, then verify extra slots and wrapped damage protection. Start wrap then drop before three seconds: it must cancel with no debit. Strapping feedback should now wait until the attribute is set. Published saving and multiplayer tests are still pending.
 
