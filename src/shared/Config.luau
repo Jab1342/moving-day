@@ -1,6 +1,7 @@
 --!strict
 return table.freeze({
 	DamageThreshold = 14,
+	CarriedDamageThreshold = 28,
 	DamagePerStudPerSec = 6,
 	GrabGraceSeconds = 0.75,
 	MaxDeltaVAccepted = 120,

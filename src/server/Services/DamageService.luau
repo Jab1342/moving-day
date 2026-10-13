@@ -29,6 +29,14 @@ function DamageService:Step()
 			continue
 		end
 		local deltaV = (velocity - previous).Magnitude
+		if rec.state == "Carried" then
+			-- Ignore careful doorway bumps. Released/cargo items retain drop/crash tuning.
+			deltaV = math.max(
+				0,
+				math.min(deltaV, Config.MaxDeltaVAccepted)
+					- math.max(0, Config.CarriedDamageThreshold - Config.DamageThreshold)
+			)
+		end
 		local blame = if rec.truck then rec.truck.driverId else rec.lastCarrier
 		local player = Players:GetPlayerByUserId(blame)
 		local damage = DamageModel.impactDamage(deltaV, rec.def, {

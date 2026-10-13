@@ -114,3 +114,19 @@ assert(grace.model:GetAttribute("HP") == 100, "Ownership/teleport grace ignores 
 print(
 	"PASS DamageService: sampled chest-speed impact, box/vase distinction, blame, cooldown, correction reset, grace and delivered protection"
 )
+local carried = item("carried", Defs.vase)
+carried.state = "Carried"
+carried.previousVelocity = V.new(24, 0, 0)
+damage:Step()
+assert(carried.model:GetAttribute("HP") == 100, "Careful carried doorway bump causes no damage")
+clock += Config.DamageCooldownSeconds + 0.01
+carried.previousVelocity = V.new(50, 0, 0)
+damage:Step()
+assert(removed.carried, "Fast carried crash still breaks fragile furniture")
+local dropped = item("dropped", Defs.vase)
+dropped.previousVelocity = V.new(24, 0, 0)
+damage:Step()
+assert(removed.dropped, "Same speed after release retains normal damage threshold")
+print(
+	"PASS carried impact tuning: gentle doorway bumps spared, severe impacts and released drops still damage"
+)
