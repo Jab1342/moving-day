@@ -21,8 +21,10 @@ UNIVERSE = '10770594715'
 PLACE = '130590584225382'
 BASE = 'https://apis.roblox.com'
 
-def read_env():
-    path = ROOT / '.env'
+def read_env(path=None):
+    path = path or ROOT / '.env'
+    if path.name != '.env':
+        raise ValueError('Credentials must remain in .env')
     if not path.is_file():
         return {}
     values = {}
@@ -85,8 +87,9 @@ def main():
     parser.add_argument('--image-file', type=Path)
     parser.add_argument('--asset-name', default='H0_UploadProbe')
     parser.add_argument('--report', default='tools/upload/smoke-results.json')
+    parser.add_argument('--env-file', type=Path, default=ROOT / '.env')
     args = parser.parse_args()
-    env = read_env()
+    env = read_env(args.env_file)
     for name, expected in [('ROBLOX_UNIVERSE_ID', UNIVERSE), ('ROBLOX_PLACE_ID', PLACE)]:
         if env.get(name, expected) != expected:
             raise SystemExit('Configured target does not match Moving Day; stopped.')

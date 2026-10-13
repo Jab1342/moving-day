@@ -425,5 +425,61 @@
     "assetId": "115156075815657",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/TRK_Pickup_Body_Yellow.fbx"
+  },
+  {
+    "name": "PING_Lift",
+    "type": "Image",
+    "assetId": "107578103382094",
+    "uploadedBy": "Codex",
+    "file": "assets/images/PING_Lift.png"
+  },
+  {
+    "name": "PING_Drop",
+    "type": "Image",
+    "assetId": "118857631682383",
+    "uploadedBy": "Codex",
+    "file": "assets/images/PING_Drop.png"
+  },
+  {
+    "name": "PING_Stop",
+    "type": "Image",
+    "assetId": "103284335696356",
+    "uploadedBy": "Codex",
+    "file": "assets/images/PING_Stop.png"
+  },
+  {
+    "name": "PING_Go",
+    "type": "Image",
+    "assetId": "125848513634652",
+    "uploadedBy": "Codex",
+    "file": "assets/images/PING_Go.png"
+  },
+  {
+    "name": "PING_PivotLeft",
+    "type": "Image",
+    "assetId": "78417472937259",
+    "uploadedBy": "Codex",
+    "file": "assets/images/PING_PivotLeft.png"
+  },
+  {
+    "name": "PING_PivotRight",
+    "type": "Image",
+    "assetId": "87186099128536",
+    "uploadedBy": "Codex",
+    "file": "assets/images/PING_PivotRight.png"
+  },
+  {
+    "name": "PING_OverHere",
+    "type": "Image",
+    "assetId": "98087424025686",
+    "uploadedBy": "Codex",
+    "file": "assets/images/PING_OverHere.png"
+  },
+  {
+    "name": "PING_Nice",
+    "type": "Image",
+    "assetId": "98460559205600",
+    "uploadedBy": "Codex",
+    "file": "assets/images/PING_Nice.png"
   }
 ]
