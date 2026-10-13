@@ -136,7 +136,15 @@ function builder.Clear(house)
 		cleared += 1
 	end
 end
-local shared = { Config = Config, Logic = { JobGen = JobGen, JobRules = Rules, Payout = Payout } }
+local shared = {
+	Config = Config,
+	Logic = {
+		JobGen = JobGen,
+		JobRules = Rules,
+		Payout = Payout,
+		PassBenefits = require("../src/shared/Logic/PassBenefits"),
+	},
+}
 local gameMock = {
 	GetService = function(_, name)
 		if name == "Players" then

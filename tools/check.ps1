@@ -37,6 +37,8 @@ try {
     if ($LASTEXITCODE) { throw 'Ping tests failed' }
     & lune run tests/receipts
     if ($LASTEXITCODE) { throw 'Receipt tests failed' }
+    & lune run tests/purchases
+    if ($LASTEXITCODE) { throw 'Purchase tests failed' }
     & rojo build -o build/moving-day.rbxlx
     if ($LASTEXITCODE) { throw 'Rojo build failed' }
     & rojo build fallback.project.json -o build/fallback.rbxlx

@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared.Config)
 local Payout = require(Shared.Logic.Payout)
+local Benefits = require(Shared.Logic.PassBenefits)
 local PayoutService = {}
 PayoutService.__index = PayoutService
 function PayoutService.new(data, remotes)
@@ -11,8 +12,16 @@ end
 function PayoutService:Award(job)
 	if not job.report then
 		local recipients = {}
+		local passes = {}
 		for _, player in job.crew.members do
 			if player.Parent == Players and self.data:Get(player) then
+				if self.passesForPlayer then
+					local owned = self.passesForPlayer(player)
+					if not owned then
+						return nil, "EntitlementsPending"
+					end
+					passes[tostring(player.UserId)] = owned
+				end
 				table.insert(recipients, player.UserId)
 			end
 		end
@@ -36,12 +45,18 @@ function PayoutService:Award(job)
 		job.report = Payout.compute({
 			jobId = job.id,
 			tier = job.tier,
-			elapsedSeconds = workspace:GetServerTimeNow() - job.startedAt,
+			elapsedSeconds = (job.completedAt or workspace:GetServerTimeNow()) - job.startedAt,
 			assist = job.assist,
 			lines = lines,
 			memberUserIds = recipients,
 			nextJob = { tier = job.tier, lotId = job.crew.padId },
 		}, #recipients)
+		if self.passesForPlayer then
+			job.report = Benefits.apply(job.report, recipients, passes, job.assist)
+		end
+		-- Ownership checks may take time; still leave the full payout display window.
+		job.returnAt =
+			math.max(job.returnAt or 0, workspace:GetServerTimeNow() + Config.PayoutDisplaySeconds)
 		job.awarded = {}
 	end
 	for _, player in job.crew.members do

@@ -162,12 +162,18 @@ local library = {
 	end,
 }
 local data = module.new(remotes, library)
+local profileNotifications = 0
+data.onProfilePublished = function(who)
+	assert(data:Get(who) ~= nil, "Dependent state publication sees loaded profile")
+	profileNotifications += 1
+end
 local p = player(123)
 nextProfile = profile()
 data:Load(p)
 assert(loadedKey == "u_123" and nextProfile.userId == 123, "Stable key and user association")
 assert(data:Get(p) and p.attributes.Level == 1 and not p.kicked, "Profile ready after load")
 assert(#sent == 1 and #delayed == 1, "Initial snapshot plus startup resend")
+assert(profileNotifications == 1, "Loaded profile republishes dependent purchase state")
 assert(
 	data:Update(p, function(draft)
 		draft.cash = 450
@@ -219,6 +225,10 @@ assert(not data:Update(p, function() end), "Closed session cannot mutate")
 for _, fn in delayed do
 	fn()
 end
+assert(
+	profileNotifications == #sent,
+	"Profile changes and startup resend both refresh dependent state"
+)
 local p2 = player(456)
 nextProfile = profile()
 data:Load(p2)

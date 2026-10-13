@@ -331,6 +331,9 @@ function ItemService:Grab(player, uid, grip)
 		return false, "OwnershipUnavailable"
 	end
 	rec.lastPivot = rec.model:GetPivot()
+	if self.onGrab then
+		self.onGrab(player)
+	end
 	if self.analytics then
 		self.analytics:Funnel(player, 2)
 	end
