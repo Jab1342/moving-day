@@ -425,5 +425,33 @@
     "assetId": "115156075815657",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/TRK_Pickup_Body_Yellow.fbx"
+  },
+  {
+    "name": "PRP_DoorInsert",
+    "type": "Model",
+    "assetId": "73049433537860",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_DoorInsert.fbx"
+  },
+  {
+    "name": "PRP_DoorFrameOpen",
+    "type": "Model",
+    "assetId": "120244037397616",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_DoorFrameOpen.fbx"
+  },
+  {
+    "name": "PRP_WindowInsert",
+    "type": "Model",
+    "assetId": "131024323807739",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_WindowInsert.fbx"
+  },
+  {
+    "name": "PRP_YardSign",
+    "type": "Model",
+    "assetId": "138441082816700",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_YardSign.fbx"
   }
 ]
