@@ -275,8 +275,8 @@ local function addShopPrompt()
 	prompt.Name = "MD_ShopPrompt"
 	prompt.ActionText = "Upgrades"
 	prompt.ObjectText = "Shop"
-	prompt.KeyboardKeyCode = Enum.KeyCode.F
-	prompt.GamepadKeyCode = Enum.KeyCode.ButtonB
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.GamepadKeyCode = Enum.KeyCode.ButtonX
 	prompt.MaxActivationDistance = 10
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = counter

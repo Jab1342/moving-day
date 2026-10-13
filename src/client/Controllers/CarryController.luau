@@ -19,11 +19,17 @@ local player = Players.LocalPlayer
 
 local DEFAULTS = {
 	GrabRange = 8,
-	DragReach = 9, -- max horizontal distance between the player and the dragged point
+	DragReach = 7, -- max horizontal distance between the player and the dragged point
+	HandPositionTolerance = 8, -- server rejects steer points farther than this from the player
+	MaxCarryDistance = 10, -- server restores items whose root strays farther than this
+	MaxCarrySpeed = 80, -- server speed cap for carried items
 	DollySpeedScale = 0.4,
 	TwoCarrySpeedScale = 0.75,
 	DragSpeedScale = 0.35,
+	LeashSpeedScale = 0.4, -- grip 2 slows down when stretched past SecondGripSlowRange
+	SecondGripSlowRange = 6,
 	SoloHeavyMaxVelocity = 6, -- studs/s when one player hauls a two-person item alone
+	StrapRange = 8, -- same as the server's GrabRange check
 	SecondGripHz = 20,
 	HoldHeight = 0.6, -- studs above the HumanoidRootPart for the grabbed point
 	PadHoldDistance = 3.5, -- gamepad: studs in front of the player
@@ -44,6 +50,10 @@ local partnerPoint: Vector3? = nil
 local lastSecondGripSend = 0
 local baseWalkSpeed = 16
 local grabbing = false
+-- Bumped on every press and release; a grab whose press was already released while the
+-- server answered is dropped instead of held.
+local dragGen = 0
+local toast: (text: string) -> () -- short on-screen hint, defined below
 
 local function loadTuning()
 	local shared = ReplicatedStorage:FindFirstChild("Shared")
@@ -108,7 +118,7 @@ local function clearHeld()
 		local root = itemRoot(held)
 		local alignPos = root and root:FindFirstChild("CarryAlignPosition") :: AlignPosition?
 		if alignPos then
-			alignPos.MaxVelocity = math.huge
+			alignPos.MaxVelocity = tuning.MaxCarrySpeed
 		end
 	end
 	held = nil
@@ -118,7 +128,7 @@ local function clearHeld()
 	setWalkSpeed(1)
 end
 
-local function grab(model: Model, hitPoint: Vector3?, atScreen: Vector2?)
+local function grab(model: Model, hitPoint: Vector3?, atScreen: Vector2?, gen: number?)
 	if held or grabbing then
 		return
 	end
@@ -134,6 +144,14 @@ local function grab(model: Model, hitPoint: Vector3?, atScreen: Vector2?)
 	if not ok then
 		if reason then
 			warn(`[Carry] grab refused: {reason}`)
+		end
+		return
+	end
+	if gen and gen ~= dragGen then
+		-- released before the server answered: give it straight back
+		local requestDrop = remote("Carry.RequestDrop")
+		if requestDrop and requestDrop:IsA("RemoteEvent") then
+			requestDrop:FireServer(model:GetAttribute("ItemUid"))
 		end
 		return
 	end
@@ -184,11 +202,15 @@ local function attachDetector(model: Model)
 			return
 		end
 		local hit = hitFrame.Position
-		if (hit - hrp.Position).Magnitude > tuning.GrabRange + 4 then
-			return -- too far: you have to walk up to furniture
+		local root = itemRoot(model)
+		-- same rule as the server: item centre within GrabRange of the player
+		if not root or (root.Position - hrp.Position).Magnitude > tuning.GrabRange then
+			toast("Get closer to grab that")
+			return
 		end
 		local screen = camera:WorldToViewportPoint(cursorRay.Origin + cursorRay.Direction * 20)
-		task.spawn(grab, model, hit, Vector2.new(screen.X, screen.Y))
+		dragGen += 1
+		task.spawn(grab, model, hit, Vector2.new(screen.X, screen.Y), dragGen)
 	end)
 	detector.DragContinue:Connect(function(_who, cursorRay: Ray)
 		local camera = Workspace.CurrentCamera
@@ -198,6 +220,7 @@ local function attachDetector(model: Model)
 		end
 	end)
 	detector.DragEnd:Connect(function()
+		dragGen += 1
 		if held == model then
 			drop()
 		end
@@ -266,6 +289,99 @@ local function onRotate(_, inputState: Enum.UserInputState)
 	return Enum.ContextActionResult.Sink
 end
 
+local toastLabel: TextLabel? = nil
+function toast(text: string)
+	if not toastLabel then
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "CarryToast"
+		gui.ResetOnSpawn = false
+		local label = Instance.new("TextLabel")
+		label.AnchorPoint = Vector2.new(0.5, 1)
+		label.Position = UDim2.new(0.5, 0, 1, -120)
+		label.Size = UDim2.fromOffset(320, 40)
+		label.BackgroundColor3 = Color3.fromRGB(24, 28, 36)
+		label.BackgroundTransparency = 0.2
+		label.TextColor3 = Color3.new(1, 1, 1)
+		label.Font = Enum.Font.GothamBold
+		label.TextSize = 18
+		label.Visible = false
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0, 10)
+		corner.Parent = label
+		label.Parent = gui
+		gui.Parent = player:WaitForChild("PlayerGui")
+		toastLabel = label
+	end
+	local label = toastLabel :: TextLabel
+	label.Text = text
+	label.Visible = true
+	task.delay(2, function()
+		if label.Text == text then
+			label.Visible = false
+		end
+	end)
+end
+
+-- Nearest unstrapped cargo of mine sitting in a truck bed.
+local function nearestCargo(): Model?
+	local _, _, hrp = character()
+	if not hrp then
+		return nil
+	end
+	local best: Model? = nil
+	local bestDist = tuning.StrapRange
+	for _, part in Workspace:GetPartBoundsInRadius(hrp.Position, tuning.StrapRange) do
+		local model = part:FindFirstAncestorWhichIsA("Model")
+		if
+			model
+			and model:GetAttribute("ItemUid")
+			and model:GetAttribute("State") == "InTruck"
+			and model:GetAttribute("Strapped") ~= true
+		then
+			local root = itemRoot(model)
+			local d = root and (root.Position - hrp.Position).Magnitude or math.huge
+			if d < bestDist then
+				best, bestDist = model, d
+			end
+		end
+	end
+	return best
+end
+
+-- F / ButtonB / touch "Strap": wrap the item you're holding, or strap the nearest cargo.
+local function onStrap(_, inputState: Enum.UserInputState)
+	if inputState ~= Enum.UserInputState.Begin then
+		return Enum.ContextActionResult.Pass
+	end
+	local request = remote("Carry.RequestStrap")
+	if not request or not request:IsA("RemoteFunction") then
+		return Enum.ContextActionResult.Sink
+	end
+	local target = held
+	local action = "Wrap"
+	if not target then
+		target = nearestCargo()
+		action = "Strap"
+	end
+	if not target then
+		toast("Nothing to strap here")
+		return Enum.ContextActionResult.Sink
+	end
+	toast(if action == "Strap" then "Strapping..." else "Wrapping...")
+	task.spawn(function()
+		local ok, reason = (request :: RemoteFunction):InvokeServer(
+			target:GetAttribute("ItemUid"),
+			action
+		)
+		if ok then
+			toast(if action == "Strap" then "Strapped down" else "Wrapped")
+		else
+			toast(`Can't {string.lower(action)}: {reason or "try again"}`)
+		end
+	end)
+	return Enum.ContextActionResult.Sink
+end
+
 -- World point the player is steering toward this frame: the spot on the ground under the
 -- cursor/touch, lifted to `planeY` and clamped to arm's reach. Gamepad: in front of the player.
 local function steerPoint(hrp: BasePart, planeY: number): Vector3
@@ -295,7 +411,24 @@ local function steerPoint(hrp: BasePart, planeY: number): Vector3
 	if flat.Magnitude > tuning.DragReach then
 		flat = flat.Unit * tuning.DragReach
 	end
-	return Vector3.new(hrp.Position.X + flat.X, planeY, hrp.Position.Z + flat.Z)
+	local result = Vector3.new(hrp.Position.X + flat.X, planeY, hrp.Position.Z + flat.Z)
+	-- stay inside the server's hand tolerance, height included
+	local offset = result - hrp.Position
+	local limit = tuning.HandPositionTolerance - 0.5
+	if offset.Magnitude > limit then
+		result = hrp.Position + offset.Unit * limit
+	end
+	return result
+end
+
+-- Keep the item's root inside the server's carry distance after grip offsets and bed lift.
+local function clampReach(goal: CFrame, hrp: BasePart): CFrame
+	local offset = goal.Position - hrp.Position
+	local limit = tuning.MaxCarryDistance - 0.5
+	if offset.Magnitude <= limit then
+		return goal
+	end
+	return CFrame.new(hrp.Position + offset.Unit * limit) * goal.Rotation
 end
 
 -- Near a truck bed (tagged "TruckBed"), raise the target so the item's underside clears
@@ -355,11 +488,11 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 
 	if carry == "Two" and partnerId ~= 0 and partnerPoint then
 		setWalkSpeed(tuning.TwoCarrySpeedScale)
-		alignPos.MaxVelocity = math.huge
+		alignPos.MaxVelocity = tuning.MaxCarrySpeed
 		local mine = steerPoint(hrp, holdY)
 		local target = twoHandedCFrame(root, (mine + partnerPoint) / 2, partnerPoint - mine)
 		if target then
-			target = liftForBed(model, root, target)
+			target = clampReach(liftForBed(model, root, target), hrp)
 			alignPos.Position = target.Position
 			alignOri.CFrame = target.Rotation
 			return
@@ -378,19 +511,28 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 		goal = CFrame.new(goal.X, root.Position.Y, goal.Z) * rotation
 	else
 		setWalkSpeed(if onDolly then tuning.DollySpeedScale else 1)
-		alignPos.MaxVelocity = math.huge
+		alignPos.MaxVelocity = tuning.MaxCarrySpeed
 		local planeY = if onDolly then hrp.Position.Y - 1.5 else holdY
 		goal = CFrame.new(steerPoint(hrp, planeY)) * rotation * CFrame.new(-grabLocal)
 		if not onDolly then
 			goal = liftForBed(model, root, goal)
 		end
 	end
+	goal = clampReach(goal, hrp)
 	alignPos.Position = goal.Position
 	alignOri.CFrame = goal.Rotation
 end
 
-local function stepSecond(model: Model, hrp: BasePart, now: number)
-	setWalkSpeed(tuning.TwoCarrySpeedScale)
+local function stepSecond(model: Model, root: BasePart, hrp: BasePart, now: number)
+	-- soft leash: stretched too far from your grip and you slow right down (server drops at
+	-- SecondGripDropRange)
+	local grip = root:FindFirstChild("Grip2") :: Attachment?
+	local stretch = if grip then (grip.WorldPosition - hrp.Position).Magnitude else 0
+	setWalkSpeed(
+		if stretch > tuning.SecondGripSlowRange
+			then tuning.LeashSpeedScale
+			else tuning.TwoCarrySpeedScale
+	)
 	if now - lastSecondGripSend < 1 / tuning.SecondGripHz then
 		return
 	end
@@ -421,7 +563,7 @@ local function step()
 		stepLead(model, root, hrp)
 	elseif model:GetAttribute("CarrierB") == player.UserId then
 		myGrip = 2
-		stepSecond(model, hrp, os.clock())
+		stepSecond(model, root, hrp, os.clock())
 	else
 		clearHeld()
 	end
@@ -452,6 +594,8 @@ function CarryController.Start()
 		Enum.KeyCode.ButtonY
 	)
 	ContextActionService:SetTitle("MD_Rotate", "Rotate")
+	ContextActionService:BindAction("MD_Strap", onStrap, true, Enum.KeyCode.F, Enum.KeyCode.ButtonB)
+	ContextActionService:SetTitle("MD_Strap", "Strap")
 
 	player.CharacterAdded:Connect(clearHeld)
 	RunService.Heartbeat:Connect(step)
