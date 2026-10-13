@@ -4,6 +4,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ContextActionService = game:GetService("ContextActionService")
 local RunService = game:GetService("RunService")
 
 local DEFAULTS = {
@@ -14,6 +15,11 @@ local DEFAULTS = {
 	DriveTorque = 30000,
 	BrakeTorque = 60000,
 	WheelRadius = 1.5,
+	-- Arcade brakes: wheel motors alone stop the truck far too slowly, so braking also
+	-- pushes the chassis back at this fraction of gravity. Hard stops are what shift cargo.
+	BrakeDecelG = 0.65,
+	CoastDecelG = 0.05,
+	MotorMaxAcceleration = 400, -- lets locked wheels actually lock
 }
 
 local function loadTuning()
@@ -38,6 +44,7 @@ type Rig = {
 	chassis: BasePart,
 	motors: { HingeConstraint },
 	steering: { CylindricalConstraint },
+	brake: VectorForce,
 }
 
 local function findRig(seat: VehicleSeat): Rig?
@@ -64,7 +71,30 @@ local function findRig(seat: VehicleSeat): Rig?
 			table.insert(steering, inst)
 		end
 	end
-	return { model = model, seat = seat, chassis = chassis, motors = motors, steering = steering }
+
+	-- client-local brake force (the driver owns the truck, so it simulates here)
+	local brake = chassis:FindFirstChild("MD_BrakeForce") :: VectorForce?
+	if not brake then
+		local attachment = Instance.new("Attachment")
+		attachment.Name = "MD_BrakeAttachment"
+		attachment.Parent = chassis
+		local force = Instance.new("VectorForce")
+		force.Name = "MD_BrakeForce"
+		force.Attachment0 = attachment
+		force.RelativeTo = Enum.ActuatorRelativeTo.World
+		force.ApplyAtCenterOfMass = true
+		force.Force = Vector3.zero
+		force.Parent = chassis
+		brake = force
+	end
+	return {
+		model = model,
+		seat = seat,
+		chassis = chassis,
+		motors = motors,
+		steering = steering,
+		brake = brake :: VectorForce,
+	}
 end
 
 local TruckController = {}
@@ -80,8 +110,19 @@ local function setMotors(rig: Rig, angularVelocity: number, torque: number)
 	end
 end
 
+local function setBrake(rig: Rig, decelG: number)
+	local v = rig.chassis.AssemblyLinearVelocity
+	local flat = Vector3.new(v.X, 0, v.Z)
+	if decelG <= 0 or flat.Magnitude < 2 then
+		rig.brake.Force = Vector3.zero
+		return
+	end
+	rig.brake.Force = -flat.Unit * rig.chassis.AssemblyMass * workspace.Gravity * decelG
+end
+
 local function release(rig: Rig)
 	setMotors(rig, 0, tuning.BrakeTorque)
+	rig.brake.Force = Vector3.zero
 	for _, servo in rig.steering do
 		servo.TargetAngle = 0
 	end
@@ -97,18 +138,24 @@ local function step(rig: Rig)
 	if throttle > 0 then
 		if forwardSpeed < -2 then
 			setMotors(rig, 0, tuning.BrakeTorque) -- braking out of reverse
+			setBrake(rig, tuning.BrakeDecelG)
 		else
 			-- negative angular velocity about +X rolls the truck toward -Z
 			setMotors(rig, -throttle * tuning.MaxSpeed / radius, tuning.DriveTorque)
+			-- wheel slip lets the truck creep past MaxSpeed downhill; trim it back gently
+			setBrake(rig, if forwardSpeed > tuning.MaxSpeed then 0.15 else 0)
 		end
 	elseif throttle < 0 then
 		if forwardSpeed > 2 then
 			setMotors(rig, 0, tuning.BrakeTorque) -- braking
+			setBrake(rig, tuning.BrakeDecelG)
 		else
 			setMotors(rig, -throttle * tuning.ReverseSpeed / radius, tuning.DriveTorque)
+			setBrake(rig, 0)
 		end
 	else
-		setMotors(rig, 0, tuning.DriveTorque * 0.15) -- gentle engine braking, lets cargo shift on hard stops only when braking
+		setMotors(rig, 0, tuning.DriveTorque * 0.15) -- gentle engine braking
+		setBrake(rig, tuning.CoastDecelG)
 	end
 
 	local speedFactor = math.clamp(math.abs(forwardSpeed) / tuning.MaxSpeed, 0, 1)
@@ -120,6 +167,26 @@ local function step(rig: Rig)
 	end
 end
 
+-- Horn: H / L3 / touch button while driving. Local-only sound for v1.
+local function onHorn(_, state: Enum.UserInputState)
+	if state ~= Enum.UserInputState.Begin or not active then
+		return Enum.ContextActionResult.Pass
+	end
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local horn = assets
+		and assets:FindFirstChild("Sounds")
+		and assets.Sounds:FindFirstChild("SFX_Horn")
+	if horn and horn:IsA("Sound") then
+		local s = horn:Clone()
+		s.Parent = active.chassis
+		s:Play()
+		task.delay(3, function()
+			s:Destroy()
+		end)
+	end
+	return Enum.ContextActionResult.Sink
+end
+
 local function onSeated(isSeated: boolean, seatPart: BasePart?)
 	if active then
 		release(active)
@@ -129,6 +196,7 @@ local function onSeated(isSeated: boolean, seatPart: BasePart?)
 		stepConn:Disconnect()
 		stepConn = nil
 	end
+	ContextActionService:UnbindAction("MD_Horn")
 	if not isSeated or not seatPart or not seatPart:IsA("VehicleSeat") then
 		return
 	end
@@ -137,6 +205,12 @@ local function onSeated(isSeated: boolean, seatPart: BasePart?)
 		return
 	end
 	active = rig
+	for _, motor in rig.motors do
+		motor.MotorMaxAcceleration = tuning.MotorMaxAcceleration
+	end
+	-- the horn button only exists while you're driving
+	ContextActionService:BindAction("MD_Horn", onHorn, true, Enum.KeyCode.H, Enum.KeyCode.ButtonL3)
+	ContextActionService:SetTitle("MD_Horn", "Horn")
 	stepConn = RunService.Heartbeat:Connect(function()
 		if active and active.seat.Occupant then
 			step(active)
@@ -151,6 +225,7 @@ end
 
 function TruckController.Start()
 	tuning = loadTuning()
+
 	local player = Players.LocalPlayer
 	if player.Character then
 		bindCharacter(player.Character)

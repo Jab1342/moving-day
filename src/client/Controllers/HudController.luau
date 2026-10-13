@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
+local Gate = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Gate"))
 
 local INK = Color3.fromRGB(255, 255, 255)
 local PANEL = Color3.fromRGB(24, 28, 36)
@@ -113,6 +114,7 @@ local function buildHud()
 		Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(rescale)
 	end
 
+	Gate.bind(hud) -- nothing on screen before a new player's first grab
 	hud.Parent = player:WaitForChild("PlayerGui")
 end
 
@@ -273,7 +275,11 @@ local function showPayout(report: any)
 		if line.valueLost > 0 then
 			lost += line.valueLost
 			row.TextColor3 = BAD
-			row.Text = `{name}: -{money(line.valueLost)}, broken by {playerName(line.blameUserId)}`
+			local verb = if line.valueKept > 0 then "damaged" else "broken"
+			local who = line.blameUserId
+			row.Text = if who and who ~= 0
+				then `{name}: {verb} by {playerName(who)} (-{money(line.valueLost)})`
+				else `{name}: {verb} in transit (-{money(line.valueLost)})`
 		else
 			row.TextColor3 = INK
 			row.Text = `{name}: {money(line.valueKept)} delivered safe`
@@ -290,6 +296,16 @@ local function showPayout(report: any)
 	totals.Position = UDim2.new(0, 0, 1, -156)
 	local share = label(panel, `You earned {money(myShare)}  +{report.xpEach} XP`, 24, GOOD)
 	share.Position = UDim2.new(0, 0, 1, -128)
+	-- "one more job": tease what's next right on the payout screen
+	if report.nextJob then
+		local tierName = ({
+			Starter = "Starter apartment",
+			Family = "Family home",
+			Big = "Big house",
+		})[report.nextJob.tier] or tostring(report.nextJob.tier)
+		local nextLine = label(panel, `Next up: {tierName} on lot {report.nextJob.lotId}`, 16, GOLD)
+		nextLine.Position = UDim2.new(0, 0, 1, -98)
+	end
 
 	local function button(text: string, color: Color3, x: number): TextButton
 		local b = Instance.new("TextButton")
@@ -318,6 +334,15 @@ local function showPayout(report: any)
 	end
 
 	payoutGui.Parent = player:WaitForChild("PlayerGui")
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local cash = assets
+		and assets:FindFirstChild("Sounds")
+		and assets.Sounds:FindFirstChild("SFX_Cash")
+	if cash and cash:IsA("Sound") then
+		local s = cash:Clone()
+		s.Parent = payoutGui
+		s:Play()
+	end
 end
 
 local function requireShared(name: string): any
@@ -342,6 +367,10 @@ function HudController.Start()
 	local job = remotes:WaitForChild("Job");
 	(job:WaitForChild("State") :: RemoteEvent).OnClientEvent:Connect(function(state)
 		jobState = state
+		-- a new job means the last payout screen is stale
+		if state and state.phase ~= "Payout" then
+			closePayout()
+		end
 	end);
 	(job:WaitForChild("Payout") :: RemoteEvent).OnClientEvent:Connect(showPayout)
 	local data = remotes:WaitForChild("Data");

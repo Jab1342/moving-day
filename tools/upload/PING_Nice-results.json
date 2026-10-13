@@ -1,0 +1,15 @@
+{
+  "image": "UPLOAD_PASS",
+  "product": "LOCAL_DRY_RUN_PASS",
+  "productCreate": "NOT_TESTED_NO_DOCUMENTED_DRY_RUN",
+  "credentialsPresent": true,
+  "productPayload": {
+    "name": "Moving Day H0 Probe",
+    "description": "Local dry-run only; never submitted.",
+    "isForSale": false,
+    "price": 19,
+    "isRegionalPricingEnabled": true,
+    "isManagedPricingEnabled": true
+  },
+  "assetId": "98460559205600"
+}
