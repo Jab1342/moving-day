@@ -10,16 +10,40 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
+local Gate = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Gate"))
 
 local COLOR = Color3.fromRGB(255, 200, 60)
-local HEIGHT = 40 -- fallback column height
-local LABEL_HEIGHT = 17 -- just above PRP_Beacon's chevron tip (12)
-local SPIN = 0.8 -- rad/s; a slow turn reads as a marker at distance
+
+-- Config.Nav<Key> overrides any of these.
+local DEFAULTS = {
+	BeaconHeight = 40, -- fallback column height
+	LabelHeight = 17, -- just above PRP_Beacon's chevron tip (12)
+	Spin = 0.8, -- rad/s; a slow turn reads as a marker at distance
+	BobSpeed = 2, -- rad/s
+	BobAmplitude = 0.6, -- studs
+	ParkYOffset = 2.7, -- TruckSpot attachment height above the pad
+}
+local tuning = table.clone(DEFAULTS)
 
 local NavController = {}
 
 local beacon: Model? = nil
 local target: Vector3? = nil
+
+local function loadTuning()
+	local shared = ReplicatedStorage:FindFirstChild("Shared")
+	local configModule = shared and shared:FindFirstChild("Config")
+	if configModule and configModule:IsA("ModuleScript") then
+		local ok, config = pcall(require, configModule)
+		if ok and type(config) == "table" then
+			for key in DEFAULTS do
+				if type(config["Nav" .. key]) == "number" then
+					tuning[key] = config["Nav" .. key]
+				end
+			end
+		end
+	end
+end
 
 local function buildFallback(): Model
 	local model = Instance.new("Model")
@@ -27,18 +51,20 @@ local function buildFallback(): Model
 	local column = Instance.new("Part")
 	column.Name = "Base"
 	column.Shape = Enum.PartType.Cylinder
-	column.Size = Vector3.new(HEIGHT, 3, 3)
-	column.CFrame = CFrame.new(0, HEIGHT / 2, 0) * CFrame.Angles(0, 0, math.pi / 2)
+	column.Size = Vector3.new(tuning.BeaconHeight, 3, 3)
+	column.CFrame = CFrame.new(0, tuning.BeaconHeight / 2, 0) * CFrame.Angles(0, 0, math.pi / 2)
 	column.Material = Enum.Material.Neon
 	column.Color = COLOR
 	column.Transparency = 0.55
+	-- the model pivot is the column's foot, upright (WorldPivot is ignored with a PrimaryPart)
+	column.PivotOffset = column.CFrame:Inverse()
 	column.Parent = model
 	model.PrimaryPart = column
-	model.WorldPivot = CFrame.new() -- pivot at the column's foot, upright
 	return model
 end
 
--- "Park here" / "Unload here" floating LABEL_HEIGHT studs above the beacon's foot.
+-- "Park here" / "Unload here" floating LabelHeight studs above the beacon's foot. It is text
+-- in the player's view, so it waits for the first grab like other UI (Gate).
 local function addLabel(model: Model)
 	local primary = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart")
 	if not primary then
@@ -48,7 +74,8 @@ local function addLabel(model: Model)
 	local tag = Instance.new("BillboardGui")
 	tag.Name = "Label"
 	tag.Size = UDim2.fromOffset(170, 56)
-	tag.StudsOffsetWorldSpace = Vector3.new(0, LABEL_HEIGHT - primary.Position.Y, 0)
+	tag.StudsOffsetWorldSpace = Vector3.new(0, tuning.LabelHeight - primary.Position.Y, 0)
+	tag.Enabled = Gate.open()
 	tag.AlwaysOnTop = true
 	tag.LightInfluence = 0
 	local text = Instance.new("TextLabel")
@@ -147,11 +174,18 @@ local function onState(state: any)
 	local pad = lot:FindFirstChild("Pad")
 	local spot = pad and pad:FindFirstChild("TruckSpot")
 	if spot and spot:IsA("Attachment") then
-		show(spot.WorldPosition - Vector3.new(0, 2.7, 0), "Park here")
+		show(spot.WorldPosition - Vector3.new(0, tuning.ParkYOffset, 0), "Park here")
 	end
 end
 
 function NavController.Start()
+	loadTuning()
+	Gate.whenOpen(function()
+		local label = beacon and beacon:FindFirstChild("Label", true)
+		if label and label:IsA("BillboardGui") then
+			label.Enabled = true
+		end
+	end)
 	local remotes = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes")
 	local job = remotes:WaitForChild("Job")
 	local stateRemote = job:WaitForChild("State") :: RemoteEvent
@@ -168,8 +202,9 @@ function NavController.Start()
 		if beacon and target then
 			local t = os.clock()
 			beacon:PivotTo(
-				CFrame.new(target + Vector3.new(0, math.sin(t * 2) * 0.6, 0))
-					* CFrame.Angles(0, t * SPIN, 0)
+				CFrame.new(
+					target + Vector3.new(0, math.sin(t * tuning.BobSpeed) * tuning.BobAmplitude, 0)
+				) * CFrame.Angles(0, t * tuning.Spin, 0)
 			)
 		end
 	end)
