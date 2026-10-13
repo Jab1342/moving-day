@@ -209,7 +209,7 @@ local function nearestFreeItem(): Model?
 end
 
 local function update()
-	if finished or profileDone then
+	if finished or profileDone or player:GetAttribute("MD_HideHints") == true then
 		banner.Visible = false
 		highlight.Enabled = false
 		return
