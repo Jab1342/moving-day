@@ -82,10 +82,13 @@ local damage = require(services.DamageService).new(items)
 items.trucks = trucks
 items.damage = damage
 items:Start()
+local crews = require(services.CrewService).new(remotes)
+crews:Bind()
 game:GetService("RunService").Heartbeat:Connect(function(dt)
 	items:Step(dt)
 	damage:Step()
 	trucks:Step(dt)
+	crews:Step()
 end)
 task.spawn(function()
 	require(services.StudioHarness).Start(items, trucks)
