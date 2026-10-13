@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
+local Scale = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Scale"))
 
 -- Order and IDs follow Contracts/Enums.Ping.
 local PINGS = {
@@ -130,6 +131,7 @@ local function buildWheel()
 		b.Parent = wheel
 		buttons[p.id] = b
 	end
+	Scale.attach(gui)
 	gui.Parent = player:WaitForChild("PlayerGui")
 end
 

@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
+local Scale = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Scale"))
 
 local PANEL = Color3.fromRGB(24, 28, 36)
 local INK = Color3.fromRGB(255, 255, 255)
@@ -67,8 +68,8 @@ local function buildBoard()
 	gui.Name = "CrewBoard"
 	gui.ResetOnSpawn = false
 	board = Instance.new("Frame")
-	board.AnchorPoint = Vector2.new(0, 0.5)
-	board.Position = UDim2.new(0, 12, 0.45, 0)
+	board.AnchorPoint = Vector2.new(1, 0)
+	board.Position = UDim2.new(1, -12, 0, 56) -- under the cash box, clear of the thumbstick and jump button
 	board.Size = UDim2.fromOffset(240, 0)
 	board.AutomaticSize = Enum.AutomaticSize.Y
 	board.BackgroundColor3 = PANEL
@@ -105,6 +106,7 @@ local function buildBoard()
 		end
 	end)
 	board.Parent = gui
+	Scale.attach(gui)
 	gui.Parent = player:WaitForChild("PlayerGui")
 end
 

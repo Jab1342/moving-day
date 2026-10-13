@@ -10,6 +10,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
+local Scale = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Scale"))
 
 local OnboardingController = {}
 
@@ -177,6 +178,7 @@ local function build()
 	limit.MaxSize = Vector2.new(460, 64)
 	limit.Parent = banner
 	banner.Parent = gui
+	Scale.attach(gui)
 	gui.Parent = player:WaitForChild("PlayerGui")
 
 	highlight = Instance.new("Highlight")
