@@ -1,6 +1,8 @@
 --!strict
 -- Generated from assets/registry.json. Do not edit by hand.
 return {
+	ANIM_Carry = "rbxassetid://70718766583193",
+	ANIM_CarryTwo = "rbxassetid://75293060457689",
 	COS_Beanie = "rbxassetid://73223630436678",
 	COS_HardHat = "rbxassetid://117361836869359",
 	COS_HardHatGold = "rbxassetid://138662877759792",
