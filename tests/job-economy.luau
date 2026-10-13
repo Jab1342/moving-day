@@ -254,9 +254,13 @@ for seed = 1, 1000 do
 		end
 		assert(#queue == #cells, "Every room must be reachable through doors/stairs")
 		local used, couch, hero = {}, false, false
+		local twoPersonCount = 0
 		for _, item in layout.items do
 			local room = layout.rooms[item.roomIndex]
 			local size = if ItemDefs[item.itemId].carry == "Two" then "large" else "small"
+			if size == "large" then
+				twoPersonCount += 1
+			end
 			assert(
 				table.find(RoomDefs[room.template][size], item.socketName),
 				"Manifest needs matching socket"
@@ -268,6 +272,10 @@ for seed = 1, 1000 do
 			hero = hero or item.itemId == "piano" or item.itemId == "aquarium"
 		end
 		assert(tier ~= "Starter" or couch, "Starter always has couch")
+		assert(
+			tier ~= "Starter" or twoPersonCount == 1,
+			"Starter has exactly one couch and five One items"
+		)
 		assert(tier ~= "Big" or hero, "Big always has piano or aquarium")
 		variants[layout.rooms[1].template] = true
 	end

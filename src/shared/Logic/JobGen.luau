@@ -80,9 +80,12 @@ function JobGen.generate(seed: number, tier: string)
 	-- Replace the lowest-capacity ordinary room until the whole manifest fits.
 	-- Footprints/doors stay identical, so this preserves the connected layout.
 	local richest = ordinary[1]
+	local function score(def)
+		return #def.small * (if tier == "Starter" then Config.ItemCount.Starter else 1) + #def.large
+	end
 	for _, name in ordinary do
 		local a, b = RoomDefs[name], RoomDefs[richest]
-		if #a.small + #a.large > #b.small + #b.large then
+		if score(a) > score(b) then
 			richest = name
 		end
 	end
@@ -93,11 +96,15 @@ function JobGen.generate(seed: number, tier: string)
 			local size = #def.small + #def.large
 			capacity += size
 			largeCount += #def.large
-			if def.floors == 1 and size < lowest then
-				poorest, lowest = index, size
+			if def.floors == 1 and score(def) < lowest then
+				poorest, lowest = index, score(def)
 			end
 		end
-		if capacity >= Config.ItemCount[tier] and largeCount > 0 then
+		if
+			capacity >= Config.ItemCount[tier]
+			and largeCount > 0
+			and (tier ~= "Starter" or capacity - largeCount >= Config.ItemCount.Starter - 1)
+		then
 			break
 		end
 		assert(

@@ -73,7 +73,8 @@ return table.freeze({
 	XpPerKeptDollar = 0.1,
 	RoomCount = table.freeze({ Starter = { 2, 3 }, Family = { 4, 5 }, Big = { 6, 7 } }),
 	JobItemPool = table.freeze({
-		Starter = { "box", "chair", "plant", "lamp", "microwave", "vase", "couch" },
+		-- JobGen reserves exactly one couch before drawing five small items.
+		Starter = { "box", "chair", "plant", "lamp", "microwave", "vase" },
 		Family = {
 			"box",
 			"chair",
