@@ -50,6 +50,8 @@ return table.freeze({
 	FractureLifetimeSeconds = 6,
 	RagdollSeconds = 2,
 	PingPerSecond = 2,
+	AnalyticsQueueLimit = 128,
+	AnalyticsDriveMinSpeed = 2,
 	PingBurst = 2,
 	PingMaxDistance = 120,
 	RoomGridStuds = 24,

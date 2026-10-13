@@ -67,6 +67,24 @@ function PayoutService:Award(job)
 			end)
 			if ok then
 				job.awarded[player.UserId] = true
+				if self.analytics then
+					self.analytics:Funnel(player, 6)
+					self.analytics:Economy(player, share, self.data:Get(player).cash, "JobPayout")
+					self.analytics:Custom(
+						player,
+						"JobCompleted",
+						workspace:GetServerTimeNow() - job.startedAt,
+						{
+							[Enum.AnalyticsCustomFieldKeys.CustomField01.Name] = job.tier,
+							[Enum.AnalyticsCustomFieldKeys.CustomField02.Name] = tostring(
+								job.report.stars
+							),
+							[Enum.AnalyticsCustomFieldKeys.CustomField03.Name] = tostring(
+								#job.crew.members
+							),
+						}
+					)
+				end
 				self.remotes.Job.Payout:FireClient(player, job.report)
 			end
 		end

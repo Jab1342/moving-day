@@ -57,6 +57,25 @@ function ItemService:Allowed(player, action, highRate)
 end
 
 function ItemService:Fire(rec, kind, info)
+	if self.analytics then
+		local actor = Players:GetPlayerByUserId(
+			if kind == "Broken" and rec.truck then rec.truck.driverId else rec.lastCarrier
+		)
+		if actor then
+			if kind == "Loaded" then
+				self.analytics:Funnel(actor, 3)
+			elseif kind == "Delivered" then
+				self.analytics:Funnel(actor, 5)
+			elseif kind == "Broken" then
+				self.analytics:Custom(
+					actor,
+					"ItemBroken",
+					1,
+					{ [Enum.AnalyticsCustomFieldKeys.CustomField01.Name] = rec.def.id }
+				)
+			end
+		end
+	end
 	for _, player in Players:GetPlayers() do
 		if player:GetAttribute("CrewId") == rec.crewId then
 			self.remotes.Job.ItemEvent:FireClient(
@@ -307,6 +326,9 @@ function ItemService:Grab(player, uid, grip)
 		return false, "OwnershipUnavailable"
 	end
 	rec.lastPivot = rec.model:GetPivot()
+	if self.analytics then
+		self.analytics:Funnel(player, 2)
+	end
 	return true, nil
 end
 
