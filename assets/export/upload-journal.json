@@ -298,5 +298,35 @@
     "operation": "operations/2a6f6d69-067a-46ed-8bb6-5b8965a3eb06",
     "assetId": "73223630436678",
     "file": "assets/export/COS_Beanie.fbx"
+  },
+  "PRP_KitchenCounter": {
+    "status": "REGISTERED",
+    "operation": "operations/b218712b-5d4b-44bf-8639-36418d22515f",
+    "assetId": "96561886403147",
+    "file": "assets/export/PRP_KitchenCounter.fbx"
+  },
+  "PRP_Bathtub": {
+    "status": "REGISTERED",
+    "operation": "operations/ef9a00a6-e026-4264-b299-d2132b516204",
+    "assetId": "133331158965003",
+    "file": "assets/export/PRP_Bathtub.fbx"
+  },
+  "PRP_Toilet": {
+    "status": "REGISTERED",
+    "operation": "operations/211d9a1b-48a1-43af-b4f3-96a9613bb3fd",
+    "assetId": "110191635761827",
+    "file": "assets/export/PRP_Toilet.fbx"
+  },
+  "PRP_BedFrame": {
+    "status": "REGISTERED",
+    "operation": "operations/bfc83023-98d3-4176-ac53-603e50919281",
+    "assetId": "126820018402703",
+    "file": "assets/export/PRP_BedFrame.fbx"
+  },
+  "PRP_Rug": {
+    "status": "REGISTERED",
+    "operation": "operations/92745f7d-898d-4d1e-90ce-190e50686112",
+    "assetId": "105483131149950",
+    "file": "assets/export/PRP_Rug.fbx"
   }
 }

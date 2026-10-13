@@ -160,7 +160,68 @@ def beanie():
     ]
 
 
+# ---- room dressing (exact sizes of Claude A's placeholder parts) ---------
+
+def kitchen_counter():  # Counter 10 x 3 x 2.5
+    basin = lambda f: "metal_brushed"
+    p = [
+        box("white", (10, 2.3, 2.75), (0, 0.1, 1.375)),  # cabinets
+        box("grey_dark", (9.8, 2.2, 0.25), (0, 0.15, 0.125)),  # kick plate
+        box("grey_light", (10, 2.5, 0.25), (0, 0, 2.875)),  # worktop
+        box(basin, (2.4, 1.5, 0.06), (2.2, -0.05, 2.98)),  # sink, flush with the top
+        box("metal_chrome", (0.15, 0.15, 0.5), (2.2, 0.9, 3.25)),  # tap rises 0.5 above the worktop
+    ]
+    for i, x in enumerate((-4.1, -2.5, -0.9, 0.7, 2.3, 3.9)):
+        p.append(box("offwhite", (1.4, 0.05, 2.1), (x, -1.06, 1.45)))  # doors
+        p.append(box("metal_chrome", (0.5, 0.06, 0.08), (x, -1.1, 2.3)))  # handles
+    return p
+
+
+def bathtub():  # Tub 5 x 2.5 x 9 (long along Roblox Z = Blender Y)
+    p = [
+        box("white", (5, 9, 0.4), (0, 0, 0.2)),
+        box("white", (0.5, 9, 2.1), (-2.25, 0, 1.45)),
+        box("white", (0.5, 9, 2.1), (2.25, 0, 1.45)),
+        box("white", (4.0, 0.5, 2.1), (0, -4.25, 1.45)),
+        box("white", (4.0, 0.5, 2.1), (0, 4.25, 1.45)),
+        box("water", (4.0, 8.0, 0.05), (0, 0, 1.6)),
+        box("metal_chrome", (0.3, 0.6, 0.3), (0, 3.9, 2.35)),  # tap
+    ]
+    return p
+
+
+def toilet():
+    return [
+        prism("white", (-0.45, 0.45, -0.6, 0.4, 0), (-0.6, 0.6, -0.8, 0.5, 1.4)),  # pedestal + bowl
+        box("white", (1.4, 1.5, 0.12), (0, -0.1, 1.46)),  # seat
+        box("white", (1.6, 0.6, 1.4), (0, 0.75, 2.1), bevel=0.05),  # tank
+        box("metal_chrome", (0.25, 0.06, 0.08), (-0.5, 0.43, 2.6)),  # flush lever
+    ]
+
+
+def bed_frame():  # BedFrame 6 x 1.2 x 8
+    p = [box("wood_walnut", (6, 8, 0.5), (0, 0, 0.95), bevel=0.04)]
+    for x in (-2.75, 2.75):
+        for y in (-3.75, 3.75):
+            p.append(box("wood_darkwalnut", (0.5, 0.5, 0.7), (x, y, 0.35)))
+    p.append(box("fab_sky", (5.8, 1.8, 0.05), (0, 3.0, 1.225)))  # folded sheet hint at the head
+    return p
+
+
+def rug():  # Rug 12 x 0.1 x 10
+    return [
+        box("fab_brick", (12, 10, 0.05), (0, 0, 0.025)),
+        box("fab_cream", (10.6, 8.6, 0.05), (0, 0, 0.05)),
+        box("fab_mustard", (8.0, 6.0, 0.05), (0, 0, 0.075)),
+    ]
+
+
 P2 = {
+    "PRP_KitchenCounter": kitchen_counter,
+    "PRP_Bathtub": bathtub,
+    "PRP_Toilet": toilet,
+    "PRP_BedFrame": bed_frame,
+    "PRP_Rug": rug,
     "PRP_HQSign": hq_sign,
     "PRP_GarageDoor": garage_door,
     "PRP_Shelving": shelving,

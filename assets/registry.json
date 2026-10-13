@@ -362,5 +362,40 @@
     "assetId": "73223630436678",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/COS_Beanie.fbx"
+  },
+  {
+    "name": "PRP_KitchenCounter",
+    "type": "Model",
+    "assetId": "96561886403147",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_KitchenCounter.fbx"
+  },
+  {
+    "name": "PRP_Bathtub",
+    "type": "Model",
+    "assetId": "133331158965003",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Bathtub.fbx"
+  },
+  {
+    "name": "PRP_Toilet",
+    "type": "Model",
+    "assetId": "110191635761827",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Toilet.fbx"
+  },
+  {
+    "name": "PRP_BedFrame",
+    "type": "Model",
+    "assetId": "126820018402703",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_BedFrame.fbx"
+  },
+  {
+    "name": "PRP_Rug",
+    "type": "Model",
+    "assetId": "105483131149950",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Rug.fbx"
   }
 ]
