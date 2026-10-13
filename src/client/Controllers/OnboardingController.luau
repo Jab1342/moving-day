@@ -192,6 +192,7 @@ local function build()
 
 	worldTip = Instance.new("BillboardGui")
 	worldTip.Name = "MD_GrabTip"
+	worldTip.ResetOnSpawn = false -- parented straight to PlayerGui; must survive respawns
 	worldTip.Size = UDim2.fromOffset(260, 48)
 	worldTip.StudsOffset = Vector3.new(0, 3.2, 0)
 	worldTip.AlwaysOnTop = true
