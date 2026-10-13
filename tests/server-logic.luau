@@ -43,10 +43,18 @@ assert(Cargo.shouldBreak(g, 0, true, Config), "Extreme collision can break strap
 for _, hz in { 30, 60, 120 } do
 	local smooth = 0
 	for _ = 1, math.floor(hz * 0.4) do
-		smooth = Cargo.smooth(smooth, 0.9, 1 / hz, Config.BedAccelerationFilterSeconds)
+		smooth = Cargo.smooth(smooth, 0.45, 1 / hz, Config.BedAccelerationFilterSeconds)
 	end
 	assert(Cargo.shouldBreak(smooth, 0, false, Config), "Measured hard stop spills loose cargo")
 	assert(not Cargo.shouldBreak(smooth, 0, true, Config), "Measured hard stop preserves straps")
+	local launch = 0
+	for _ = 1, hz do
+		launch = Cargo.smooth(launch, 0.3, 1 / hz, Config.BedAccelerationFilterSeconds)
+		assert(
+			not Cargo.shouldBreak(launch, 0, false, Config),
+			"Controlled acceleration preserves loose cargo"
+		)
+	end
 	local chatter = 0
 	for frame = 1, hz do
 		chatter = Cargo.smooth(

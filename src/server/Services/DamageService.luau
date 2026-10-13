@@ -21,6 +21,20 @@ function DamageService:Step()
 		local velocity = rec.root.AssemblyLinearVelocity
 		local previous = rec.previousVelocity or velocity
 		rec.previousVelocity = velocity
+		local truck = if rec.state == "InTruck" then rec.truck else nil
+		local delta = velocity - previous
+		if truck then
+			local bedVelocity = truck.bed.AssemblyLinearVelocity
+			if rec.damageTruck == truck and rec.previousBedVelocity then
+				-- Common assembly acceleration is truck motion, not a cargo impact.
+				-- Relative jolts still damage loose OR strapped furniture normally.
+				delta -= bedVelocity - rec.previousBedVelocity
+			end
+			rec.previousBedVelocity = bedVelocity
+		else
+			rec.previousBedVelocity = nil
+		end
+		rec.damageTruck = truck
 		if
 			rec.state == "Delivered"
 			or now < rec.graceUntil
@@ -28,7 +42,7 @@ function DamageService:Step()
 		then
 			continue
 		end
-		local deltaV = (velocity - previous).Magnitude
+		local deltaV = delta.Magnitude
 		if rec.state == "Carried" then
 			-- Ignore careful doorway bumps. Released/cargo items retain drop/crash tuning.
 			deltaV = math.max(

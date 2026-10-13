@@ -214,6 +214,10 @@ assert(
 	"Last drop clears state"
 )
 assert(root.children.CarryAlignPosition.Enabled == false, "Last drop disables constraint")
+assert(
+	rec.graceUntil - os.clock() <= config.DropGraceSeconds,
+	"Drop does not inherit the full grab grace window"
+)
 local released = false
 items.trucks = {
 	Release = function(_, r)

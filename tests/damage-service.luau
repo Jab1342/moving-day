@@ -131,6 +131,25 @@ print(
 	"PASS carried impact tuning: gentle doorway bumps spared, severe impacts and released drops still damage"
 )
 
+local cargo = item("cargo", Defs.vase)
+cargo.state = "InTruck"
+cargo.model:SetAttribute("Strapped", true)
+cargo.truck = { driverId = 55, bed = { AssemblyLinearVelocity = V.new(60, 0, 0) } }
+cargo.root.AssemblyLinearVelocity = V.new(60, 0, 0)
+cargo.graceUntil = clock + 0.01
+damage:Step()
+clock += 0.02
+cargo.truck.bed.AssemblyLinearVelocity = V.zero
+cargo.root.AssemblyLinearVelocity = V.zero
+damage:Step()
+assert(
+	cargo.model:GetAttribute("HP") == 100,
+	"Shared braking motion is not an independent cargo impact"
+)
+cargo.root.AssemblyLinearVelocity = V.new(0, 24, 0)
+damage:Step()
+assert(removed.cargo, "Straps do not make real relative impacts immune")
+
 items.records = {}
 events, removed = {}, {}
 for index = 1, Config.MaxActiveAssemblies do

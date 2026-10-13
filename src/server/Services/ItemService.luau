@@ -75,9 +75,11 @@ function ItemService:SetState(rec, state)
 	rec.model:SetAttribute("State", state)
 end
 
-function ItemService:Grace(rec)
-	rec.graceUntil = os.clock() + Config.GrabGraceSeconds
+function ItemService:Grace(rec, seconds)
+	rec.graceUntil = os.clock() + (seconds or Config.GrabGraceSeconds)
 	rec.previousVelocity = rec.root.AssemblyLinearVelocity
+	rec.previousBedVelocity = nil
+	rec.damageTruck = nil
 end
 
 function ItemService:SetOwner(rec, player, automatic)
@@ -232,7 +234,8 @@ function ItemService:ApplyCarriers(rec)
 	self:SetState(rec, if rec.a ~= 0 then "Carried" else "Idle")
 	position.Enabled = rec.a ~= 0
 	orientation.Enabled = rec.a ~= 0
-	self:Grace(rec)
+	-- A released item must be vulnerable before a chest-height fall lands.
+	self:Grace(rec, if rec.a == 0 then Config.DropGraceSeconds else Config.GrabGraceSeconds)
 	return true
 end
 
