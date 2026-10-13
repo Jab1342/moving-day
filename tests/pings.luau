@@ -82,6 +82,10 @@ local service = Service.new({
 		},
 	},
 })
+local events = {}
+service.onPing = function(sender, id)
+	table.insert(events, { sender = sender, id = id })
+end
 assert(service:Ping(a, 1, nil), "Crew ping relays")
 assert(#messages == 2 and messages[1].to == a and messages[2].to == b, "Only own crew receives")
 assert(messages[1].sender == a.UserId, "Sender identity comes from server")
@@ -96,6 +100,10 @@ clock = 2
 assert(service:Ping(a, 1, rb.Vector3.new(5, 0, 0)), "Nearby Vector3 accepted")
 stranger.crew = nil
 assert(not service:Ping(stranger, 1, nil), "Unassigned player cannot relay")
+assert(
+	#events == 4 and events[1].sender == a and events[1].id == 1,
+	"Analytics callback only sees accepted crew pings"
+)
 print(
 	"PASS pings: enum and position validation, server sender identity, crew isolation and rate limits"
 )

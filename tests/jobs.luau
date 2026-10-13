@@ -163,6 +163,7 @@ local env = {
 	script = { Parent = { HouseBuilder = builder } },
 	CFrame = CF,
 	Vector3 = V,
+	Enum = rb.Enum,
 	require = function(value)
 		return value
 	end,
@@ -237,6 +238,20 @@ function trucks:Remove(crewId)
 	self.trucks[crewId] = nil
 end
 local payouts = PayoutService.new(data, remotes)
+local payoutAnalytics = { sources = 0, steps = 0, completions = 0 }
+function payoutAnalytics:Funnel(_, step)
+	assert(step == 6, "Payout emits only first payout funnel hook")
+	self.steps += 1
+end
+function payoutAnalytics:Economy(_, amount, endingBalance)
+	assert(amount > 0 and endingBalance == data.saved.cash, "Only committed cash is reported")
+	self.sources += 1
+end
+function payoutAnalytics:Custom(_, event)
+	assert(event == "JobCompleted", "Completion custom event")
+	self.completions += 1
+end
+payouts.analytics = payoutAnalytics
 local jobs = JobService.new(crews, items, trucks, payouts, data, remotes, {})
 jobs:Bind()
 local id = jobs:StartJob(crew)
@@ -279,6 +294,10 @@ end
 assert(
 	data.saved.cash == balance and data.updates == 1,
 	"Repeated payout ticks cannot duplicate awards"
+)
+assert(
+	payoutAnalytics.sources == 1 and payoutAnalytics.steps == 1 and payoutAnalytics.completions == 1,
+	"Payout retries do not duplicate analytics"
 )
 stamp += Config.PayoutDisplaySeconds
 jobs:Step(Config.JobPollSeconds)
