@@ -121,6 +121,7 @@ end
 local function buildTag()
 	tag = Instance.new("BillboardGui")
 	tag.Name = "MD_ItemTag"
+	tag.ResetOnSpawn = false -- parented straight to PlayerGui; must survive respawns
 	tag.Size = UDim2.fromOffset(160, 54)
 	tag.StudsOffset = Vector3.new(0, 2.5, 0)
 	tag.AlwaysOnTop = true
