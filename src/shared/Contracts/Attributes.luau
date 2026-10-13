@@ -9,6 +9,8 @@ return {
 		State = { type = "ItemState", owner = "ItemService" },
 		CarrierA = { type = "number", owner = "ItemService", default = 0 },
 		CarrierB = { type = "number", owner = "ItemService", default = 0 },
+		-- Physical attachment held by CarrierA; CarrierB holds the other one.
+		LeadGrip = { type = "number", owner = "ItemService", min = 1, max = 2, default = 1 },
 		BlameUserId = { type = "number", owner = "DamageService" },
 		Strapped = { type = "boolean", owner = "ItemService", default = false },
 		Wrapped = { type = "boolean", owner = "ItemService", default = false },
