@@ -19,5 +19,411 @@
     "assetId": "76201554143630",
     "uploadedBy": "Codex",
     "file": "assets/blend/palette.png"
+  },
+  {
+    "name": "FUR_Couch",
+    "type": "Model",
+    "assetId": "117885384302333",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Couch.fbx"
+  },
+  {
+    "name": "FUR_CardboardBox",
+    "type": "Model",
+    "assetId": "138491826737911",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_CardboardBox.fbx"
+  },
+  {
+    "name": "FUR_Chair",
+    "type": "Model",
+    "assetId": "87164841731172",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Chair.fbx"
+  },
+  {
+    "name": "FUR_Lamp",
+    "type": "Model",
+    "assetId": "109935049563599",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Lamp.fbx"
+  },
+  {
+    "name": "FUR_Vase",
+    "type": "Model",
+    "assetId": "105037063887993",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Vase.fbx"
+  },
+  {
+    "name": "FUR_TV",
+    "type": "Model",
+    "assetId": "84936548740594",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_TV.fbx"
+  },
+  {
+    "name": "FUR_Mattress",
+    "type": "Model",
+    "assetId": "79311550224813",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Mattress.fbx"
+  },
+  {
+    "name": "FUR_Fridge",
+    "type": "Model",
+    "assetId": "133735701322271",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Fridge.fbx"
+  },
+  {
+    "name": "FUR_Vase_Frac",
+    "type": "Model",
+    "assetId": "95834630886815",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Vase_Frac.fbx"
+  },
+  {
+    "name": "FUR_Lamp_Frac",
+    "type": "Model",
+    "assetId": "118296352663490",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Lamp_Frac.fbx"
+  },
+  {
+    "name": "FUR_TV_Frac",
+    "type": "Model",
+    "assetId": "139537262344758",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_TV_Frac.fbx"
+  },
+  {
+    "name": "TRK_Pickup_Body",
+    "type": "Model",
+    "assetId": "94970103150551",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/TRK_Pickup_Body.fbx"
+  },
+  {
+    "name": "TRK_Pickup_Wheel",
+    "type": "Model",
+    "assetId": "129396673512851",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/TRK_Pickup_Wheel.fbx"
+  },
+  {
+    "name": "FUR_Piano",
+    "type": "Model",
+    "assetId": "128849773732698",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Piano.fbx"
+  },
+  {
+    "name": "FUR_Aquarium",
+    "type": "Model",
+    "assetId": "74019265278554",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Aquarium.fbx"
+  },
+  {
+    "name": "FUR_GrandfatherClock",
+    "type": "Model",
+    "assetId": "106572731956036",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_GrandfatherClock.fbx"
+  },
+  {
+    "name": "FUR_Bookshelf",
+    "type": "Model",
+    "assetId": "83521917526069",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Bookshelf.fbx"
+  },
+  {
+    "name": "FUR_Microwave",
+    "type": "Model",
+    "assetId": "77281682806502",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Microwave.fbx"
+  },
+  {
+    "name": "FUR_PottedPlant",
+    "type": "Model",
+    "assetId": "112246883820998",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_PottedPlant.fbx"
+  },
+  {
+    "name": "FUR_Mirror",
+    "type": "Model",
+    "assetId": "100237847405569",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Mirror.fbx"
+  },
+  {
+    "name": "FUR_Piano_Frac",
+    "type": "Model",
+    "assetId": "94513744736043",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Piano_Frac.fbx"
+  },
+  {
+    "name": "FUR_Aquarium_Frac",
+    "type": "Model",
+    "assetId": "132807304200489",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Aquarium_Frac.fbx"
+  },
+  {
+    "name": "FUR_GrandfatherClock_Frac",
+    "type": "Model",
+    "assetId": "81533731078157",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_GrandfatherClock_Frac.fbx"
+  },
+  {
+    "name": "FUR_Bookshelf_Frac",
+    "type": "Model",
+    "assetId": "140712692053458",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Bookshelf_Frac.fbx"
+  },
+  {
+    "name": "FUR_Microwave_Frac",
+    "type": "Model",
+    "assetId": "130011931181464",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Microwave_Frac.fbx"
+  },
+  {
+    "name": "FUR_PottedPlant_Frac",
+    "type": "Model",
+    "assetId": "112050751094420",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_PottedPlant_Frac.fbx"
+  },
+  {
+    "name": "FUR_Mirror_Frac",
+    "type": "Model",
+    "assetId": "91459625207203",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Mirror_Frac.fbx"
+  },
+  {
+    "name": "FUR_Couch_Frac",
+    "type": "Model",
+    "assetId": "123719792249686",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Couch_Frac.fbx"
+  },
+  {
+    "name": "FUR_CardboardBox_Frac",
+    "type": "Model",
+    "assetId": "137958496927011",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_CardboardBox_Frac.fbx"
+  },
+  {
+    "name": "FUR_Chair_Frac",
+    "type": "Model",
+    "assetId": "90116175097027",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Chair_Frac.fbx"
+  },
+  {
+    "name": "FUR_Mattress_Frac",
+    "type": "Model",
+    "assetId": "110156000261400",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Mattress_Frac.fbx"
+  },
+  {
+    "name": "FUR_Fridge_Frac",
+    "type": "Model",
+    "assetId": "75090120419562",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Fridge_Frac.fbx"
+  },
+  {
+    "name": "PRP_Dolly",
+    "type": "Model",
+    "assetId": "91411744849292",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Dolly.fbx"
+  },
+  {
+    "name": "PRP_Strap",
+    "type": "Model",
+    "assetId": "128836483436146",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Strap.fbx"
+  },
+  {
+    "name": "PRP_LoadingRamp",
+    "type": "Model",
+    "assetId": "110020955733950",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_LoadingRamp.fbx"
+  },
+  {
+    "name": "TRK_BoxTruck_Body",
+    "type": "Model",
+    "assetId": "108570079110448",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/TRK_BoxTruck_Body.fbx"
+  },
+  {
+    "name": "PRP_Tree",
+    "type": "Model",
+    "assetId": "135748336439958",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Tree.fbx"
+  },
+  {
+    "name": "PRP_HQSign",
+    "type": "Model",
+    "assetId": "86889511556582",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_HQSign.fbx"
+  },
+  {
+    "name": "PRP_GarageDoor",
+    "type": "Model",
+    "assetId": "81765704927874",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_GarageDoor.fbx"
+  },
+  {
+    "name": "PRP_Shelving",
+    "type": "Model",
+    "assetId": "130963158080792",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Shelving.fbx"
+  },
+  {
+    "name": "PRP_CrewPadBoard",
+    "type": "Model",
+    "assetId": "76608789397576",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_CrewPadBoard.fbx"
+  },
+  {
+    "name": "PRP_Mailbox",
+    "type": "Model",
+    "assetId": "125516749650402",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Mailbox.fbx"
+  },
+  {
+    "name": "PRP_Bin",
+    "type": "Model",
+    "assetId": "127270058469386",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Bin.fbx"
+  },
+  {
+    "name": "PRP_Streetlight",
+    "type": "Model",
+    "assetId": "108682382255837",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Streetlight.fbx"
+  },
+  {
+    "name": "PRP_Fence",
+    "type": "Model",
+    "assetId": "98325690922816",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Fence.fbx"
+  },
+  {
+    "name": "COS_HardHat",
+    "type": "Model",
+    "assetId": "117361836869359",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/COS_HardHat.fbx"
+  },
+  {
+    "name": "COS_HardHatGold",
+    "type": "Model",
+    "assetId": "138662877759792",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/COS_HardHatGold.fbx"
+  },
+  {
+    "name": "COS_TruckerCap",
+    "type": "Model",
+    "assetId": "93858528570073",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/COS_TruckerCap.fbx"
+  },
+  {
+    "name": "COS_Beanie",
+    "type": "Model",
+    "assetId": "73223630436678",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/COS_Beanie.fbx"
+  },
+  {
+    "name": "PRP_KitchenCounter",
+    "type": "Model",
+    "assetId": "96561886403147",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_KitchenCounter.fbx"
+  },
+  {
+    "name": "PRP_Bathtub",
+    "type": "Model",
+    "assetId": "133331158965003",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Bathtub.fbx"
+  },
+  {
+    "name": "PRP_Toilet",
+    "type": "Model",
+    "assetId": "110191635761827",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Toilet.fbx"
+  },
+  {
+    "name": "PRP_BedFrame",
+    "type": "Model",
+    "assetId": "126820018402703",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_BedFrame.fbx"
+  },
+  {
+    "name": "PRP_Rug",
+    "type": "Model",
+    "assetId": "105483131149950",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Rug.fbx"
+  },
+  {
+    "name": "PRP_BathroomSink",
+    "type": "Model",
+    "assetId": "103058974589632",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_BathroomSink.fbx"
+  },
+  {
+    "name": "PRP_Fireplace",
+    "type": "Model",
+    "assetId": "110304456914061",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Fireplace.fbx"
+  },
+  {
+    "name": "TRK_Pickup_Body_Blue",
+    "type": "Model",
+    "assetId": "71286573606711",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/TRK_Pickup_Body_Blue.fbx"
+  },
+  {
+    "name": "TRK_Pickup_Body_Yellow",
+    "type": "Model",
+    "assetId": "115156075815657",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/TRK_Pickup_Body_Yellow.fbx"
   }
 ]

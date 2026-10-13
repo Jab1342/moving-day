@@ -4,5 +4,353 @@
     "operation": "operations/6f0f7fe2-768a-4aff-85cf-857dc4216c61",
     "assetId": "130690847988883",
     "file": "assets/export/REF_Cube.fbx"
+  },
+  "FUR_Couch": {
+    "status": "REGISTERED",
+    "operation": "operations/12b10cdc-ff1d-472c-90ff-0d063beb8e20",
+    "assetId": "117885384302333",
+    "file": "assets/export/FUR_Couch.fbx"
+  },
+  "FUR_CardboardBox": {
+    "status": "REGISTERED",
+    "operation": "operations/15e24fcf-f7d4-4726-81a3-7a9cd50d5dc3",
+    "assetId": "138491826737911",
+    "file": "assets/export/FUR_CardboardBox.fbx"
+  },
+  "FUR_Chair": {
+    "status": "REGISTERED",
+    "operation": "operations/75de9296-39ab-44e7-8cec-2c1a547edbce",
+    "assetId": "87164841731172",
+    "file": "assets/export/FUR_Chair.fbx"
+  },
+  "FUR_Lamp": {
+    "status": "REGISTERED",
+    "operation": "operations/c1e5f6b1-1e85-4b19-95a2-746eca594068",
+    "assetId": "109935049563599",
+    "file": "assets/export/FUR_Lamp.fbx"
+  },
+  "FUR_Vase": {
+    "status": "REGISTERED",
+    "operation": "operations/58a297e6-b310-4e25-b9b8-eb5772dc1a04",
+    "assetId": "105037063887993",
+    "file": "assets/export/FUR_Vase.fbx"
+  },
+  "FUR_TV": {
+    "status": "REGISTERED",
+    "operation": "operations/ec9cf63d-e20d-4f6a-8931-9325f9829126",
+    "assetId": "84936548740594",
+    "file": "assets/export/FUR_TV.fbx"
+  },
+  "FUR_Mattress": {
+    "status": "REGISTERED",
+    "operation": "operations/24b937d4-c8a5-4ad2-8734-fe00f1fdc5f9",
+    "assetId": "79311550224813",
+    "file": "assets/export/FUR_Mattress.fbx"
+  },
+  "FUR_Fridge": {
+    "status": "REGISTERED",
+    "operation": "operations/1b39fec9-b95c-4d9d-a45f-13515e5bb60e",
+    "assetId": "133735701322271",
+    "file": "assets/export/FUR_Fridge.fbx"
+  },
+  "FUR_Vase_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/d729e4c2-6ed4-40a8-bcfe-97d8984b59ca",
+    "assetId": "95834630886815",
+    "file": "assets/export/FUR_Vase_Frac.fbx"
+  },
+  "FUR_Lamp_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/e3cb2e98-4a4d-434f-9b14-0f7cb122dfd5",
+    "assetId": "118296352663490",
+    "file": "assets/export/FUR_Lamp_Frac.fbx"
+  },
+  "FUR_TV_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/2b95d4f1-cc9a-457a-9381-1bd84f1a1774",
+    "assetId": "139537262344758",
+    "file": "assets/export/FUR_TV_Frac.fbx"
+  },
+  "TRK_Pickup_Body": {
+    "status": "REGISTERED",
+    "operation": "operations/46e05cad-d4a6-4763-a634-3b6b96c1d6c2",
+    "assetId": "94970103150551",
+    "file": "assets/export/TRK_Pickup_Body.fbx"
+  },
+  "TRK_Pickup_Wheel": {
+    "status": "REGISTERED",
+    "operation": "operations/150c86f1-a3c7-4ef3-a562-7b47c321e7f6",
+    "assetId": "129396673512851",
+    "file": "assets/export/TRK_Pickup_Wheel.fbx"
+  },
+  "FUR_Piano": {
+    "status": "REGISTERED",
+    "operation": "operations/5dc411dc-53dd-42c7-b08f-3c6c1a635c0c",
+    "assetId": "128849773732698",
+    "file": "assets/export/FUR_Piano.fbx"
+  },
+  "FUR_Aquarium": {
+    "status": "REGISTERED",
+    "operation": "operations/e3e8f24c-a52a-4b38-b7e6-7ef5567911ff",
+    "assetId": "74019265278554",
+    "file": "assets/export/FUR_Aquarium.fbx"
+  },
+  "FUR_GrandfatherClock": {
+    "status": "REGISTERED",
+    "operation": "operations/f828e98a-8638-43fd-b956-00a07d3868b3",
+    "assetId": "106572731956036",
+    "file": "assets/export/FUR_GrandfatherClock.fbx"
+  },
+  "FUR_Bookshelf": {
+    "status": "REGISTERED",
+    "operation": "operations/349f2525-afe1-4b03-a9e8-483eb7375d80",
+    "assetId": "83521917526069",
+    "file": "assets/export/FUR_Bookshelf.fbx"
+  },
+  "FUR_Microwave": {
+    "status": "REGISTERED",
+    "operation": "operations/2fc03e49-54af-4a2d-b463-23fc094f40ff",
+    "assetId": "77281682806502",
+    "file": "assets/export/FUR_Microwave.fbx"
+  },
+  "FUR_PottedPlant": {
+    "status": "REGISTERED",
+    "operation": "operations/3fc66453-a009-436c-b482-d6c66020a687",
+    "assetId": "112246883820998",
+    "file": "assets/export/FUR_PottedPlant.fbx"
+  },
+  "FUR_Mirror": {
+    "status": "REGISTERED",
+    "operation": "operations/ad4d9701-1a35-4c4c-9b8d-34c0244d4bd7",
+    "assetId": "100237847405569",
+    "file": "assets/export/FUR_Mirror.fbx"
+  },
+  "FUR_Piano_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/d857ed96-c92f-4ada-9aa3-e68c3d236a41",
+    "assetId": "94513744736043",
+    "file": "assets/export/FUR_Piano_Frac.fbx"
+  },
+  "FUR_Aquarium_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/1e35b0bf-0b82-43da-880f-63ba441754dc",
+    "assetId": "132807304200489",
+    "file": "assets/export/FUR_Aquarium_Frac.fbx"
+  },
+  "FUR_GrandfatherClock_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/17b4014b-be0b-4039-a826-6d82e9670874",
+    "assetId": "81533731078157",
+    "file": "assets/export/FUR_GrandfatherClock_Frac.fbx"
+  },
+  "FUR_Bookshelf_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/3c164e68-85a6-44a5-8891-9af92c510176",
+    "assetId": "140712692053458",
+    "file": "assets/export/FUR_Bookshelf_Frac.fbx"
+  },
+  "FUR_Microwave_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/56d088c2-6d9e-452a-ae26-8788f33ab578",
+    "assetId": "130011931181464",
+    "file": "assets/export/FUR_Microwave_Frac.fbx"
+  },
+  "FUR_PottedPlant_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/8639fe0c-b6fc-4f14-b5bf-31b0a48cab46",
+    "assetId": "112050751094420",
+    "file": "assets/export/FUR_PottedPlant_Frac.fbx"
+  },
+  "FUR_Mirror_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/41e1b7eb-15b4-4870-9109-a5eaccc8cea5",
+    "assetId": "91459625207203",
+    "file": "assets/export/FUR_Mirror_Frac.fbx"
+  },
+  "FUR_Couch_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/bac07b4a-93be-4e90-b786-db663cd3d385",
+    "assetId": "123719792249686",
+    "file": "assets/export/FUR_Couch_Frac.fbx"
+  },
+  "FUR_CardboardBox_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/3311b7df-87a7-4254-a7cb-a852d389efb5",
+    "assetId": "137958496927011",
+    "file": "assets/export/FUR_CardboardBox_Frac.fbx"
+  },
+  "FUR_Chair_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/44d80fb4-cb47-4d55-83b6-bdd42f73ddfa",
+    "assetId": "90116175097027",
+    "file": "assets/export/FUR_Chair_Frac.fbx"
+  },
+  "FUR_Mattress_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/400e98c5-55c1-47d4-9f98-da2c3c35b686",
+    "assetId": "110156000261400",
+    "file": "assets/export/FUR_Mattress_Frac.fbx"
+  },
+  "FUR_Fridge_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/088235d2-308e-4a66-8cbc-b04eb68341b2",
+    "assetId": "75090120419562",
+    "file": "assets/export/FUR_Fridge_Frac.fbx"
+  },
+  "PRP_Dolly": {
+    "status": "REGISTERED",
+    "operation": "operations/e795d0b0-e04d-4f42-9db8-3c9b77830dba",
+    "assetId": "91411744849292",
+    "file": "assets/export/PRP_Dolly.fbx"
+  },
+  "PRP_Strap": {
+    "status": "REGISTERED",
+    "operation": "operations/d1c9b424-773a-4e16-9587-dc2f85fc9383",
+    "assetId": "128836483436146",
+    "file": "assets/export/PRP_Strap.fbx"
+  },
+  "PRP_LoadingRamp": {
+    "status": "REGISTERED",
+    "operation": "operations/26fc53ae-199e-413e-bb19-13974f78f5f6",
+    "assetId": "110020955733950",
+    "file": "assets/export/PRP_LoadingRamp.fbx"
+  },
+  "TRK_BoxTruck_Body": {
+    "status": "REGISTERED",
+    "operation": "operations/cc301c5a-5390-4c7e-af1b-0c0047f2c32f",
+    "assetId": "108570079110448",
+    "file": "assets/export/TRK_BoxTruck_Body.fbx"
+  },
+  "PRP_Tree": {
+    "status": "REGISTERED",
+    "operation": "operations/00d41e34-37b4-4cbd-bfd5-e73d14f3603a",
+    "assetId": "135748336439958",
+    "file": "assets/export/PRP_Tree.fbx"
+  },
+  "PRP_HQSign": {
+    "status": "REGISTERED",
+    "operation": "operations/812c91b6-328d-43b4-8e6b-a1ec58e233bf",
+    "assetId": "86889511556582",
+    "file": "assets/export/PRP_HQSign.fbx"
+  },
+  "PRP_GarageDoor": {
+    "status": "REGISTERED",
+    "operation": "operations/b2212fd1-e83e-4625-a869-4e77c3b88f87",
+    "assetId": "81765704927874",
+    "file": "assets/export/PRP_GarageDoor.fbx"
+  },
+  "PRP_Shelving": {
+    "status": "REGISTERED",
+    "operation": "operations/4bba16b9-7fa8-4c1a-8606-0830a4af1ee5",
+    "assetId": "130963158080792",
+    "file": "assets/export/PRP_Shelving.fbx"
+  },
+  "PRP_CrewPadBoard": {
+    "status": "REGISTERED",
+    "operation": "operations/1492ee40-7208-4c3a-b3e3-e37e2b36268f",
+    "assetId": "76608789397576",
+    "file": "assets/export/PRP_CrewPadBoard.fbx"
+  },
+  "PRP_Mailbox": {
+    "status": "REGISTERED",
+    "operation": "operations/9a0fece9-0430-4e91-ab1e-2c66549a1fd2",
+    "assetId": "125516749650402",
+    "file": "assets/export/PRP_Mailbox.fbx"
+  },
+  "PRP_Bin": {
+    "status": "REGISTERED",
+    "operation": "operations/cc76ef7f-4891-4248-a739-b0460022a93e",
+    "assetId": "127270058469386",
+    "file": "assets/export/PRP_Bin.fbx"
+  },
+  "PRP_Streetlight": {
+    "status": "REGISTERED",
+    "operation": "operations/d34fe9bf-be3e-433c-b3a4-0b2a08c4421a",
+    "assetId": "108682382255837",
+    "file": "assets/export/PRP_Streetlight.fbx"
+  },
+  "PRP_Fence": {
+    "status": "REGISTERED",
+    "operation": "operations/b794a376-2f08-4970-9bfe-848232ec9434",
+    "assetId": "98325690922816",
+    "file": "assets/export/PRP_Fence.fbx"
+  },
+  "COS_HardHat": {
+    "status": "REGISTERED",
+    "operation": "operations/b7bacf78-9ae8-47d9-8c37-9639cf087e74",
+    "assetId": "117361836869359",
+    "file": "assets/export/COS_HardHat.fbx"
+  },
+  "COS_HardHatGold": {
+    "status": "REGISTERED",
+    "operation": "operations/2727ae42-6ed4-49c6-bd2c-7f48b26cfdc9",
+    "assetId": "138662877759792",
+    "file": "assets/export/COS_HardHatGold.fbx"
+  },
+  "COS_TruckerCap": {
+    "status": "REGISTERED",
+    "operation": "operations/a4bd2a3c-c512-4cad-81c9-b2d5211e2be0",
+    "assetId": "93858528570073",
+    "file": "assets/export/COS_TruckerCap.fbx"
+  },
+  "COS_Beanie": {
+    "status": "REGISTERED",
+    "operation": "operations/2a6f6d69-067a-46ed-8bb6-5b8965a3eb06",
+    "assetId": "73223630436678",
+    "file": "assets/export/COS_Beanie.fbx"
+  },
+  "PRP_KitchenCounter": {
+    "status": "REGISTERED",
+    "operation": "operations/b218712b-5d4b-44bf-8639-36418d22515f",
+    "assetId": "96561886403147",
+    "file": "assets/export/PRP_KitchenCounter.fbx"
+  },
+  "PRP_Bathtub": {
+    "status": "REGISTERED",
+    "operation": "operations/ef9a00a6-e026-4264-b299-d2132b516204",
+    "assetId": "133331158965003",
+    "file": "assets/export/PRP_Bathtub.fbx"
+  },
+  "PRP_Toilet": {
+    "status": "REGISTERED",
+    "operation": "operations/211d9a1b-48a1-43af-b4f3-96a9613bb3fd",
+    "assetId": "110191635761827",
+    "file": "assets/export/PRP_Toilet.fbx"
+  },
+  "PRP_BedFrame": {
+    "status": "REGISTERED",
+    "operation": "operations/bfc83023-98d3-4176-ac53-603e50919281",
+    "assetId": "126820018402703",
+    "file": "assets/export/PRP_BedFrame.fbx"
+  },
+  "PRP_Rug": {
+    "status": "REGISTERED",
+    "operation": "operations/92745f7d-898d-4d1e-90ce-190e50686112",
+    "assetId": "105483131149950",
+    "file": "assets/export/PRP_Rug.fbx"
+  },
+  "PRP_BathroomSink": {
+    "status": "REGISTERED",
+    "operation": "operations/963b82ad-70a5-4cc5-8ede-0273d0099f6e",
+    "assetId": "103058974589632",
+    "file": "assets/export/PRP_BathroomSink.fbx"
+  },
+  "PRP_Fireplace": {
+    "status": "REGISTERED",
+    "operation": "operations/7a42f75e-0544-46a0-a4be-00cb4115b798",
+    "assetId": "110304456914061",
+    "file": "assets/export/PRP_Fireplace.fbx"
+  },
+  "TRK_Pickup_Body_Blue": {
+    "status": "REGISTERED",
+    "operation": "operations/3e43a2ac-f302-4cd5-b0e3-c7b01832e664",
+    "assetId": "71286573606711",
+    "file": "assets/export/TRK_Pickup_Body_Blue.fbx"
+  },
+  "TRK_Pickup_Body_Yellow": {
+    "status": "REGISTERED",
+    "operation": "operations/90f1ff9f-9921-48a2-830f-492058840374",
+    "assetId": "115156075815657",
+    "file": "assets/export/TRK_Pickup_Body_Yellow.fbx"
   }
 }
