@@ -1,0 +1,67 @@
+{
+  "format": 2,
+  "name": "MD_Recover",
+  "author": "ClaudeB",
+  "rig": "R15",
+  "loop": false,
+  "priority": "Action",
+  "length": 1.2,
+  "note": "One-shot get-up played after the 2 s Fx.Ragdoll: lying on the back -> sit up pushing on the hands -> deep crouch -> stand. Root (LowerTorso) pose carries the body rotation and a downward offset so the body rests on the ground while the HumanoidRootPart stays upright. Ends at identity so it blends into idle.",
+  "easing": ["Cubic", "InOut"],
+  "hierarchy": {
+    "HumanoidRootPart": {
+      "LowerTorso": {
+        "UpperTorso": {
+          "Head": {},
+          "RightUpperArm": { "RightLowerArm": { "RightHand": {} } },
+          "LeftUpperArm": { "LeftLowerArm": { "LeftHand": {} } }
+        },
+        "RightUpperLeg": { "RightLowerLeg": { "RightFoot": {} } },
+        "LeftUpperLeg": { "LeftLowerLeg": { "LeftFoot": {} } }
+      }
+    }
+  },
+  "animated": ["LowerTorso", "UpperTorso", "Head", "RightUpperArm", "RightLowerArm", "LeftUpperArm", "LeftLowerArm", "RightUpperLeg", "RightLowerLeg", "LeftUpperLeg", "LeftLowerLeg", "RightFoot", "LeftFoot"],
+  "frames": [
+    { "time": 0.0, "poses": {
+      "LowerTorso": { "rot": [90, 0, 0], "pos": [0, -1.6, 0] },
+      "UpperTorso": { "rot": [0, 0, 0] },
+      "Head": { "rot": [-10, 0, 0] },
+      "RightUpperArm": { "rot": [0, 0, -25] }, "RightLowerArm": { "rot": [5, 0, 0] },
+      "LeftUpperArm": { "rot": [0, 0, 25] }, "LeftLowerArm": { "rot": [5, 0, 0] },
+      "RightUpperLeg": { "rot": [0, 0, 0] }, "RightLowerLeg": { "rot": [0, 0, 0] },
+      "LeftUpperLeg": { "rot": [0, 0, 0] }, "LeftLowerLeg": { "rot": [0, 0, 0] },
+      "RightFoot": { "rot": [0, 0, 0] }, "LeftFoot": { "rot": [0, 0, 0] }
+    }},
+    { "time": 0.35, "poses": {
+      "LowerTorso": { "rot": [15, 0, 0], "pos": [0, -1.28, 0] },
+      "UpperTorso": { "rot": [0, 0, 0] },
+      "Head": { "rot": [-5, 0, 0] },
+      "RightUpperArm": { "rot": [-35, 0, -15] }, "RightLowerArm": { "rot": [0, 0, 0] },
+      "LeftUpperArm": { "rot": [-35, 0, 15] }, "LeftLowerArm": { "rot": [0, 0, 0] },
+      "RightUpperLeg": { "rot": [75, 0, 0] }, "RightLowerLeg": { "rot": [-20, 0, 0] },
+      "LeftUpperLeg": { "rot": [75, 0, 0] }, "LeftLowerLeg": { "rot": [-20, 0, 0] },
+      "RightFoot": { "rot": [-55, 0, 0] }, "LeftFoot": { "rot": [-55, 0, 0] }
+    }},
+    { "time": 0.75, "poses": {
+      "LowerTorso": { "rot": [-20, 0, 0], "pos": [0, -0.83, 0] },
+      "UpperTorso": { "rot": [-10, 0, 0] },
+      "Head": { "rot": [15, 0, 0] },
+      "RightUpperArm": { "rot": [40, 0, -10] }, "RightLowerArm": { "rot": [20, 0, 0] },
+      "LeftUpperArm": { "rot": [40, 0, 10] }, "LeftLowerArm": { "rot": [20, 0, 0] },
+      "RightUpperLeg": { "rot": [110, 0, 0] }, "RightLowerLeg": { "rot": [-115, 0, 0] },
+      "LeftUpperLeg": { "rot": [110, 0, 0] }, "LeftLowerLeg": { "rot": [-115, 0, 0] },
+      "RightFoot": { "rot": [25, 0, 0] }, "LeftFoot": { "rot": [25, 0, 0] }
+    }},
+    { "time": 1.2, "poses": {
+      "LowerTorso": { "rot": [0, 0, 0], "pos": [0, 0, 0] },
+      "UpperTorso": { "rot": [0, 0, 0] },
+      "Head": { "rot": [0, 0, 0] },
+      "RightUpperArm": { "rot": [0, 0, 0] }, "RightLowerArm": { "rot": [0, 0, 0] },
+      "LeftUpperArm": { "rot": [0, 0, 0] }, "LeftLowerArm": { "rot": [0, 0, 0] },
+      "RightUpperLeg": { "rot": [0, 0, 0] }, "RightLowerLeg": { "rot": [0, 0, 0] },
+      "LeftUpperLeg": { "rot": [0, 0, 0] }, "LeftLowerLeg": { "rot": [0, 0, 0] },
+      "RightFoot": { "rot": [0, 0, 0] }, "LeftFoot": { "rot": [0, 0, 0] }
+    }}
+  ]
+}

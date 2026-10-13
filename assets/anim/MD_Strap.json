@@ -1,0 +1,77 @@
+{
+  "format": 2,
+  "name": "MD_Strap",
+  "author": "ClaudeB",
+  "rig": "R15",
+  "loop": true,
+  "priority": "Action",
+  "length": 2.0,
+  "note": "Looping strap pull played while a strap is pending (Config.StrapSeconds = 2). Player stands side-on to the bed, reaches up and over, pulls the strap down to chest height and gives it two tugs. Pose CFrame = Motor6D.Transform: CFrame.new(pos) * CFrame.Angles(rad x, rad y, rad z) in the Part1 frame. Joints listed in 'animated' are keyed on every frame; other joints are structural (Weight 0). Frame 2.0 equals frame 0.0 so the loop is seamless.",
+  "easing": ["Cubic", "InOut"],
+  "hierarchy": {
+    "HumanoidRootPart": {
+      "LowerTorso": {
+        "UpperTorso": {
+          "Head": {},
+          "RightUpperArm": { "RightLowerArm": { "RightHand": {} } },
+          "LeftUpperArm": { "LeftLowerArm": { "LeftHand": {} } }
+        },
+        "RightUpperLeg": { "RightLowerLeg": { "RightFoot": {} } },
+        "LeftUpperLeg": { "LeftLowerLeg": { "LeftFoot": {} } }
+      }
+    }
+  },
+  "animated": ["LowerTorso", "UpperTorso", "Head", "RightUpperArm", "RightLowerArm", "LeftUpperArm", "LeftLowerArm", "RightUpperLeg", "RightLowerLeg", "LeftUpperLeg", "LeftLowerLeg", "RightFoot", "LeftFoot"],
+  "frames": [
+    { "time": 0.0, "poses": {
+      "LowerTorso": { "rot": [0, 0, 0], "pos": [0, -0.05, 0] },
+      "UpperTorso": { "rot": [-8, 0, 0] },
+      "Head": { "rot": [10, 0, 0] },
+      "RightUpperArm": { "rot": [155, 0, -8] }, "RightLowerArm": { "rot": [10, 0, 0] },
+      "LeftUpperArm": { "rot": [155, 0, 8] }, "LeftLowerArm": { "rot": [10, 0, 0] },
+      "RightUpperLeg": { "rot": [15, 0, 0] }, "RightLowerLeg": { "rot": [-25, 0, 0] },
+      "LeftUpperLeg": { "rot": [15, 0, 0] }, "LeftLowerLeg": { "rot": [-25, 0, 0] },
+      "RightFoot": { "rot": [10, 0, 0] }, "LeftFoot": { "rot": [10, 0, 0] }
+    }},
+    { "time": 0.7, "poses": {
+      "LowerTorso": { "rot": [0, 0, 0], "pos": [0, -0.42, 0] },
+      "UpperTorso": { "rot": [-25, 0, 0] },
+      "Head": { "rot": [-12, 0, 0] },
+      "RightUpperArm": { "rot": [70, 0, -10] }, "RightLowerArm": { "rot": [50, 0, 0] },
+      "LeftUpperArm": { "rot": [70, 0, 10] }, "LeftLowerArm": { "rot": [50, 0, 0] },
+      "RightUpperLeg": { "rot": [45, 0, 0] }, "RightLowerLeg": { "rot": [-80, 0, 0] },
+      "LeftUpperLeg": { "rot": [45, 0, 0] }, "LeftLowerLeg": { "rot": [-80, 0, 0] },
+      "RightFoot": { "rot": [35, 0, 0] }, "LeftFoot": { "rot": [35, 0, 0] }
+    }},
+    { "time": 1.2, "poses": {
+      "LowerTorso": { "rot": [0, 0, 0], "pos": [0, -0.29, 0] },
+      "UpperTorso": { "rot": [-18, 0, 0] },
+      "Head": { "rot": [-8, 0, 0] },
+      "RightUpperArm": { "rot": [45, 0, -12] }, "RightLowerArm": { "rot": [85, 0, 0] },
+      "LeftUpperArm": { "rot": [45, 0, 12] }, "LeftLowerArm": { "rot": [85, 0, 0] },
+      "RightUpperLeg": { "rot": [38, 0, 0] }, "RightLowerLeg": { "rot": [-66, 0, 0] },
+      "LeftUpperLeg": { "rot": [38, 0, 0] }, "LeftLowerLeg": { "rot": [-66, 0, 0] },
+      "RightFoot": { "rot": [28, 0, 0] }, "LeftFoot": { "rot": [28, 0, 0] }
+    }},
+    { "time": 1.5, "poses": {
+      "LowerTorso": { "rot": [0, 0, 0], "pos": [0, -0.36, 0] },
+      "UpperTorso": { "rot": [-24, 0, 0] },
+      "Head": { "rot": [-10, 0, 0] },
+      "RightUpperArm": { "rot": [55, 0, -12] }, "RightLowerArm": { "rot": [70, 0, 0] },
+      "LeftUpperArm": { "rot": [55, 0, 12] }, "LeftLowerArm": { "rot": [70, 0, 0] },
+      "RightUpperLeg": { "rot": [42, 0, 0] }, "RightLowerLeg": { "rot": [-74, 0, 0] },
+      "LeftUpperLeg": { "rot": [42, 0, 0] }, "LeftLowerLeg": { "rot": [-74, 0, 0] },
+      "RightFoot": { "rot": [32, 0, 0] }, "LeftFoot": { "rot": [32, 0, 0] }
+    }},
+    { "time": 2.0, "poses": {
+      "LowerTorso": { "rot": [0, 0, 0], "pos": [0, -0.05, 0] },
+      "UpperTorso": { "rot": [-8, 0, 0] },
+      "Head": { "rot": [10, 0, 0] },
+      "RightUpperArm": { "rot": [155, 0, -8] }, "RightLowerArm": { "rot": [10, 0, 0] },
+      "LeftUpperArm": { "rot": [155, 0, 8] }, "LeftLowerArm": { "rot": [10, 0, 0] },
+      "RightUpperLeg": { "rot": [15, 0, 0] }, "RightLowerLeg": { "rot": [-25, 0, 0] },
+      "LeftUpperLeg": { "rot": [15, 0, 0] }, "LeftLowerLeg": { "rot": [-25, 0, 0] },
+      "RightFoot": { "rot": [10, 0, 0] }, "LeftFoot": { "rot": [10, 0, 0] }
+    }}
+  ]
+}

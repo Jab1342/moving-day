@@ -551,5 +551,19 @@
     "assetId": "70840011041414",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/PRP_RampRails.fbx"
+  },
+  {
+    "name": "ANIM_Strap",
+    "type": "Animation",
+    "assetId": "90693162364539",
+    "uploadedBy": "Codex",
+    "file": "assets/anim/MD_Strap.rbxm"
+  },
+  {
+    "name": "ANIM_Recover",
+    "type": "Animation",
+    "assetId": "131746353444789",
+    "uploadedBy": "Codex",
+    "file": "assets/anim/MD_Recover.rbxm"
   }
 ]
