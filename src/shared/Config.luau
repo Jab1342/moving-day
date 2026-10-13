@@ -110,6 +110,9 @@ return table.freeze({
 	CashPackAmounts = table.freeze({ Cash500 = 500, Cash1800 = 1800, Cash5500 = 5500 }),
 	ProfileStoreName = "Profiles_v1",
 	ProfileStudioMock = true,
+	-- Only used by opt-in Studio mock fixture MD_ProfileFixture=UpgradeShop.
+	StudioFixtureCash = 10000,
+	StudioFixtureXp = 2500,
 	ProfileInitialResendSeconds = 2,
 	MaxProfileValue = 1000000000000,
 	ShopRange = 12,
