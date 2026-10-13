@@ -130,6 +130,38 @@ local function dustPuff(position: Vector3, strong: boolean)
 	Debris:AddItem(anchor, 1.5)
 end
 
+-- Which sound an item makes when it breaks / takes a knock (names in Assets.Sounds).
+local BREAK_SOUND = {
+	piano = "SFX_PianoCrash",
+	aquarium = "SFX_Splash",
+	vase = "SFX_Shatter",
+	mirror = "SFX_Shatter",
+	tv = "SFX_Shatter",
+	lamp = "SFX_Shatter",
+	microwave = "SFX_Clunk",
+	fridge = "SFX_Clunk",
+}
+local KNOCK_SOUND = { piano = "SFX_PianoCrash", box = "SFX_Thud", mattress = "SFX_Thud" }
+
+local function playAt(soundName: string, position: Vector3, volumeScale: number)
+	local sounds = ReplicatedStorage:FindFirstChild("Assets")
+	local template = sounds
+		and sounds:FindFirstChild("Sounds")
+		and sounds.Sounds:FindFirstChild(soundName)
+	if not template or not template:IsA("Sound") then
+		return
+	end
+	local anchor = Instance.new("Attachment")
+	anchor.WorldPosition = position
+	anchor.Parent = Workspace.Terrain
+	local s = template:Clone()
+	s.Volume *= volumeScale
+	s.PlaybackSpeed = 0.9 + math.random() * 0.2
+	s.Parent = anchor
+	s:Play()
+	Debris:AddItem(anchor, 6)
+end
+
 local function onItemEvent(_itemUid: string, kind: string, _hp: number, info: any)
 	if type(info) ~= "table" or typeof(info.cframe) ~= "CFrame" then
 		return
@@ -138,8 +170,10 @@ local function onItemEvent(_itemUid: string, kind: string, _hp: number, info: an
 	if kind == "Broken" then
 		spawnPieces(info.itemId, info.cframe, velocity)
 		dustPuff(info.cframe.Position, true)
+		playAt(BREAK_SOUND[info.itemId] or "SFX_Clunk", info.cframe.Position, 1)
 	elseif kind == "Damaged" then
 		dustPuff(info.cframe.Position, false)
+		playAt(KNOCK_SOUND[info.itemId] or "SFX_Thud", info.cframe.Position, 0.6)
 	end
 end
 

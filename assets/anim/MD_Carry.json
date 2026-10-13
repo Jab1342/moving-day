@@ -1,0 +1,20 @@
+{
+  "name": "MD_Carry",
+  "author": "ClaudeB",
+  "rig": "R15",
+  "loop": true,
+  "priority": "Action",
+  "length": 1.0,
+  "note": "Static looping one-player carry pose: arms forward ~80 deg, elbows bent 15 deg, hands at chest height ~1.2 studs apart, ~1.75 studs in front. Pose CFrame = Motor6D.Transform = CFrame.Angles(rad(x), rad(y), rad(z)) in the Part1 frame (R15 rig attachments have identity rotation). Structural poses (HumanoidRootPart, LowerTorso, UpperTorso) are identity with Weight 0 so walk/run keep driving legs and torso.",
+  "keyframes": [0.0, 1.0],
+  "hierarchy": {
+    "HumanoidRootPart": { "LowerTorso": { "UpperTorso": { "RightUpperArm": { "RightLowerArm": {} }, "LeftUpperArm": { "LeftLowerArm": {} } } } }
+  },
+  "poses_deg_xyz": {
+    "RightUpperArm": [80, 0, -10],
+    "LeftUpperArm": [80, 0, 10],
+    "RightLowerArm": [15, 0, 0],
+    "LeftLowerArm": [15, 0, 0]
+  },
+  "verified": "Studio R15 preview: right hand at (1.17, 0.78, -1.76) relative to HumanoidRootPart"
+}
