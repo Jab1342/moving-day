@@ -153,6 +153,32 @@ assert(
 	"Do not sell unimplemented effects"
 )
 crewPlayers = { player }
+data.profile.cash = 5000
+service.buckets = {}
+service.isReady = function()
+	return false
+end
+ok, reason = service:Buy(player, "LoadingRamp", 1)
+assert(
+	not ok and reason == "NotReady" and data.profile.cash == 5000,
+	"Missing geometry cannot charge"
+)
+service.isReady = function(id)
+	return id == "LoadingRamp" or id == "BoxTruck" or id == "SoftSuspension"
+end
+for _, id in { "LoadingRamp", "BoxTruck", "SoftSuspension" } do
+	assert(service:Buy(player, id, 1), "Ready truck upgrade purchase")
+	assert(data.profile.upgrades[id] == 1, "Truck upgrade persists")
+end
+assert(data.profile.cash == 1000, "Truck upgrade prices debit exactly once")
+assert(
+	not service:Buy(player, "LoadingRamp", 1) and data.profile.cash == 1000,
+	"Repeat truck purchase cannot debit"
+)
+assert(
+	not service:Buy(player, "Unknown", 1) and data.profile.cash == 1000,
+	"Unimplemented effect remains unavailable"
+)
 assert(
 	service:StrapSlots("A") == 4 and service:StrapSlots("B") == 2,
 	"Capacity derives from current own crew only"

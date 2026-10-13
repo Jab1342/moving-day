@@ -177,6 +177,32 @@ local function onItemEvent(_itemUid: string, kind: string, _hp: number, info: an
 	end
 end
 
+-- ANIM_Recover (1.2 s one-shot) once the joints are back, so getting up reads as a stand-up
+-- instead of a snap to idle. Skipped until the id is registered in AssetIds.
+local function playRecover(humanoid: Humanoid)
+	local animator = humanoid:FindFirstChildOfClass("Animator")
+	local module = ReplicatedStorage:FindFirstChild("Shared")
+		and ReplicatedStorage.Shared:FindFirstChild("AssetIds")
+	local ok, ids = false, nil
+	if module and module:IsA("ModuleScript") then
+		ok, ids = pcall(require, module)
+	end
+	local id = ok and type(ids) == "table" and ids.ANIM_Recover
+	if not animator or type(id) ~= "string" then
+		return
+	end
+	local animation = Instance.new("Animation")
+	animation.AnimationId = id
+	local loaded, track = pcall(function()
+		return animator:LoadAnimation(animation)
+	end)
+	if loaded and track then
+		track.Priority = Enum.AnimationPriority.Action
+		track.Looped = false
+		track:Play(0.1)
+	end
+end
+
 -- Swap the local character's Motor6Ds for ball sockets for `duration`, then restore.
 local function ragdoll(duration: number, impulse: Vector3)
 	local char = player.Character
@@ -219,6 +245,7 @@ local function ragdoll(duration: number, impulse: Vector3)
 		if humanoid.Parent then
 			humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
 			humanoid:SetAttribute("MD_Ragdolled", nil)
+			playRecover(humanoid)
 		end
 	end)
 end

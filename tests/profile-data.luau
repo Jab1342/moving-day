@@ -2,6 +2,7 @@ local fs = require("@lune/fs")
 local luau = require("@lune/luau")
 local Schema = require("../src/shared/Logic/ProfileSchema")
 local Config = require("../src/shared/Config")
+local testConfig = table.clone(Config)
 local RateLimit = require("../src/shared/Logic/RateLimit")
 
 local initial = Schema.new()
@@ -80,6 +81,7 @@ local remotes = {
 	Settings = { Set = { OnServerEvent = signal() } },
 }
 local close
+local fixtureName, fixtureReads = nil, 0
 local fakeGame = {}
 function fakeGame:GetService(name)
 	if name == "Players" then
@@ -87,6 +89,15 @@ function fakeGame:GetService(name)
 	end
 	if name == "RunService" then
 		return RunService
+	end
+	if name == "ServerStorage" then
+		return {
+			GetAttribute = function(_, key)
+				assert(key == "MD_ProfileFixture", "Only Studio fixture selector is read")
+				fixtureReads += 1
+				return fixtureName
+			end,
+		}
 	end
 	return {
 		WaitForChild = function()
@@ -101,7 +112,7 @@ local module = luau.load(fs.readFile("src/server/Services/DataService.luau"), {
 	environment = {
 		game = fakeGame,
 		require = function(name)
-			return ({ Config = Config, Schema = Schema, RateLimit = RateLimit })[name]
+			return ({ Config = testConfig, Schema = Schema, RateLimit = RateLimit })[name]
 		end,
 		task = {
 			delay = function(_, fn)
@@ -162,12 +173,18 @@ local library = {
 	end,
 }
 local data = module.new(remotes, library)
+local profileNotifications = 0
+data.onProfilePublished = function(who)
+	assert(data:Get(who) ~= nil, "Dependent state publication sees loaded profile")
+	profileNotifications += 1
+end
 local p = player(123)
 nextProfile = profile()
 data:Load(p)
 assert(loadedKey == "u_123" and nextProfile.userId == 123, "Stable key and user association")
 assert(data:Get(p) and p.attributes.Level == 1 and not p.kicked, "Profile ready after load")
 assert(#sent == 1 and #delayed == 1, "Initial snapshot plus startup resend")
+assert(profileNotifications == 1, "Loaded profile republishes dependent purchase state")
 assert(
 	data:Update(p, function(draft)
 		draft.cash = 450
@@ -219,6 +236,10 @@ assert(not data:Update(p, function() end), "Closed session cannot mutate")
 for _, fn in delayed do
 	fn()
 end
+assert(
+	profileNotifications == #sent,
+	"Profile changes and startup resend both refresh dependent state"
+)
 local p2 = player(456)
 nextProfile = profile()
 data:Load(p2)
@@ -260,6 +281,82 @@ close()
 assert(
 	shutdown.closing and not nextProfile.active and not last.kicked,
 	"Shutdown releases active profiles"
+)
+fixtureName = "UpgradeShop"
+library.DataStoreState = "Access"
+local fixtureData = module.new(remotes, library)
+local tester = player(401)
+nextProfile = profile()
+fixtureData:Load(tester)
+assert(
+	fixtureData:Get(tester).cash == Config.StudioFixtureCash and tester.attributes.Level == 6,
+	"Opt-in fresh mock receives test funds and derived level"
+)
+assert(
+	fixtureData:Get(tester).firstJobDone and next(fixtureData:Get(tester).upgrades) == nil,
+	"Fixture starts at HQ without pre-granting paid upgrades"
+)
+local returning = player(402)
+nextProfile = profile({ cash = 77, xp = 100, upgrades = { Dolly = 1 } })
+fixtureData:Load(returning)
+assert(
+	fixtureData:Get(returning).cash == 77
+		and fixtureData:Get(returning).xp == 100
+		and not fixtureData:Get(returning).firstJobDone,
+	"Existing mock progress remains unchanged"
+)
+local paid = player(403)
+nextProfile = profile({ purchases = { oldReceipt = true } })
+fixtureData:Load(paid)
+assert(
+	fixtureData:Get(paid).cash == 0 and fixtureData:Get(paid).purchases.oldReceipt,
+	"Receipt history excludes fixture seeding"
+)
+fixtureName = "Unknown"
+local unknownFixture = module.new(remotes, library)
+local unknownTester = player(404)
+nextProfile = profile()
+unknownFixture:Load(unknownTester)
+assert(
+	unknownFixture:Get(unknownTester).cash == 0
+		and not unknownFixture:Get(unknownTester).firstJobDone,
+	"Unknown fixture names leave normal onboarding intact"
+)
+fixtureName = "UpgradeShop"
+studio = false
+local readsBeforeLive = fixtureReads
+local liveFixture = module.new(remotes, library)
+local liveTester = player(405)
+nextProfile = profile()
+liveFixture:Load(liveTester)
+assert(
+	fixtureReads == readsBeforeLive
+		and liveFixture:Get(liveTester).cash == 0
+		and not liveFixture:Get(liveTester).firstJobDone,
+	"Live server never reads or grants a saved Studio fixture"
+)
+studio = true
+testConfig.ProfileStudioMock = false
+local realStudioData = module.new(remotes, library)
+local realStudioTester = player(406)
+nextProfile = profile()
+realStudioData:Load(realStudioTester)
+assert(
+	fixtureReads == readsBeforeLive and realStudioData:Get(realStudioTester).cash == 0,
+	"Studio using real persistence also ignores fixture"
+)
+testConfig.ProfileStudioMock = true
+testConfig.StudioFixtureCash = -1
+local invalidFixture = module.new(remotes, library)
+local invalidTester = player(407)
+nextProfile = profile()
+invalidFixture:Load(invalidTester)
+assert(
+	invalidTester.kicked and nextProfile.Data.cash == 0,
+	"Invalid fixture tuning is rejected without mutating a profile"
+)
+print(
+	"PASS Studio profile fixture: opt-in pristine mocks only, real Shop buys, no live or existing-save grants"
 )
 print(
 	"PASS ProfileSchema reconciliation/privacy; DataService load/cancel/release/session loss, atomic rollback, settings rate limit and live-access guard"

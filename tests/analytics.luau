@@ -72,6 +72,17 @@ assert(
 	"Source amount/balance order"
 )
 assert(calls[3].args[2] == "Sink" and calls[3].args[4] == 250, "Sink amount remains positive")
+assert(calls[2].args[6] == "Gameplay", "Existing gameplay transaction type stays unchanged")
+assert(service:Economy(player, 500, 600, "Cash500", "IAP"), "Cash pack transaction accepted")
+assert(
+	not service:Economy(player, 1, 601, "Cash500", "arbitrary"),
+	"Bounded transaction categories"
+)
+flush()
+assert(
+	calls[#calls].args[6] == "IAP" and calls[#calls].args[7] == "Cash500",
+	"IAP category and SKU sent to engine"
+)
 engine.LogCustomEvent = function()
 	error("Analytics unavailable")
 end

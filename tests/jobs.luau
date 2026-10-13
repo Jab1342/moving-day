@@ -136,7 +136,15 @@ function builder.Clear(house)
 		cleared += 1
 	end
 end
-local shared = { Config = Config, Logic = { JobGen = JobGen, JobRules = Rules, Payout = Payout } }
+local shared = {
+	Config = Config,
+	Logic = {
+		JobGen = JobGen,
+		JobRules = Rules,
+		Payout = Payout,
+		PassBenefits = require("../src/shared/Logic/PassBenefits"),
+	},
+}
 local gameMock = {
 	GetService = function(_, name)
 		if name == "Players" then
@@ -229,7 +237,8 @@ function items:Remove(rec, broken)
 	self.records[rec.uid] = nil
 end
 local trucks = { trucks = {} }
-function trucks:Spawn(crewId, cf)
+function trucks:Spawn(crewId, cf, upgrades)
+	self.spawnedUpgrades = upgrades
 	local truck = { root = part(cf.Position) }
 	self.trucks[crewId] = truck
 	return truck
@@ -255,6 +264,7 @@ payouts.analytics = payoutAnalytics
 local jobs = JobService.new(crews, items, trucks, payouts, data, remotes, {})
 jobs:Bind()
 local id = jobs:StartJob(crew)
+assert(trucks.spawnedUpgrades == data.saved.upgrades, "Truck receives the leader's saved upgrades")
 assert(id and jobs.jobs[crew.id], "Start first-session job")
 local job = jobs.jobs[crew.id]
 assert(#job.order == 6 and player.Character.position, "Starter manifest and direct arrival")

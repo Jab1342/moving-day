@@ -19,6 +19,10 @@ function DataService.new(remotes, library)
 		library = library,
 		store = store,
 		mock = mock,
+		-- Read once at startup, only for Studio's isolated ProfileStore mock.
+		fixture = if mock
+			then game:GetService("ServerStorage"):GetAttribute("MD_ProfileFixture")
+			else nil,
 		profiles = {},
 		loading = {},
 		ending = {},
@@ -43,6 +47,9 @@ function DataService:Publish(player)
 	player:SetAttribute("Level", data.level)
 	player:SetAttribute("Assist", data.settings.assist)
 	self.remotes.Data.Profile:FireClient(player, Schema.public(data))
+	if self.onProfilePublished then
+		self.onProfilePublished(player)
+	end
 end
 
 -- Server-only atomic application mutation. A callback must not yield, perform side
@@ -113,6 +120,28 @@ function DataService:Load(player)
 		return
 	end
 	local data, problem = Schema.prepare(profile.Data)
+	if
+		self.mock
+		and self.fixture == "UpgradeShop"
+		and data
+		and data.cash == 0
+		and data.xp == 0
+		and not data.firstJobDone
+		and next(data.upgrades) == nil
+		and next(data.cosmetics) == nil
+		and next(data.catalog) == nil
+		and next(data.purchases) == nil
+		and data.stats.jobs == 0
+		and data.stats.delivered == 0
+		and data.stats.broken == 0
+		and data.stats.moneyLost == 0
+	then
+		-- Opt-in fixture starts at HQ; buy the real upgrades through Shop.Buy.
+		-- Existing mock progress is never reset, and live sessions cannot reach this.
+		data.cash, data.xp, data.firstJobDone =
+			Config.StudioFixtureCash, Config.StudioFixtureXp, true
+		data, problem = Schema.prepare(data)
+	end
 	if not data then
 		profile:EndSession()
 		warn("[MovingDay] Profile validation failed: " .. problem)

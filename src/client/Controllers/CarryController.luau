@@ -38,6 +38,14 @@ local DEFAULTS = {
 	PadHoldDistance = 3.5, -- gamepad: studs in front of the player
 	BedLiftRange = 14, -- near a truck bed, items lift to clear the tailgate
 	BedClearance = 1.4, -- studs above the bed floor for the item's underside
+	DollyGap = 1.5, -- studs between the player and the near edge of a dolly load
+	DollyDeckHeight = 1.1, -- dolly loads ride this high, enough to roll over 1-stud kerbs
+	HipToGround = 3, -- HumanoidRootPart centre to floor for the default rig
+	DollyLeashSlack = 3, -- studs a dolly load may lag before the walker is down to the minimum
+	DollyLeashMinScale = 0, -- a snagged load stops you; walking back toward it frees it
+	DollyTrailStep = 0.5, -- studs between recorded footsteps for the dolly trail
+	DollyMaxPitch = math.rad(45), -- steepest a dolly load tilts to follow stairs/ramps
+	DollySlideMax = 1.5, -- studs a dolly target may slide sideways to clear a jamb
 }
 
 local CarryController = {}
@@ -58,6 +66,9 @@ local grabbing = false
 local dragGen = 0
 local toast: (text: string) -> () -- short on-screen hint, defined below
 local dollyTier = 0 -- PublicProfile.upgrades.Dolly
+local dollyAligned = false -- first dolly frame resets yaw to "along the walking direction"
+local dollyTrail: { Vector3 } = {} -- floor-level footsteps behind a dolly load, oldest first
+local dollyPushing = false -- walking at the load: rigid push bar instead of trailing
 local dollyTierScales: { number } = { 0.55, 0.70 }
 
 local function loadTuning()
@@ -149,22 +160,35 @@ local function stopPose()
 	end
 end
 
-local function playPose(twoPerson: boolean)
-	stopPose()
+-- An Action-priority track for an AssetIds animation, or nil until it's registered.
+local function loadTrack(names: { string }, looped: boolean): AnimationTrack?
 	local _, humanoid = character()
 	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
-	local id = assetId(if twoPerson then "ANIM_CarryTwo" else "ANIM_Carry") or assetId("ANIM_Carry")
+	local id: string? = nil
+	for _, name in names do
+		id = id or assetId(name)
+	end
 	if not animator or not id then
-		return
+		return nil
 	end
 	local animation = Instance.new("Animation")
 	animation.AnimationId = id
 	local ok, track = pcall(function()
 		return (animator :: Animator):LoadAnimation(animation)
 	end)
-	if ok and track then
-		track.Priority = Enum.AnimationPriority.Action
-		track.Looped = true
+	if not ok or not track then
+		return nil
+	end
+	track.Priority = Enum.AnimationPriority.Action
+	track.Looped = looped
+	return track
+end
+
+local function playPose(twoPerson: boolean)
+	stopPose()
+	local track =
+		loadTrack(if twoPerson then { "ANIM_CarryTwo", "ANIM_Carry" } else { "ANIM_Carry" }, true)
+	if track then
 		track:Play(0.15)
 		poseTrack = track
 	end
@@ -181,6 +205,9 @@ local function clearHeld()
 	end
 	held = nil
 	myGrip = 0
+	dollyAligned = false
+	dollyTrail = {}
+	dollyPushing = false
 	screenPoint = nil
 	partnerPoint = nil
 	setWalkSpeed(1)
@@ -242,6 +269,14 @@ local function drop()
 	clearHeld()
 end
 
+-- Same rule as the server's RequestGrab: the grip attachment we'd take (Grip1/Grip2, or the
+-- root when the item has none) within GrabRange of the player.
+local function inGrabRange(model: Model, root: BasePart, hrp: BasePart): boolean
+	local grip = root:FindFirstChild(if freeGrip(model) == 2 then "Grip2" else "Grip1")
+	local point = if grip and grip:IsA("Attachment") then grip.WorldPosition else root.Position
+	return (point - hrp.Position).Magnitude <= tuning.GrabRange
+end
+
 -- Raycast that passes through parts Invisicam has faded (walls between camera and player).
 -- Returns the first solid hit and whether a faded part was skipped on the way.
 local function castThroughFaded(
@@ -286,8 +321,7 @@ local function attachDetector(model: Model)
 		end
 		local hit = hitFrame.Position
 		local root = itemRoot(model)
-		-- same rule as the server: item centre within GrabRange of the player
-		if not root or (root.Position - hrp.Position).Magnitude > tuning.GrabRange then
+		if not root or not inGrabRange(model, root, hrp) then
 			toast("Get closer to grab that")
 			return
 		end
@@ -366,7 +400,7 @@ local function watchSeeThroughClicks()
 		if not model or not root or not hrp or freeGrip(model) == 0 then
 			return
 		end
-		if (root.Position - hrp.Position).Magnitude > tuning.GrabRange then
+		if not inGrabRange(model, root, hrp) then
 			toast("Get closer to grab that")
 			return
 		end
@@ -423,7 +457,7 @@ local function nearestItem(): Model?
 		local model = part:FindFirstAncestorWhichIsA("Model")
 		if model and model:GetAttribute("ItemUid") and freeGrip(model) > 0 then
 			local root = itemRoot(model)
-			if root then
+			if root and inGrabRange(model, root, hrp) then
 				local offset = root.Position - hrp.Position
 				local score = offset.Magnitude - hrp.CFrame.LookVector:Dot(offset.Unit) * 3
 				if score < bestScore then
@@ -537,11 +571,19 @@ local function onStrap(_, inputState: Enum.UserInputState)
 		return Enum.ContextActionResult.Sink
 	end
 	toast(if action == "Strap" then "Strapping..." else "Wrapping...")
+	-- strap pull loops for as long as the server holds the strap pending (StrapSeconds)
+	local strapTrack = if action == "Strap" then loadTrack({ "ANIM_Strap" }, true) else nil
+	if strapTrack then
+		strapTrack:Play(0.15)
+	end
 	task.spawn(function()
 		local ok, reason = (request :: RemoteFunction):InvokeServer(
 			target:GetAttribute("ItemUid"),
 			action
 		)
+		if strapTrack then
+			strapTrack:Stop(0.2) -- done or cancelled
+		end
 		if ok then
 			toast(if action == "Strap" then "Strapped down" else "Wrapped")
 		else
@@ -649,6 +691,130 @@ local function twoHandedCFrame(root: BasePart, mid: Vector3, toPartner: Vector3)
 	return CFrame.new(mid) * CFrame.Angles(0, worldYaw - localYaw, 0) * CFrame.new(-gripMid)
 end
 
+-- Point `reach` (horizontal arc length) back along the dolly trail from `head`, with its
+-- floor height, the flat unit direction from there toward the head, that stretch's slope
+-- (rise per stud toward the head) and the trail index it fell on (older points can go).
+local function trailPoint(head: Vector3, reach: number): (Vector3?, Vector3?, number, number)
+	local left = reach
+	local nearer = head
+	for i = #dollyTrail, 1, -1 do
+		local p = dollyTrail[i]
+		local seg = nearer - p
+		local flatLen = Vector3.new(seg.X, 0, seg.Z).Magnitude
+		if flatLen > 1e-3 then
+			if flatLen >= left then
+				local dir = Vector3.new(seg.X, 0, seg.Z) / flatLen
+				return nearer - seg * (left / flatLen), dir, seg.Y / flatLen, i
+			end
+			left -= flatLen
+		end
+		nearer = p
+	end
+	return nil, nil, 0, 1
+end
+
+-- Nudge a dolly target sideways (up to DollySlideMax studs) when its footprint would sit
+-- in a wall or door jamb, so a load hugging the inside of a turn slips through the door.
+local function slideClear(model: Model, goal: CFrame, size: Vector3, side: Vector3): CFrame
+	local params = OverlapParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local ignore: { Instance } = { model }
+	for _, other in Players:GetPlayers() do
+		if other.Character then
+			table.insert(ignore, other.Character)
+		end
+	end
+	params.FilterDescendantsInstances = ignore
+	local probe = size * Vector3.new(0.9, 0.7, 0.9)
+	local function blocked(cf: CFrame): boolean
+		for _, part in Workspace:GetPartBoundsInBox(cf, probe, params) do
+			if part.CanCollide then
+				return true
+			end
+		end
+		return false
+	end
+	if not blocked(goal) then
+		return goal
+	end
+	local step = tuning.DollySlideMax / 3
+	for i = 1, 3 do
+		for _, sign in { 1, -1 } do
+			local moved = goal + side * (sign * step * i)
+			if not blocked(moved) then
+				return moved
+			end
+		end
+	end
+	return goal
+end
+
+-- Dolly: the load follows your own footsteps. It sits `reach` behind you measured ALONG the
+-- path you walked (breadcrumbs), long side along that path, lifted off the floor like it
+-- sits on the dolly's deck, so on a turn it retraces your line through the doorway instead
+-- of cutting the corner into the jamb. Walking back toward it pushes it ahead on a rigid
+-- bar. `yaw` turns it in quarter steps from there (Rotate).
+local function dollyGoal(model: Model, root: BasePart, hrp: BasePart): (CFrame, number)
+	local boxCf, size = model:GetBoundingBox()
+	local longIsX = size.X >= size.Z
+	local quarterTurns = math.floor(yaw / (math.pi / 2) + 0.5) % 2
+	local halfDepth = if quarterTurns == 1
+		then math.min(size.X, size.Z) / 2
+		else math.max(size.X, size.Z) / 2
+	local reach = halfDepth + tuning.DollyGap
+	local rootAboveBottom = root.Position.Y - (boxCf.Y - size.Y / 2)
+	-- breadcrumbs are floor points (feet), so the load follows you up and down stairs
+	local head = Vector3.new(hrp.Position.X, hrp.Position.Y - tuning.HipToGround, hrp.Position.Z)
+	local load = Vector3.new(root.Position.X, head.Y, root.Position.Z) -- seed on your floor
+	if #dollyTrail == 0 then
+		dollyTrail = { load }
+	end
+	if (head - dollyTrail[#dollyTrail]).Magnitude > tuning.DollyTrailStep then
+		table.insert(dollyTrail, head)
+	end
+	-- Pushing is sticky: it starts when you walk at the load and lasts until you clearly
+	-- walk away from it, so a pushed load doesn't swing round to trail behind you.
+	local toLoad = Vector3.new(load.X - head.X, 0, load.Z - head.Z)
+	local _, humanoid = character()
+	if humanoid and toLoad.Magnitude > 1e-3 and humanoid.MoveDirection.Magnitude > 0.1 then
+		local dot = humanoid.MoveDirection:Dot(toLoad.Unit)
+		if dot > 0.3 then
+			dollyPushing = true
+		elseif dot < -0.2 then
+			dollyPushing = false
+		end
+	end
+	local point, toward, slope, index = trailPoint(head, reach)
+	if dollyPushing or not point or not toward then
+		-- pushing (or the trail is too short): rigid bar from you to where the load is now
+		local away = toLoad
+		if away.Magnitude < 0.5 then
+			local look = hrp.CFrame.LookVector
+			away = Vector3.new(look.X, 0, look.Z)
+		end
+		away = if away.Magnitude > 1e-3 then away.Unit else Vector3.new(0, 0, -1)
+		point, toward, slope = head + away * reach, -away, 0
+		dollyTrail = { point :: Vector3 }
+	else
+		for _ = 1, index - 2 do
+			table.remove(dollyTrail, 1)
+		end
+	end
+	local flat = toward :: Vector3 -- along the path, pointing at you
+	local base = if longIsX then math.atan2(-flat.Z, flat.X) else math.atan2(-flat.X, -flat.Z)
+	local centre = point :: Vector3
+	local rotation = CFrame.Angles(0, base + yaw, 0)
+	if quarterTurns == 0 then
+		-- tilt the long side to the slope of the stairs/ramp it is on
+		local pitch = math.clamp(math.atan(slope), -tuning.DollyMaxPitch, tuning.DollyMaxPitch)
+		pitch = if math.cos(yaw) < 0 then -pitch else pitch
+		rotation *= if longIsX then CFrame.Angles(0, 0, pitch) else CFrame.Angles(pitch, 0, 0)
+	end
+	local goal = CFrame.new(centre.X, centre.Y + tuning.DollyDeckHeight + rootAboveBottom, centre.Z)
+		* rotation
+	return slideClear(model, goal, size, Vector3.new(-flat.Z, 0, flat.X)), reach
+end
+
 local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 	local alignPos = root:FindFirstChild("CarryAlignPosition") :: AlignPosition?
 	local alignOri = root:FindFirstChild("CarryAlignOrientation") :: AlignOrientation?
@@ -683,14 +849,33 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 		local point = steerPoint(hrp, grabWorldY)
 		goal = CFrame.new(point) * rotation * CFrame.new(-grabLocal)
 		goal = CFrame.new(goal.X, root.Position.Y, goal.Z) * rotation
-	else
-		setWalkSpeed(if onDolly then dollySpeedScale() else 1)
-		alignPos.MaxVelocity = tuning.MaxCarrySpeed
-		local planeY = if onDolly then hrp.Position.Y - 1.5 else holdY
-		goal = CFrame.new(steerPoint(hrp, planeY)) * rotation * CFrame.new(-grabLocal)
-		if not onDolly then
-			goal = liftForBed(model, root, goal)
+	elseif onDolly then
+		if not dollyAligned then
+			-- yaw becomes a quarter-turn offset from the walking direction
+			dollyAligned = true
+			yaw = 0
 		end
+		alignPos.MaxVelocity = tuning.MaxCarrySpeed
+		local reach
+		goal, reach = dollyGoal(model, root, hrp)
+		-- Soft leash: if the load snags and lags, walking further away slows to a crawl
+		-- (instead of walking on into the server's drop); walking back toward it is full speed.
+		local offset = root.Position - hrp.Position
+		local flatOffset = Vector3.new(offset.X, 0, offset.Z)
+		local lag = flatOffset.Magnitude - reach
+		local _, humanoid = character()
+		local leaving = humanoid ~= nil
+			and flatOffset.Magnitude > 1e-3
+			and humanoid.MoveDirection:Dot(flatOffset.Unit) < 0
+		local slow = if leaving
+			then math.clamp(1 - lag / tuning.DollyLeashSlack, tuning.DollyLeashMinScale, 1)
+			else 1
+		setWalkSpeed(dollySpeedScale() * slow)
+	else
+		setWalkSpeed(1)
+		alignPos.MaxVelocity = tuning.MaxCarrySpeed
+		goal = CFrame.new(steerPoint(hrp, holdY)) * rotation * CFrame.new(-grabLocal)
+		goal = liftForBed(model, root, goal)
 	end
 	goal = clampReach(goal, hrp)
 	alignPos.Position = goal.Position

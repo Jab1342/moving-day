@@ -94,9 +94,11 @@ function ItemService:SetState(rec, state)
 	rec.model:SetAttribute("State", state)
 end
 
-function ItemService:Grace(rec)
-	rec.graceUntil = os.clock() + Config.GrabGraceSeconds
+function ItemService:Grace(rec, seconds)
+	rec.graceUntil = os.clock() + (seconds or Config.GrabGraceSeconds)
 	rec.previousVelocity = rec.root.AssemblyLinearVelocity
+	rec.previousBedVelocity = nil
+	rec.damageTruck = nil
 end
 
 function ItemService:SetOwner(rec, player, automatic)
@@ -228,7 +230,9 @@ function ItemService:ApplyCarriers(rec)
 	if rec.a ~= 0 and not character(lead) then
 		return false
 	end
-	if not self:SetOwner(rec, lead, rec.a == 0) then
+	-- Explicit server ownership after release gives DamageService unsmoothed landing
+	-- samples; automatic ownership may immediately assign the dropped item back to its carrier.
+	if not self:SetOwner(rec, lead, false) then
 		return false
 	end
 	for _, part in rec.model:GetDescendants() do
@@ -256,7 +260,8 @@ function ItemService:ApplyCarriers(rec)
 	self:SetState(rec, if rec.a ~= 0 then "Carried" else "Idle")
 	position.Enabled = rec.a ~= 0
 	orientation.Enabled = rec.a ~= 0
-	self:Grace(rec)
+	-- A released item must be vulnerable before a chest-height fall lands.
+	self:Grace(rec, if rec.a == 0 then Config.DropGraceSeconds else Config.GrabGraceSeconds)
 	return true
 end
 
@@ -326,6 +331,9 @@ function ItemService:Grab(player, uid, grip)
 		return false, "OwnershipUnavailable"
 	end
 	rec.lastPivot = rec.model:GetPivot()
+	if self.onGrab then
+		self.onGrab(player)
+	end
 	if self.analytics then
 		self.analytics:Funnel(player, 2)
 	end
@@ -518,6 +526,8 @@ function ItemService:Step(dt)
 			rec.model:PivotTo(rec.lastPivot)
 			rec.root.AssemblyLinearVelocity = Vector3.zero
 			rec.root.AssemblyAngularVelocity = Vector3.zero
+			-- A server correction is not an impact; discard its pre-teleport sample.
+			self:Grace(rec)
 			local strike = self.strikes[offender]
 			if not strike or os.clock() - strike.at > Config.StrikeWindowSeconds then
 				strike = { at = os.clock(), count = 0 }

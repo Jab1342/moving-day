@@ -35,7 +35,12 @@ end
 local Shared = {
 	Config = "Config",
 	ProductIds = "ProductIds",
-	Logic = { ReceiptRules = "Rules", ProfileSchema = "Schema", RateLimit = "RateLimit" },
+	Logic = {
+		ReceiptRules = "Rules",
+		ProfileSchema = "Schema",
+		RateLimit = "RateLimit",
+		PurchaseRules = "PurchaseRules",
+	},
 }
 local marketplace = {}
 local fakeGame = {}
@@ -68,6 +73,7 @@ local environment = {
 			Rules = Rules,
 			Schema = Schema,
 			RateLimit = RateLimit,
+			PurchaseRules = require("../src/shared/Logic/PurchaseRules"),
 		})[name]
 	end,
 	os = {
@@ -96,8 +102,10 @@ local data = Data.new({ Data = { Profile = { FireClient = function() end } } }, 
 	end,
 })
 local profile, saveMode, saveCalls
+local economyEvents = {}
 local function reset(saved)
 	stamp, onWait, saveCalls, saveMode = 0, nil, 0, "immediate"
+	economyEvents = {}
 	profile = {
 		Data = Schema.copy(saved or Schema.new()),
 		LastSavedData = Schema.copy(saved or Schema.new()),
@@ -119,6 +127,20 @@ local function reset(saved)
 end
 local ids = { Products = { Cash500 = 101, Cash1800 = 102, Cash5500 = 103 } }
 local service = Monetization.new(data, ids, marketplace)
+service.analytics = {
+	Economy = function(_, recipient, amount, balance, sku, transactionType)
+		assert(
+			recipient == player and profile.Data.cash == balance,
+			"Analytics sees committed balance"
+		)
+		assert(next(profile.Data.purchases) ~= nil, "Receipt ledger precedes economy event")
+		assert(
+			amount == Config.CashPackAmounts[sku] and transactionType == "IAP",
+			"Exact purchased amount/category"
+		)
+		table.insert(economyEvents, { amount = amount, balance = balance, sku = sku })
+	end,
+}
 service:Start()
 local function receipt(id, product)
 	return { PurchaseId = id, ProductId = product or 101, PlayerId = 123 }
@@ -139,6 +161,10 @@ assert(
 	"Durable replay grants once without saving again"
 )
 local persisted = Schema.copy(profile.LastSavedData)
+assert(
+	#economyEvents == 1 and economyEvents[1].amount == 500,
+	"One source event across receipt replay"
+)
 reset(persisted)
 assert(
 	service:ProcessReceipt(receipt("first", 999)) == "granted" and saveCalls == 0,
@@ -178,6 +204,10 @@ absent.PlayerId = 456
 assert(service:ProcessReceipt(absent) == "pending", "Offline player deferred")
 data.profiles[player] = nil
 assert(service:ProcessReceipt(receipt("loading")) == "pending", "No yield waiting for profile")
+assert(
+	#economyEvents == 0,
+	"Rejoin replay, malformed and unrecognized receipts cannot emit a purchase"
+)
 
 reset()
 saveMode = "delayed"
@@ -199,6 +229,7 @@ assert(
 		and profile.Data.cash == 500,
 	"Concurrent replay waits for original save without duplicate grant"
 )
+assert(#economyEvents == 1, "Concurrent receipt only logs one committed grant")
 
 reset()
 saveMode = "delayed"
@@ -216,6 +247,7 @@ assert(
 	service:ProcessReceipt(receipt("timeout")) == "granted" and profile.Data.cash == 500,
 	"Retry persists reward without duplicating it"
 )
+assert(#economyEvents == 1, "Save timeout and retry do not duplicate the source event")
 
 reset()
 saveMode = "throw"
@@ -276,6 +308,17 @@ assert(
 	service:ProcessReceipt(receipt("closing")) == "pending" and not profile.Data.purchases.closing,
 	"Shutdown cannot start a new grant"
 )
+assert(#economyEvents == 0, "Failed cap and shutdown mutations cannot emit")
+data.closing = false
+reset()
+service.analytics.Economy = function()
+	error("Simulated analytics failure")
+end
+assert(
+	service:ProcessReceipt(receipt("analyticsoutage")) == "granted",
+	"Analytics failure cannot block receipt save"
+)
+assert(profile.LastSavedData.cash == 500, "Receipt reward remains durable during analytics outage")
 print(
 	"PASS receipts: atomic ledger, replay/rejoin, concurrency, delayed durability, timeout, failure/crash, session loss, unknown IDs and balance cap"
 )
