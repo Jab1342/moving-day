@@ -158,6 +158,11 @@ assert(
 		:ProcessReceipt(receipt("collision")) == "pending",
 	"Ambiguous IDs cannot choose a reward"
 )
+assert(
+	Monetization.new(data, { Products = { Cash500 = 101, InsuranceClaim = 101 } })
+		:ProcessReceipt(receipt("effectcollision")) == "pending",
+	"Unsupported effect sharing a cash ID must not silently grant cash"
+)
 for _, malformed in
 	{
 		false,

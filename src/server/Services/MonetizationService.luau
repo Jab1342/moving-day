@@ -17,18 +17,14 @@ function MonetizationService.new(data, ids, marketplace)
 end
 function MonetizationService:CashSku(productId)
 	local found
+	local matched = false
 	for sku, id in self.ids.Products do
-		if
-			Config.CashPackAmounts[sku]
-			and type(id) == "number"
-			and id > 0
-			and id % 1 == 0
-			and id == productId
-		then
-			if found then
+		if type(id) == "number" and id > 0 and id % 1 == 0 and id == productId then
+			if matched then
 				return nil
 			end -- Fail closed on conflicting product configuration.
-			found = sku
+			matched = true
+			found = if Config.CashPackAmounts[sku] then sku else nil
 		end
 	end
 	return found
