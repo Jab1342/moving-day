@@ -37,7 +37,7 @@ for path, def in remotes do
 		)
 	end
 end
-assert(count == 16 and functions == 4, "16 remotes and 4 functions after ClaudeA review")
+assert(count == 18 and functions == 5, "18 remotes and 5 functions with proposed purchase contract")
 assert(remotes["Fx.Ragdoll"].direction == "ServerToClient", "Ragdoll is server-driven")
 assert(string.find(remotes["Job.ItemEvent"].args, "ItemEventInfo", 1, true), "VFX snapshot payload")
 assert(attributes.Furniture.Dolly.owner == "ItemService", "Dolly is server-owned")
