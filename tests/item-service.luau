@@ -325,3 +325,20 @@ assert(
 print(
 	"PASS: server ownership/handover; strap completion/cancellation; wrap cancellation, single charge and rejected debit"
 )
+rec.state, rec.a, rec.b, rec.truck = "Idle", 0, 0, nil
+model.Parent = { children = {} }
+root.Parent = nil
+local lost
+items.onRemoved = function(removedRecord, broken)
+	lost = { rec = removedRecord, broken = broken }
+end
+items:Step(1 / 60)
+assert(
+	lost and lost.rec == rec and lost.broken and items.records[rec.uid] == nil,
+	"Missing root retires an undelivered manifest item as broken"
+)
+rec.state = "Delivered"
+model.Parent = { children = {} }
+items.records[rec.uid] = rec
+items:Step(1 / 60)
+assert(lost.broken == false, "Already delivered cargo retains its credited value on removal")

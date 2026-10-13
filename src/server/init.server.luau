@@ -75,6 +75,8 @@ for path, definition in definitions do
 end
 
 local services = script:WaitForChild("Services")
+local antiExploit = require(services.AntiExploitService).new(remotes)
+antiExploit:Start()
 local data = require(services.DataService).new(remotes, require(script.Vendor.ProfileStore))
 data:Start()
 local upgrades = require(services.UpgradeService).new(data, remotes)
