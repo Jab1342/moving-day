@@ -146,6 +146,43 @@ function DataService:Load(player)
 	end)
 end
 
+-- The sole permitted receipt yield: wait for durable profile receipt + reward.
+-- Never treat Save() returning (it schedules a save) as confirmation.
+function DataService:SaveReceipt(player, purchaseId)
+	local profile = self.profiles[player]
+	if not profile or not profile.Data.purchases[purchaseId] then
+		return false
+	end
+	local function saved()
+		local snapshot = profile.LastSavedData
+		return snapshot ~= nil
+			and snapshot.purchases ~= nil
+			and snapshot.purchases[purchaseId] == true
+	end
+	if saved() then
+		return true
+	end
+	if not profile:IsActive() then
+		return false
+	end
+	local ok = pcall(function()
+		profile:Save()
+	end)
+	if not ok then
+		return false
+	end
+	local deadline = os.clock() + Config.ReceiptSaveTimeoutSeconds
+	repeat
+		if saved() then
+			return true
+		end
+		if self.profiles[player] ~= profile or not profile:IsActive() or os.clock() >= deadline then
+			return false
+		end
+		task.wait(Config.ReceiptSavePollSeconds)
+	until false
+end
+
 function DataService:Release(player)
 	self.ending[player] = true
 	local profile = self.profiles[player]
