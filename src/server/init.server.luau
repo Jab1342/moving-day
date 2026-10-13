@@ -83,9 +83,12 @@ antiExploit.onPing = function(player, pingId)
 end
 antiExploit:Start()
 local data = require(services.DataService).new(remotes, require(script.Vendor.ProfileStore))
-data:Start()
-local monetization = require(services.MonetizationService).new(data)
+local monetization = require(services.MonetizationService).new(data, nil, nil, remotes)
+data.onProfilePublished = function(player)
+	monetization:Publish(player, true)
+end
 monetization:Start()
+data:Start()
 local upgrades = require(services.UpgradeService).new(data, remotes)
 upgrades.analytics = analytics
 upgrades:Start()
@@ -99,10 +102,16 @@ local damage = require(services.DamageService).new(items)
 items.trucks = trucks
 items.damage = damage
 items.analytics = analytics
+items.onGrab = function(player)
+	monetization:NotifyGrab(player)
+end
 trucks.analytics = analytics
 local crews = require(services.CrewService).new(remotes)
 local payouts = require(services.PayoutService).new(data, remotes)
 payouts.analytics = analytics
+payouts.passesForPlayer = function(player)
+	return monetization:GetPasses(player)
+end
 local jobs = require(services.JobService).new(
 	crews,
 	items,
@@ -113,6 +122,10 @@ local jobs = require(services.JobService).new(
 	folder(runtime, "Houses")
 )
 jobs:Bind()
+monetization.jobForPlayer = function(player)
+	local crew = crews:CrewOf(player)
+	return crew and jobs.jobs[crew.id] or nil
+end
 jobs.analytics = analytics
 crews:Bind()
 items.onCrewRemove = function(player)

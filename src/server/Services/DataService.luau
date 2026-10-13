@@ -43,6 +43,9 @@ function DataService:Publish(player)
 	player:SetAttribute("Level", data.level)
 	player:SetAttribute("Assist", data.settings.assist)
 	self.remotes.Data.Profile:FireClient(player, Schema.public(data))
+	if self.onProfilePublished then
+		self.onProfilePublished(player)
+	end
 end
 
 -- Server-only atomic application mutation. A callback must not yield, perform side

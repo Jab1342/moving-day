@@ -318,6 +318,7 @@ function JobService:Step(dt)
 			job.phase = phase
 			changed = true
 			if phase == "Payout" then
+				job.completedAt = now()
 				job.returnAt = now() + Config.PayoutDisplaySeconds
 				self.payouts:Award(job)
 			end
