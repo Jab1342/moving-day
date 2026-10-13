@@ -36,4 +36,11 @@ function UpgradeRules.strapSlots(tier)
 	return Config.BaseStrapSlots
 		+ math.clamp(tier, 0, #UpgradeDefs.Straps.prices) * Config.StrapSlotsPerTier
 end
+function UpgradeRules.dollySpeed(tier)
+	if type(tier) ~= "number" or tier % 1 ~= 0 then
+		return Config.DollySpeedScale
+	end
+	return Config.DollyTierSpeedScale[math.clamp(tier, 0, #UpgradeDefs.Dolly.prices)]
+		or Config.DollySpeedScale
+end
 return UpgradeRules

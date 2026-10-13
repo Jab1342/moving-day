@@ -7,6 +7,7 @@ return table.freeze({
 	MaxProtection = 0.5,
 	GrabRange = 8,
 	DollySpeedScale = 0.4,
+	DollyTierSpeedScale = table.freeze({ 0.55, 0.70 }),
 	BedSettleSeconds = 1.0,
 	BedBreakG = 2.2,
 	StrappedBreakG = 4.5,
