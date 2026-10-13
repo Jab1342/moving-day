@@ -81,7 +81,7 @@ function StudioHarness.Start(items, trucks)
 							crew.spawn
 								* CFrame.new(
 									Config.StudioHarnessSpawnOffset,
-									Config.StudioHarnessSpawnHeight,
+									Config.StudioHarnessCharacterHeight,
 									-Config.StudioHarnessItemSpacing
 								)
 						)

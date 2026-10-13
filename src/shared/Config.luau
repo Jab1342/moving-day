@@ -63,7 +63,9 @@ return table.freeze({
 	StudioHarnessItemIds = table.freeze({ "box", "couch", "vase" }),
 	StudioHarnessItemSpacing = 7,
 	StudioHarnessSpawnOffset = 12,
-	StudioHarnessSpawnHeight = 4,
+	-- Dock Spawn is above the yard; place bottom-pivot furniture at rest.
+	StudioHarnessSpawnHeight = -2.5,
+	StudioHarnessCharacterHeight = 4,
 	StudioHarnessCrewId = "dev-crew",
 	StudioHarnessReadyTimeout = 30,
 	StudioHarnessCharacterDelay = 1,
