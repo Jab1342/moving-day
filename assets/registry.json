@@ -565,5 +565,12 @@
     "assetId": "131746353444789",
     "uploadedBy": "Codex",
     "file": "assets/anim/MD_Recover.rbxm"
+  },
+  {
+    "name": "ICON_GameDraft_v1",
+    "type": "Image",
+    "assetId": "83033014562407",
+    "uploadedBy": "Codex",
+    "file": "assets/images/ICON_GameDraft_v1.png"
   }
 ]
