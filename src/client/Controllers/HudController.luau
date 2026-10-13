@@ -273,7 +273,8 @@ local function showPayout(report: any)
 		if line.valueLost > 0 then
 			lost += line.valueLost
 			row.TextColor3 = BAD
-			row.Text = `{name}: -{money(line.valueLost)}, broken by {playerName(line.blameUserId)}`
+			local verb = if line.valueKept > 0 then "damaged" else "broken"
+			row.Text = `{name}: {verb} by {playerName(line.blameUserId)} (-{money(line.valueLost)})`
 		else
 			row.TextColor3 = INK
 			row.Text = `{name}: {money(line.valueKept)} delivered safe`
@@ -290,6 +291,16 @@ local function showPayout(report: any)
 	totals.Position = UDim2.new(0, 0, 1, -156)
 	local share = label(panel, `You earned {money(myShare)}  +{report.xpEach} XP`, 24, GOOD)
 	share.Position = UDim2.new(0, 0, 1, -128)
+	-- "one more job": tease what's next right on the payout screen
+	if report.nextJob then
+		local tierName = ({
+			Starter = "Starter apartment",
+			Family = "Family home",
+			Big = "Big house",
+		})[report.nextJob.tier] or tostring(report.nextJob.tier)
+		local nextLine = label(panel, `Next up: {tierName} on lot {report.nextJob.lotId}`, 16, GOLD)
+		nextLine.Position = UDim2.new(0, 0, 1, -98)
+	end
 
 	local function button(text: string, color: Color3, x: number): TextButton
 		local b = Instance.new("TextButton")
