@@ -53,7 +53,7 @@ def _write_json(path, data):
     tmp.replace(path)
 
 
-def _request(path, key, data=None, content_type=None):
+def _request(path, key, data=None, content_type=None, method=None):
     class NoRedirect(urllib.request.HTTPRedirectHandler):
         def redirect_request(self, req, fp, code, msg, headers, newurl):
             return None
@@ -61,7 +61,7 @@ def _request(path, key, data=None, content_type=None):
     headers = {"x-api-key": key}
     if content_type:
         headers["Content-Type"] = content_type
-    req = urllib.request.Request(BASE + path, data=data, headers=headers)
+    req = urllib.request.Request(BASE + path, data=data, headers=headers, method=method)
     try:
         with urllib.request.build_opener(NoRedirect()).open(req, timeout=60) as response:
             return response.status, json.load(response)
@@ -139,5 +139,41 @@ def upload_model(name, rel_file, description="Moving Day model", polls=30):
             journal[name] = {"status": "REGISTERED", "operation": operation, "assetId": asset_id, "file": rel_file}
             _write_json(JOURNAL, journal)
             return {"name": name, "status": "UPLOAD_PASS", "assetId": asset_id}
+        time.sleep(2)
+    return {"name": name, "status": "PENDING_RETRY_LATER"}
+
+
+def update_model(name, rel_file, polls=30):
+    """Upload rel_file as a NEW VERSION of an already-registered model (same asset ID).
+
+    Fixes are versions, never second uploads. Each version is recorded in the journal under
+    journal[name]["versions"]; the registry entry is left unchanged.
+    """
+    env = _read_env()
+    key = env.get("ROBLOX_OPEN_CLOUD_API_KEY")
+    if not key:
+        return {"name": name, "status": "BLOCKED_MISSING_ENV_KEY"}
+    existing = next((a for a in _read_json(REGISTRY, []) if a["name"] == name), None)
+    if not existing:
+        return {"name": name, "status": "NOT_REGISTERED_USE_upload_model"}
+    asset_id = existing["assetId"]
+    file_path = ROOT / rel_file
+    data, kind = _multipart({"assetId": asset_id}, file_path)
+    status, result = _request(f"/assets/v1/assets/{asset_id}", key, data, kind, method="PATCH")
+    operation = result.get("path")
+    if not operation or not re.fullmatch(r"operations/[A-Za-z0-9_-]+", operation):
+        return {"name": name, "status": f"HTTP_{status}"}
+    for _ in range(polls):
+        status, result = _request("/assets/v1/" + operation, key)
+        if status != 200:
+            return {"name": name, "status": f"POLL_HTTP_{status}"}
+        if result.get("done"):
+            if "error" in result:
+                return {"name": name, "status": "OPERATION_FAILED"}
+            journal = _read_json(JOURNAL, {})
+            entry = journal.setdefault(name, {"assetId": asset_id, "file": rel_file})
+            entry.setdefault("versions", []).append({"operation": operation, "file": rel_file, "at": int(time.time())})
+            _write_json(JOURNAL, journal)
+            return {"name": name, "status": "VERSION_PASS", "assetId": asset_id}
         time.sleep(2)
     return {"name": name, "status": "PENDING_RETRY_LATER"}

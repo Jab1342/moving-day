@@ -219,7 +219,14 @@
     "status": "REGISTERED",
     "operation": "operations/cc301c5a-5390-4c7e-af1b-0c0047f2c32f",
     "assetId": "108570079110448",
-    "file": "assets/export/TRK_BoxTruck_Body.fbx"
+    "file": "assets/export/TRK_BoxTruck_Body.fbx",
+    "versions": [
+      {
+        "operation": "operations/28778da7-bd89-4181-bc9b-909a93fda53b",
+        "file": "assets/export/TRK_BoxTruck_Body.fbx",
+        "at": 1791855341
+      }
+    ]
   },
   "PRP_Tree": {
     "status": "REGISTERED",
