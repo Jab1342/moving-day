@@ -15,6 +15,10 @@ local DEFAULTS = {
 	DriveTorque = 30000,
 	BrakeTorque = 60000,
 	WheelRadius = 1.5,
+	-- Arcade brakes: wheel motors alone stop the truck far too slowly, so braking also
+	-- pushes the chassis back at this fraction of gravity. Hard stops are what shift cargo.
+	BrakeDecelG = 0.65,
+	CoastDecelG = 0.05,
 }
 
 local function loadTuning()
@@ -39,6 +43,7 @@ type Rig = {
 	chassis: BasePart,
 	motors: { HingeConstraint },
 	steering: { CylindricalConstraint },
+	brake: VectorForce,
 }
 
 local function findRig(seat: VehicleSeat): Rig?
@@ -65,7 +70,32 @@ local function findRig(seat: VehicleSeat): Rig?
 			table.insert(steering, inst)
 		end
 	end
-	return { model = model, seat = seat, chassis = chassis, motors = motors, steering = steering }
+	for _, motor in motors do
+		motor.MotorMaxAcceleration = 400 -- lets locked wheels actually lock
+	end
+	-- client-local brake force (the driver owns the truck, so it simulates here)
+	local brake = chassis:FindFirstChild("MD_BrakeForce") :: VectorForce?
+	if not brake then
+		local attachment = Instance.new("Attachment")
+		attachment.Name = "MD_BrakeAttachment"
+		attachment.Parent = chassis
+		local force = Instance.new("VectorForce")
+		force.Name = "MD_BrakeForce"
+		force.Attachment0 = attachment
+		force.RelativeTo = Enum.ActuatorRelativeTo.World
+		force.ApplyAtCenterOfMass = true
+		force.Force = Vector3.zero
+		force.Parent = chassis
+		brake = force
+	end
+	return {
+		model = model,
+		seat = seat,
+		chassis = chassis,
+		motors = motors,
+		steering = steering,
+		brake = brake :: VectorForce,
+	}
 end
 
 local TruckController = {}
@@ -81,8 +111,19 @@ local function setMotors(rig: Rig, angularVelocity: number, torque: number)
 	end
 end
 
+local function setBrake(rig: Rig, decelG: number)
+	local v = rig.chassis.AssemblyLinearVelocity
+	local flat = Vector3.new(v.X, 0, v.Z)
+	if decelG <= 0 or flat.Magnitude < 2 then
+		rig.brake.Force = Vector3.zero
+		return
+	end
+	rig.brake.Force = -flat.Unit * rig.chassis.AssemblyMass * workspace.Gravity * decelG
+end
+
 local function release(rig: Rig)
 	setMotors(rig, 0, tuning.BrakeTorque)
+	rig.brake.Force = Vector3.zero
 	for _, servo in rig.steering do
 		servo.TargetAngle = 0
 	end
@@ -98,18 +139,23 @@ local function step(rig: Rig)
 	if throttle > 0 then
 		if forwardSpeed < -2 then
 			setMotors(rig, 0, tuning.BrakeTorque) -- braking out of reverse
+			setBrake(rig, tuning.BrakeDecelG)
 		else
 			-- negative angular velocity about +X rolls the truck toward -Z
 			setMotors(rig, -throttle * tuning.MaxSpeed / radius, tuning.DriveTorque)
+			setBrake(rig, 0)
 		end
 	elseif throttle < 0 then
 		if forwardSpeed > 2 then
 			setMotors(rig, 0, tuning.BrakeTorque) -- braking
+			setBrake(rig, tuning.BrakeDecelG)
 		else
 			setMotors(rig, -throttle * tuning.ReverseSpeed / radius, tuning.DriveTorque)
+			setBrake(rig, 0)
 		end
 	else
-		setMotors(rig, 0, tuning.DriveTorque * 0.15) -- gentle engine braking, lets cargo shift on hard stops only when braking
+		setMotors(rig, 0, tuning.DriveTorque * 0.15) -- gentle engine braking
+		setBrake(rig, tuning.CoastDecelG)
 	end
 
 	local speedFactor = math.clamp(math.abs(forwardSpeed) / tuning.MaxSpeed, 0, 1)
