@@ -41,6 +41,7 @@ local DEFAULTS = {
 	DollyGap = 1.5, -- studs between the player and the near edge of a dolly load
 	DollyDeckHeight = 1.1, -- dolly loads ride this high, enough to roll over 1-stud kerbs
 	HipToGround = 3, -- HumanoidRootPart centre to floor for the default rig
+	DollyTurnRate = math.rad(120), -- rad/s a dolly load turns toward your walking direction
 }
 
 local CarryController = {}
@@ -62,6 +63,8 @@ local dragGen = 0
 local toast: (text: string) -> () -- short on-screen hint, defined below
 local dollyTier = 0 -- PublicProfile.upgrades.Dolly
 local dollyAligned = false -- first dolly frame resets yaw to "along the walking direction"
+local dollyHeading: Vector3? = nil -- flat unit heading the dolly load is being pushed along
+local dollyClock = 0
 local dollyTierScales: { number } = { 0.55, 0.70 }
 
 local function loadTuning()
@@ -186,6 +189,7 @@ local function clearHeld()
 	held = nil
 	myGrip = 0
 	dollyAligned = false
+	dollyHeading = nil
 	screenPoint = nil
 	partnerPoint = nil
 	setWalkSpeed(1)
@@ -666,8 +670,23 @@ end
 -- sits on the dolly's deck. `yaw` turns it in quarter steps from there (Rotate).
 local function dollyGoal(model: Model, root: BasePart, hrp: BasePart): CFrame
 	local look = hrp.CFrame.LookVector
-	local flat = Vector3.new(look.X, 0, look.Z)
-	flat = if flat.Magnitude > 0.1 then flat.Unit else Vector3.new(0, 0, -1)
+	local facing = Vector3.new(look.X, 0, look.Z)
+	facing = if facing.Magnitude > 0.1 then facing.Unit else Vector3.new(0, 0, -1)
+	-- Like pushing a trolley: the load's heading turns toward the walking direction at
+	-- DollyTurnRate instead of snapping, so a 90-degree turn at a doorway swings it round.
+	local now = os.clock()
+	local dt = math.clamp(now - dollyClock, 0, 0.1)
+	dollyClock = now
+	local flat = facing
+	if dollyHeading then
+		local angle = math.acos(math.clamp(dollyHeading:Dot(facing), -1, 1))
+		local maxStep = tuning.DollyTurnRate * dt
+		if angle > maxStep then
+			local sign = if dollyHeading:Cross(facing).Y >= 0 then 1 else -1
+			flat = CFrame.Angles(0, sign * maxStep, 0):VectorToWorldSpace(dollyHeading)
+		end
+	end
+	dollyHeading = flat
 	local boxCf, size = model:GetBoundingBox()
 	local longIsX = size.X >= size.Z
 	local base = if longIsX then math.atan2(-flat.Z, flat.X) else math.atan2(-flat.X, -flat.Z)
