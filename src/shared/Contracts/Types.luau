@@ -9,6 +9,14 @@ export type ItemEventKind = "Damaged" | "Broken" | "Loaded" | "Delivered"
 -- Required on Damaged/Broken; capture before destroying the server item.
 export type ItemEventInfo = { itemId: string, cframe: CFrame, velocity: Vector3 }
 export type SettingKey = "assist"
+export type PassSku = "VIPForeman" | "DoublePay" | "HornRadio"
+export type ProductSku = "InsuranceClaim" | "CrewBoost" | "Cash500" | "Cash1800" | "Cash5500"
+export type PurchaseSku = PassSku | ProductSku
+export type MonetizationState = {
+	ready: boolean, -- ownership checks completed; false is unknown, not confirmed unowned
+	passes: { [string]: boolean }, -- verified PassSku keys only
+	available: { [string]: boolean }, -- configured AND implemented PurchaseSku keys only
+}
 export type ItemDef = {
 	id: string,
 	displayName: string,
@@ -44,8 +52,11 @@ export type PayoutReport = {
 	timeBonus: number,
 	total: number,
 	perPlayer: number,
-	-- floor(total / crewSize); +1 remainder goes to earliest-joined recipients.
+	-- perPlayer = floor(total / crewSize); base-share remainders go to earliest-joined recipients.
 	shares: { [string]: number }, -- tostring(userId) -> awarded cash
+	-- Optional personal cash bonuses, already included in shares/total. Base share = shares - bonuses.
+	-- With bonuses, shares need not differ by only one; base shares still use join-order remainders.
+	bonuses: { [string]: number }?,
 	xpEach: number,
 	stars: number,
 	nextJob: { tier: Tier, lotId: number },

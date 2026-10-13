@@ -26,6 +26,18 @@ local DEFAULTS = {
 	-- Launch cap: drive torque is limited to what pushes the truck's mass at DriveAccelG
 	-- (0-60 in ~1 s). At full DriveTorque it launched at ~1 g and threw loose cargo out.
 	DriveAccelG = 0.3,
+	-- Steering servos: at the template's responsiveness (45) the front wheels wandered +-5-12
+	-- degrees at speed and the truck drifted ~12 studs sideways over 180 with no input.
+	SteerResponsiveness = 200,
+	SteerSpeed = 8, -- rad/s
+	-- Straight-line assist: with no steering input above HoldHeadingSpeed, steer back toward
+	-- the heading you let go at (degrees of wheel per degree of heading error, capped).
+	HoldHeadingSpeed = 10,
+	HoldHeadingGain = 1.5,
+	HoldHeadingMaxAngle = 4,
+	-- Space/jump exits the seat; above this speed it's blocked so a stray jump can't throw
+	-- the driver out mid-drive. Stop (or nearly) to hop out.
+	ExitSpeed = 6,
 }
 
 local function loadTuning()
@@ -122,6 +134,25 @@ local baseTuning = DEFAULTS
 local tuning = DEFAULTS
 local active: Rig? = nil
 local stepConn: RBXScriptConnection? = nil
+local driver: Humanoid? = nil
+local savedJump: { height: number, power: number }? = nil
+local heldHeading: number? = nil -- degrees, set when steering input goes to zero
+
+-- Jump height 0 keeps a seated humanoid in its seat; restore it when slow or getting out.
+local function lockJump(locked: boolean)
+	if not driver then
+		return
+	end
+	if locked and not savedJump then
+		savedJump = { height = driver.JumpHeight, power = driver.JumpPower }
+		driver.JumpHeight = 0
+		driver.JumpPower = 0
+	elseif not locked and savedJump then
+		driver.JumpHeight = savedJump.height
+		driver.JumpPower = savedJump.power
+		savedJump = nil
+	end
+end
 
 local function setMotors(rig: Rig, angularVelocity: number, torque: number)
 	for _, motor in rig.motors do
@@ -187,12 +218,30 @@ local function step(rig: Rig)
 		setBrake(rig, tuning.CoastDecelG)
 	end
 
+	-- stay locked until a jump held through the stop is released, or it fires on unlock
+	local jumpHeld = savedJump ~= nil and driver ~= nil and driver.Jump
+	lockJump(math.abs(forwardSpeed) > tuning.ExitSpeed or jumpHeld == true)
+
 	local speedFactor = math.clamp(math.abs(forwardSpeed) / tuning.MaxSpeed, 0, 1)
 	local maxAngle = tuning.MaxSteerAngle
 		+ (tuning.HighSpeedSteerAngle - tuning.MaxSteerAngle) * speedFactor
+	-- positive SteerFloat = right; servo angle is about +Y, so right turn is negative
+	local angle = -steer * maxAngle
+	local _, yaw = rig.chassis.CFrame:ToOrientation() -- +yaw = turned left
+	local heading = math.deg(yaw)
+	if math.abs(steer) < 0.05 and forwardSpeed > tuning.HoldHeadingSpeed then
+		heldHeading = heldHeading or heading
+		local err = ((heldHeading :: number) - heading + 180) % 360 - 180
+		angle = math.clamp(
+			err * tuning.HoldHeadingGain,
+			-tuning.HoldHeadingMaxAngle,
+			tuning.HoldHeadingMaxAngle
+		)
+	else
+		heldHeading = nil
+	end
 	for _, servo in rig.steering do
-		-- positive SteerFloat = right; servo angle is about +Y, so right turn is negative
-		servo.TargetAngle = -steer * maxAngle
+		servo.TargetAngle = angle
 	end
 end
 
@@ -226,6 +275,8 @@ local function onSeated(isSeated: boolean, seatPart: BasePart?)
 		stepConn = nil
 	end
 	ContextActionService:UnbindAction("MD_Horn")
+	lockJump(false)
+	heldHeading = nil
 	if not isSeated or not seatPart or not seatPart:IsA("VehicleSeat") then
 		return
 	end
@@ -237,6 +288,11 @@ local function onSeated(isSeated: boolean, seatPart: BasePart?)
 	tuning = withTruckOverrides(baseTuning, rig.model)
 	for _, motor in rig.motors do
 		motor.MotorMaxAcceleration = tuning.MotorMaxAcceleration
+	end
+	-- the driver's client simulates the truck, so these local servo settings are what count
+	for _, servo in rig.steering do
+		servo.AngularResponsiveness = tuning.SteerResponsiveness
+		servo.AngularSpeed = tuning.SteerSpeed
 	end
 	-- the horn button only exists while you're driving
 	ContextActionService:BindAction("MD_Horn", onHorn, true, Enum.KeyCode.H, Enum.KeyCode.ButtonL3)
@@ -250,6 +306,8 @@ end
 
 local function bindCharacter(character: Model)
 	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
+	driver = humanoid
+	savedJump = nil
 	humanoid.Seated:Connect(onSeated)
 end
 
