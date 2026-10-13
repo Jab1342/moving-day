@@ -11,7 +11,13 @@ local driver = {
 		return "crew"
 	end,
 }
-local shared = { Config = Config, Logic = { CargoRules = Cargo } }
+local shared = {
+	Config = Config,
+	Logic = {
+		CargoRules = Cargo,
+		TruckUpgradeRules = require("../src/shared/Logic/TruckUpgradeRules"),
+	},
+}
 local Service = luau.load(fs.readFile("src/server/Services/TruckService.luau"), {
 	environment = {
 		game = {

@@ -82,6 +82,9 @@ upgrades:Start()
 local runtime = folder(workspace, "MovingDayRuntime")
 local items = require(services.ItemService).new(folder(runtime, "Items"), remotes)
 local trucks = require(services.TruckService).new(folder(runtime, "Trucks"), items)
+upgrades.isReady = function(id)
+	return trucks:CanUseUpgrade(id)
+end
 local damage = require(services.DamageService).new(items)
 items.trucks = trucks
 items.damage = damage
