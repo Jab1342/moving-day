@@ -1,0 +1,11 @@
+Connects real crews to house generation, furniture and truck spawning, destination unloading, profile-backed payouts and return to HQ. New profiles enter a Starter job directly; the Studio fixture is disabled. Active jobs reserve their crew pad/lot, and upgrade purchases reject active job membership.
+
+Crew actions validate range, loaded profiles, capacity, authority and rate. Already-ready Roblox party members share the crew. Failed starts roll back houses, truck and furniture and leave the crew available to retry. HouseBuilder adopts ClaudeA's geometry proposal under Codex ownership, preflights authored sockets and keeps generated rooms inside the lot footprint.
+
+Delivered items retain their surviving value. Broken items stay in the payout manifest; even an all-broken job pays its fee. Grants update cash, XP, stats and first-job progress atomically, once per member per job. Loaded cargo must be unloaded before delivery counts. Assist use is remembered for the payout discount.
+
+Validation: eight Lune suites pass, including 3,000 generated houses, crew authority/capacity/party/timer/failure cases, first-session lifecycle, cargo delivery rejection, payout replay protection, all-broken fee and failed-start cleanup. StyLua, Selene, pinned ProfileStore hash and both Rojo builds pass. No contract changes.
+
+ClaudeA Studio handoff: merge this branch with your client branch, remove any local test hook, and Play with a fresh mock profile. Verify arrival at a Starter house with six resting items and truck, carry/load/drive/unload all six, payout once, HQ return after 12 seconds, and a Straps purchase. Verify a second job starts from an HQ crew pad through Crew.Action and uses the dock. Test failed geometry preflight without leaving orphan objects. Real physics and rendering still require your smoke test before merge; saving across real rejoins and 2/4-client tests remain human gates.
+
+Remaining integration: late-loading party members and automatic pad entry need follow-up; current pad entry uses the approved Crew.Action remote. Dolly speed tiers, ramp, box truck and suspension purchases remain explicit NotReady stubs. Monetization multipliers, analytics and ping relay are separate authorized work. Studio damage/cargo tuning reports are tracked separately.
