@@ -19,6 +19,7 @@ local DEFAULTS = {
 	-- pushes the chassis back at this fraction of gravity. Hard stops are what shift cargo.
 	BrakeDecelG = 0.65,
 	CoastDecelG = 0.05,
+	MotorMaxAcceleration = 400, -- lets locked wheels actually lock
 }
 
 local function loadTuning()
@@ -70,9 +71,7 @@ local function findRig(seat: VehicleSeat): Rig?
 			table.insert(steering, inst)
 		end
 	end
-	for _, motor in motors do
-		motor.MotorMaxAcceleration = 400 -- lets locked wheels actually lock
-	end
+
 	-- client-local brake force (the driver owns the truck, so it simulates here)
 	local brake = chassis:FindFirstChild("MD_BrakeForce") :: VectorForce?
 	if not brake then
@@ -206,6 +205,9 @@ local function onSeated(isSeated: boolean, seatPart: BasePart?)
 		return
 	end
 	active = rig
+	for _, motor in rig.motors do
+		motor.MotorMaxAcceleration = tuning.MotorMaxAcceleration
+	end
 	-- the horn button only exists while you're driving
 	ContextActionService:BindAction("MD_Horn", onHorn, true, Enum.KeyCode.H, Enum.KeyCode.ButtonL3)
 	ContextActionService:SetTitle("MD_Horn", "Horn")

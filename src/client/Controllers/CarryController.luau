@@ -16,6 +16,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
+local Gate = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Gate"))
 
 local DEFAULTS = {
 	GrabRange = 8,
@@ -217,6 +218,7 @@ local function grab(model: Model, hitPoint: Vector3?, atScreen: Vector2?, gen: n
 		baseWalkSpeed = humanoid.WalkSpeed
 	end
 	playPose(model:GetAttribute("Carry") == "Two")
+	Gate.markGrabbed()
 end
 
 local function drop()

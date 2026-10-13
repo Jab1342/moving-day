@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
+local Gate = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Gate"))
 local Scale = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Scale"))
 
 -- Order and IDs follow Contracts/Enums.Ping.
@@ -197,14 +198,17 @@ function PingController.Start()
 		showOverHead(userId, id)
 	end)
 
-	ContextActionService:BindAction(
-		"MD_Ping",
-		onPingAction,
-		true,
-		Enum.KeyCode.G,
-		Enum.KeyCode.DPadUp
-	)
-	ContextActionService:SetTitle("MD_Ping", "Ping")
+	-- no Ping button on screen until the first grab (first-60-seconds rule)
+	Gate.whenOpen(function()
+		ContextActionService:BindAction(
+			"MD_Ping",
+			onPingAction,
+			true,
+			Enum.KeyCode.G,
+			Enum.KeyCode.DPadUp
+		)
+		ContextActionService:SetTitle("MD_Ping", "Ping")
+	end)
 
 	UserInputService.InputChanged:Connect(function(input)
 		if not wheel.Visible then

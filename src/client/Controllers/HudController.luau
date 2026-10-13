@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
+local Gate = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Gate"))
 
 local INK = Color3.fromRGB(255, 255, 255)
 local PANEL = Color3.fromRGB(24, 28, 36)
@@ -113,6 +114,7 @@ local function buildHud()
 		Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(rescale)
 	end
 
+	Gate.bind(hud) -- nothing on screen before a new player's first grab
 	hud.Parent = player:WaitForChild("PlayerGui")
 end
 
@@ -274,7 +276,10 @@ local function showPayout(report: any)
 			lost += line.valueLost
 			row.TextColor3 = BAD
 			local verb = if line.valueKept > 0 then "damaged" else "broken"
-			row.Text = `{name}: {verb} by {playerName(line.blameUserId)} (-{money(line.valueLost)})`
+			local who = line.blameUserId
+			row.Text = if who and who ~= 0
+				then `{name}: {verb} by {playerName(who)} (-{money(line.valueLost)})`
+				else `{name}: {verb} in transit (-{money(line.valueLost)})`
 		else
 			row.TextColor3 = INK
 			row.Text = `{name}: {money(line.valueKept)} delivered safe`
@@ -362,6 +367,10 @@ function HudController.Start()
 	local job = remotes:WaitForChild("Job");
 	(job:WaitForChild("State") :: RemoteEvent).OnClientEvent:Connect(function(state)
 		jobState = state
+		-- a new job means the last payout screen is stale
+		if state and state.phase ~= "Payout" then
+			closePayout()
+		end
 	end);
 	(job:WaitForChild("Payout") :: RemoteEvent).OnClientEvent:Connect(showPayout)
 	local data = remotes:WaitForChild("Data");

@@ -22,6 +22,7 @@ local jobPhase: string? = nil
 local stepIndex = 1
 local banner: TextLabel
 local highlight: Highlight
+local worldTip: BillboardGui -- the first hint lives in the world, not on screen
 
 local function device(): "mouse" | "touch" | "pad"
 	local last = UserInputService:GetLastInputType()
@@ -188,6 +189,30 @@ local function build()
 	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 	highlight.Enabled = false
 	highlight.Parent = gui
+
+	worldTip = Instance.new("BillboardGui")
+	worldTip.Name = "MD_GrabTip"
+	worldTip.Size = UDim2.fromOffset(260, 48)
+	worldTip.StudsOffset = Vector3.new(0, 3.2, 0)
+	worldTip.AlwaysOnTop = true
+	worldTip.MaxDistance = 80
+	worldTip.Enabled = false
+	local tipLabel = Instance.new("TextLabel")
+	tipLabel.Name = "Text"
+	tipLabel.Size = UDim2.fromScale(1, 1)
+	tipLabel.BackgroundColor3 = Color3.fromRGB(255, 200, 60)
+	tipLabel.TextColor3 = Color3.fromRGB(30, 30, 30)
+	tipLabel.Font = Enum.Font.GothamBold
+	tipLabel.TextScaled = true
+	local tipCorner = Instance.new("UICorner")
+	tipCorner.CornerRadius = UDim.new(0, 12)
+	tipCorner.Parent = tipLabel
+	local tipPad = Instance.new("UIPadding")
+	tipPad.PaddingLeft = UDim.new(0, 8)
+	tipPad.PaddingRight = UDim.new(0, 8)
+	tipPad.Parent = tipLabel
+	tipLabel.Parent = worldTip
+	worldTip.Parent = player:WaitForChild("PlayerGui")
 end
 
 local function nearestFreeItem(): Model?
@@ -212,6 +237,7 @@ local function update()
 	if finished or profileDone or player:GetAttribute("MD_HideHints") == true then
 		banner.Visible = false
 		highlight.Enabled = false
+		worldTip.Enabled = false
 		return
 	end
 	while stepIndex <= #STEPS and STEPS[stepIndex].done() do
@@ -221,11 +247,14 @@ local function update()
 		finished = true
 		banner.Visible = false
 		highlight.Enabled = false
+		worldTip.Enabled = false
 		return
 	end
 	local step = STEPS[stepIndex]
+	-- before the first grab nothing goes on screen: the tip floats above the furniture
+	local inWorld = step.id == "grab"
 	banner.Text = step.text[device()]
-	banner.Visible = true
+	banner.Visible = not inWorld
 	-- point at what the step is about
 	local target: Instance? = nil
 	if step.id == "grab" then
@@ -235,6 +264,12 @@ local function update()
 	end
 	highlight.Adornee = target
 	highlight.Enabled = target ~= nil
+	local tipRoot = if inWorld and target and target:IsA("Model") then target.PrimaryPart else nil
+	worldTip.Adornee = tipRoot
+	worldTip.Enabled = tipRoot ~= nil
+	if tipRoot then
+		(worldTip:FindFirstChild("Text") :: TextLabel).Text = step.text[device()]
+	end
 end
 
 function OnboardingController.Start()

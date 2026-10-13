@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
+local Gate = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Gate"))
 local Scale = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("Scale"))
 
 local PANEL = Color3.fromRGB(24, 28, 36)
@@ -165,6 +166,7 @@ function SettingsController.Start()
 	end)
 
 	Scale.attach(gui)
+	Gate.bind(gui)
 	gui.Parent = player:WaitForChild("PlayerGui")
 end
 
