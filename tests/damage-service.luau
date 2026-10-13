@@ -82,7 +82,7 @@ assert(box.model:GetAttribute("HP") == 100, "First sample does not invent an imp
 box.root.AssemblyLinearVelocity = V.zero
 vase.root.AssemblyLinearVelocity = V.zero
 damage:Step()
-assert(box.model:GetAttribute("HP") == 31 and not removed.box, "Box survives 37 stud/s stop")
+assert(box.model:GetAttribute("HP") == 71.25 and not removed.box, "Box survives 37 stud/s stop")
 local brokenEvent
 for _, event in events do
 	if event.uid == "vase" then
@@ -91,6 +91,16 @@ for _, event in events do
 end
 assert(removed.vase and brokenEvent.event == "Broken", "Vase breaks on the same stop")
 assert(brokenEvent.info.itemId == "vase", "Fracture payload carries catalogue identity")
+-- ClaudeA's server-owned 4.7-stud drop produced a 50.1 stud/s landing delta.
+local measuredBox, measuredVase = item("measuredBox", Defs.box), item("measuredVase", Defs.vase)
+measuredBox.previousVelocity = V.new(0, -50.1, 0)
+measuredVase.previousVelocity = V.new(0, -50.1, 0)
+damage:Step()
+assert(
+	math.abs(measuredBox.model:GetAttribute("HP") - 54.875) < 0.001 and not removed.measuredBox,
+	"Measured chest drop preserves cardboard box"
+)
+assert(removed.measuredVase, "Same measured chest drop breaks vase")
 assert(box.model:GetAttribute("BlameUserId") == 12, "Last carrier gets blame")
 local before = box.model:GetAttribute("HP")
 box.root.AssemblyLinearVelocity = V.new(0, 80, 0)
@@ -126,7 +136,10 @@ assert(removed.carried, "Fast carried crash still breaks fragile furniture")
 local dropped = item("dropped", Defs.vase)
 dropped.previousVelocity = V.new(24, 0, 0)
 damage:Step()
-assert(removed.dropped, "Same speed after release retains normal damage threshold")
+assert(
+	dropped.model:GetAttribute("HP") == 37.5,
+	"Same speed after release retains normal damage threshold"
+)
 print(
 	"PASS carried impact tuning: gentle doorway bumps spared, severe impacts and released drops still damage"
 )
@@ -148,7 +161,7 @@ assert(
 )
 cargo.root.AssemblyLinearVelocity = V.new(0, 24, 0)
 damage:Step()
-assert(removed.cargo, "Straps do not make real relative impacts immune")
+assert(cargo.model:GetAttribute("HP") == 37.5, "Straps do not make real relative impacts immune")
 
 items.records = {}
 events, removed = {}, {}
