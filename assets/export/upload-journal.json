@@ -196,5 +196,107 @@
     "operation": "operations/088235d2-308e-4a66-8cbc-b04eb68341b2",
     "assetId": "75090120419562",
     "file": "assets/export/FUR_Fridge_Frac.fbx"
+  },
+  "PRP_Dolly": {
+    "status": "REGISTERED",
+    "operation": "operations/e795d0b0-e04d-4f42-9db8-3c9b77830dba",
+    "assetId": "91411744849292",
+    "file": "assets/export/PRP_Dolly.fbx"
+  },
+  "PRP_Strap": {
+    "status": "REGISTERED",
+    "operation": "operations/d1c9b424-773a-4e16-9587-dc2f85fc9383",
+    "assetId": "128836483436146",
+    "file": "assets/export/PRP_Strap.fbx"
+  },
+  "PRP_LoadingRamp": {
+    "status": "REGISTERED",
+    "operation": "operations/26fc53ae-199e-413e-bb19-13974f78f5f6",
+    "assetId": "110020955733950",
+    "file": "assets/export/PRP_LoadingRamp.fbx"
+  },
+  "TRK_BoxTruck_Body": {
+    "status": "REGISTERED",
+    "operation": "operations/cc301c5a-5390-4c7e-af1b-0c0047f2c32f",
+    "assetId": "108570079110448",
+    "file": "assets/export/TRK_BoxTruck_Body.fbx"
+  },
+  "PRP_Tree": {
+    "status": "REGISTERED",
+    "operation": "operations/00d41e34-37b4-4cbd-bfd5-e73d14f3603a",
+    "assetId": "135748336439958",
+    "file": "assets/export/PRP_Tree.fbx"
+  },
+  "PRP_HQSign": {
+    "status": "REGISTERED",
+    "operation": "operations/812c91b6-328d-43b4-8e6b-a1ec58e233bf",
+    "assetId": "86889511556582",
+    "file": "assets/export/PRP_HQSign.fbx"
+  },
+  "PRP_GarageDoor": {
+    "status": "REGISTERED",
+    "operation": "operations/b2212fd1-e83e-4625-a869-4e77c3b88f87",
+    "assetId": "81765704927874",
+    "file": "assets/export/PRP_GarageDoor.fbx"
+  },
+  "PRP_Shelving": {
+    "status": "REGISTERED",
+    "operation": "operations/4bba16b9-7fa8-4c1a-8606-0830a4af1ee5",
+    "assetId": "130963158080792",
+    "file": "assets/export/PRP_Shelving.fbx"
+  },
+  "PRP_CrewPadBoard": {
+    "status": "REGISTERED",
+    "operation": "operations/1492ee40-7208-4c3a-b3e3-e37e2b36268f",
+    "assetId": "76608789397576",
+    "file": "assets/export/PRP_CrewPadBoard.fbx"
+  },
+  "PRP_Mailbox": {
+    "status": "REGISTERED",
+    "operation": "operations/9a0fece9-0430-4e91-ab1e-2c66549a1fd2",
+    "assetId": "125516749650402",
+    "file": "assets/export/PRP_Mailbox.fbx"
+  },
+  "PRP_Bin": {
+    "status": "REGISTERED",
+    "operation": "operations/cc76ef7f-4891-4248-a739-b0460022a93e",
+    "assetId": "127270058469386",
+    "file": "assets/export/PRP_Bin.fbx"
+  },
+  "PRP_Streetlight": {
+    "status": "REGISTERED",
+    "operation": "operations/d34fe9bf-be3e-433c-b3a4-0b2a08c4421a",
+    "assetId": "108682382255837",
+    "file": "assets/export/PRP_Streetlight.fbx"
+  },
+  "PRP_Fence": {
+    "status": "REGISTERED",
+    "operation": "operations/b794a376-2f08-4970-9bfe-848232ec9434",
+    "assetId": "98325690922816",
+    "file": "assets/export/PRP_Fence.fbx"
+  },
+  "COS_HardHat": {
+    "status": "REGISTERED",
+    "operation": "operations/b7bacf78-9ae8-47d9-8c37-9639cf087e74",
+    "assetId": "117361836869359",
+    "file": "assets/export/COS_HardHat.fbx"
+  },
+  "COS_HardHatGold": {
+    "status": "REGISTERED",
+    "operation": "operations/2727ae42-6ed4-49c6-bd2c-7f48b26cfdc9",
+    "assetId": "138662877759792",
+    "file": "assets/export/COS_HardHatGold.fbx"
+  },
+  "COS_TruckerCap": {
+    "status": "REGISTERED",
+    "operation": "operations/a4bd2a3c-c512-4cad-81c9-b2d5211e2be0",
+    "assetId": "93858528570073",
+    "file": "assets/export/COS_TruckerCap.fbx"
+  },
+  "COS_Beanie": {
+    "status": "REGISTERED",
+    "operation": "operations/2a6f6d69-067a-46ed-8bb6-5b8965a3eb06",
+    "assetId": "73223630436678",
+    "file": "assets/export/COS_Beanie.fbx"
   }
 }

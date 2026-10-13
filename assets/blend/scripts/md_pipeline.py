@@ -146,7 +146,9 @@ def export_fbx(objs, filename):
         apply_scale_options="FBX_SCALE_NONE",
         axis_forward="-Z",
         axis_up="Y",
-        bake_space_transform=False,
+        # Without this the Z-up -> Y-up swap lands in each node's rotation and Roblox
+        # puts a -90 deg X rotation into MeshPart.PivotOffset. Uploads before P2 have it.
+        bake_space_transform=True,
         mesh_smooth_type="FACE",
         use_mesh_modifiers=True,
         add_leaf_bones=False,

@@ -243,5 +243,124 @@
     "assetId": "75090120419562",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/FUR_Fridge_Frac.fbx"
+  },
+  {
+    "name": "PRP_Dolly",
+    "type": "Model",
+    "assetId": "91411744849292",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Dolly.fbx"
+  },
+  {
+    "name": "PRP_Strap",
+    "type": "Model",
+    "assetId": "128836483436146",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Strap.fbx"
+  },
+  {
+    "name": "PRP_LoadingRamp",
+    "type": "Model",
+    "assetId": "110020955733950",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_LoadingRamp.fbx"
+  },
+  {
+    "name": "TRK_BoxTruck_Body",
+    "type": "Model",
+    "assetId": "108570079110448",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/TRK_BoxTruck_Body.fbx"
+  },
+  {
+    "name": "PRP_Tree",
+    "type": "Model",
+    "assetId": "135748336439958",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Tree.fbx"
+  },
+  {
+    "name": "PRP_HQSign",
+    "type": "Model",
+    "assetId": "86889511556582",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_HQSign.fbx"
+  },
+  {
+    "name": "PRP_GarageDoor",
+    "type": "Model",
+    "assetId": "81765704927874",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_GarageDoor.fbx"
+  },
+  {
+    "name": "PRP_Shelving",
+    "type": "Model",
+    "assetId": "130963158080792",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Shelving.fbx"
+  },
+  {
+    "name": "PRP_CrewPadBoard",
+    "type": "Model",
+    "assetId": "76608789397576",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_CrewPadBoard.fbx"
+  },
+  {
+    "name": "PRP_Mailbox",
+    "type": "Model",
+    "assetId": "125516749650402",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Mailbox.fbx"
+  },
+  {
+    "name": "PRP_Bin",
+    "type": "Model",
+    "assetId": "127270058469386",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Bin.fbx"
+  },
+  {
+    "name": "PRP_Streetlight",
+    "type": "Model",
+    "assetId": "108682382255837",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Streetlight.fbx"
+  },
+  {
+    "name": "PRP_Fence",
+    "type": "Model",
+    "assetId": "98325690922816",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Fence.fbx"
+  },
+  {
+    "name": "COS_HardHat",
+    "type": "Model",
+    "assetId": "117361836869359",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/COS_HardHat.fbx"
+  },
+  {
+    "name": "COS_HardHatGold",
+    "type": "Model",
+    "assetId": "138662877759792",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/COS_HardHatGold.fbx"
+  },
+  {
+    "name": "COS_TruckerCap",
+    "type": "Model",
+    "assetId": "93858528570073",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/COS_TruckerCap.fbx"
+  },
+  {
+    "name": "COS_Beanie",
+    "type": "Model",
+    "assetId": "73223630436678",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/COS_Beanie.fbx"
   }
 ]
