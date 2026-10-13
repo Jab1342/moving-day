@@ -1,6 +1,6 @@
 # Truck steering, seat exit and dolly placement
 
-Integrates Claude A's claude/truck-feel commits through 493ef46 without editing their client code. Codex adds the corresponding tunables to Config so they can be balanced centrally. Dolly heading now follows walking direction at 120 degrees/second. Claude B still reproduced a wall-jam/leash drop at a tight upstairs turn (1791859098); Claude A owns that remaining collision/soft-leash tuning, so this remains a pending playtest gate.
+Integrates Claude A's claude/truck-feel commits through 94f3874 without editing their client code. Codex adds the corresponding tunables to Config so they can be balanced centrally. Dolly heading follows walking direction at 120 degrees/second. When the load lags behind its intended reach, a three-stud soft leash reduces the walker's speed down to 10% of their dolly speed. This addresses Claude B's wall-jam/leash drop at a tight upstairs turn (1791859098); the new behavior remains a pending playtest gate.
 
 Steering servo response and straight-line correction reduce drift when driving without input. Jump remains locked at speed and while a jump is held through stopping, then restores on exit. Dolly loads sit centered ahead of the player with their long side along the route, a 1.1-stud deck and quarter-turn rotation. Grab prechecks use the same grip attachment range as the current server.
 
