@@ -143,7 +143,8 @@ local function step(rig: Rig)
 		else
 			-- negative angular velocity about +X rolls the truck toward -Z
 			setMotors(rig, -throttle * tuning.MaxSpeed / radius, tuning.DriveTorque)
-			setBrake(rig, 0)
+			-- wheel slip lets the truck creep past MaxSpeed downhill; trim it back gently
+			setBrake(rig, if forwardSpeed > tuning.MaxSpeed then 0.15 else 0)
 		end
 	elseif throttle < 0 then
 		if forwardSpeed > 2 then
