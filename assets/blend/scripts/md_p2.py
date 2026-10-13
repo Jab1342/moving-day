@@ -359,7 +359,23 @@ def ramp_rails():
     return p
 
 
+# ---- navigation beacon chevron: two crossed down-pointing Vs, readable from any side ----
+def beacon_chevron():
+    import math as _m
+    arm_len, arm_w, arm_t = 5.0, 1.4, 0.8
+    p = []
+    for yaw in (0, 90):
+        for side in (-1, 1):
+            # arm from the bottom point up and out at 45 deg
+            a = box("hazard_orange", (arm_t, arm_w, arm_len), (0, 0, arm_len / 2))
+            a.data.transform(Matrix.Rotation(_m.radians(45 * side), 4, "Y"))
+            a.data.transform(Matrix.Rotation(_m.radians(yaw), 4, "Z"))
+            p.append(a)
+    return p
+
+
 P2 = {
+    "PRP_BeaconChevron": beacon_chevron,
     "PRP_RampWedge": ramp_wedge,
     "PRP_RampRails": ramp_rails,
     "PRP_TrafficCone": traffic_cone,

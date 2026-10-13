@@ -579,5 +579,12 @@
     "assetId": "70840011041414",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/PRP_RampRails.fbx"
+  },
+  {
+    "name": "PRP_BeaconChevron",
+    "type": "Model",
+    "assetId": "128575198667670",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_BeaconChevron.fbx"
   }
 ]

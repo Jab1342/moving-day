@@ -491,5 +491,11 @@
     "operation": "operations/f8b4026a-0dbc-4e86-8b3b-b63beda3d1bb",
     "assetId": "70840011041414",
     "file": "assets/export/PRP_RampRails.fbx"
+  },
+  "PRP_BeaconChevron": {
+    "status": "REGISTERED",
+    "operation": "operations/f58eb3bf-ec84-4141-b9b4-514074d50c18",
+    "assetId": "128575198667670",
+    "file": "assets/export/PRP_BeaconChevron.fbx"
   }
 }
