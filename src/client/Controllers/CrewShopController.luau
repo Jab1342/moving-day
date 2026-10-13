@@ -275,8 +275,8 @@ local function addShopPrompt()
 	local counter = hq:WaitForChild("Garage"):WaitForChild("ShopCounter") :: BasePart
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "MD_ShopPrompt"
-	prompt.ActionText = "Upgrades"
-	prompt.ObjectText = "Shop"
+	prompt.ActionText = "Open" -- short verb: "Upgrades" clipped in the default prompt
+	prompt.ObjectText = "Upgrade Shop"
 	prompt.KeyboardKeyCode = Enum.KeyCode.E
 	prompt.GamepadKeyCode = Enum.KeyCode.ButtonX
 	prompt.MaxActivationDistance = 10

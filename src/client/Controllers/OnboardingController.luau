@@ -23,6 +23,15 @@ local stepIndex = 1
 local banner: TextLabel
 local highlight: Highlight
 local worldTip: BillboardGui -- the first hint lives in the world, not on screen
+local cameraAimed = false
+local CAMERA_BACK = 12 -- studs behind the player when the first-session camera swings round
+local CAMERA_UP = 6
+
+local REGRAB_TEXT = {
+	mouse = "Grab furniture and drag it to the truck",
+	touch = "Grab furniture and drag it to the truck",
+	pad = "Walk up to furniture and press X to grab it",
+}
 
 local function device(): "mouse" | "touch" | "pad"
 	local last = UserInputService:GetLastInputType()
@@ -234,6 +243,25 @@ local function nearestFreeItem(): Model?
 	return best
 end
 
+-- First session only, once: new players spawn at the front door facing the street, with all
+-- the furniture behind them. Swing the camera round to look at the nearest item.
+local function aimCameraAt(item: Model)
+	cameraAimed = true
+	local char = player.Character
+	local root = char and char:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local camera = Workspace.CurrentCamera
+	if not root or not camera or not item.PrimaryPart then
+		return
+	end
+	local itemPos = item.PrimaryPart.Position
+	local flat = Vector3.new(itemPos.X - root.Position.X, 0, itemPos.Z - root.Position.Z)
+	if flat.Magnitude < 1 then
+		return
+	end
+	local eye = root.Position - flat.Unit * CAMERA_BACK + Vector3.new(0, CAMERA_UP, 0)
+	camera.CFrame = CFrame.lookAt(eye, itemPos)
+end
+
 local function update()
 	if finished or profileDone or player:GetAttribute("MD_HideHints") == true then
 		banner.Visible = false
@@ -252,16 +280,27 @@ local function update()
 		return
 	end
 	local step = STEPS[stepIndex]
+	-- "Load" while holding nothing (a grab that was let go early): point back at furniture
+	-- instead of telling an empty-handed player to drag something to the truck.
+	local regrab = step.id == "load"
+		and not anyItem(function(m)
+			return m:GetAttribute("CarrierA") == player.UserId
+				or m:GetAttribute("CarrierB") == player.UserId
+		end)
+	local text = if regrab then REGRAB_TEXT[device()] else step.text[device()]
 	-- before the first grab nothing goes on screen: the tip floats above the furniture
-	local inWorld = step.id == "grab"
-	banner.Text = step.text[device()]
+	local inWorld = step.id == "grab" or regrab
+	banner.Text = text
 	banner.Visible = not inWorld
 	-- point at what the step is about
 	local target: Instance? = nil
-	if step.id == "grab" then
+	if inWorld then
 		target = nearestFreeItem()
 	elseif step.id == "load" or step.id == "strap" or step.id == "drive" then
 		target = myTruck()
+	end
+	if step.id == "grab" and not cameraAimed and target and target:IsA("Model") then
+		aimCameraAt(target)
 	end
 	highlight.Adornee = target
 	highlight.Enabled = target ~= nil
@@ -269,7 +308,7 @@ local function update()
 	worldTip.Adornee = tipRoot
 	worldTip.Enabled = tipRoot ~= nil
 	if tipRoot then
-		(worldTip:FindFirstChild("Text") :: TextLabel).Text = step.text[device()]
+		(worldTip:FindFirstChild("Text") :: TextLabel).Text = text
 	end
 end
 
