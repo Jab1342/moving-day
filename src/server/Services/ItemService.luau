@@ -403,6 +403,9 @@ function ItemService:Strap(player, uid, action)
 end
 
 function ItemService:Remove(rec, broken)
+	if self.onRemoved then
+		self.onRemoved(rec, broken)
+	end
 	if rec.truck then
 		self.trucks:Release(rec)
 	end

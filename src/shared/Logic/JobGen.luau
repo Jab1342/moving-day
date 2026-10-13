@@ -48,6 +48,11 @@ function JobGen.generate(seed: number, tier: string)
 	local groundRooms = math.ceil((count - 1) / 2)
 	while #rooms < count do
 		local desiredFloor = if tier == "Starter" or #rooms <= groundRooms then 0 else 1
+		local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
+		for _, room in rooms do
+			minX, maxX = math.min(minX, room.gridX), math.max(maxX, room.gridX)
+			minZ, maxZ = math.min(minZ, room.gridZ), math.max(maxZ, room.gridZ)
+		end
 		local frontier, seen = {}, {}
 		for _, room in rooms do
 			for floor = room.floor, room.floor + RoomDefs[room.template].floors - 1 do
@@ -59,6 +64,8 @@ function JobGen.generate(seed: number, tier: string)
 						and not occupied[key]
 						and not seen[key]
 						and (floor == 0 or occupied[cellKey(x, z, 0)])
+						and math.max(maxX, x) - math.min(minX, x) < Config.RoomGridWidth
+						and math.max(maxZ, z) - math.min(minZ, z) < Config.RoomGridWidth
 					then
 						seen[key] = true
 						table.insert(frontier, { x, z, floor })

@@ -192,7 +192,10 @@ for seed = 1, 1000 do
 			"Tier room count bounds"
 		)
 		local occupied, stairs, cells = {}, 0, {}
+		local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
 		for roomIndex, room in layout.rooms do
+			minX, maxX = math.min(minX, room.gridX), math.max(maxX, room.gridX)
+			minZ, maxZ = math.min(minZ, room.gridZ), math.max(maxZ, room.gridZ)
 			local def = RoomDefs[room.template]
 			assert(
 				def
@@ -215,6 +218,10 @@ for seed = 1, 1000 do
 			end
 		end
 		assert(stairs == (if tier == "Starter" then 0 else 1), "Tier staircase requirement")
+		assert(
+			maxX - minX < Config.RoomGridWidth and maxZ - minZ < Config.RoomGridWidth,
+			"House fits authored lot/delivery footprint"
+		)
 		for _, c in cells do
 			assert(
 				c[3] == 0 or occupied[cell(c[1], c[2], 0)],

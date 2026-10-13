@@ -83,11 +83,29 @@ local trucks = require(services.TruckService).new(folder(runtime, "Trucks"), ite
 local damage = require(services.DamageService).new(items)
 items.trucks = trucks
 items.damage = damage
+local crews = require(services.CrewService).new(remotes)
+local payouts = require(services.PayoutService).new(data, remotes)
+local jobs = require(services.JobService).new(
+	crews,
+	items,
+	trucks,
+	payouts,
+	data,
+	remotes,
+	folder(runtime, "Houses")
+)
+jobs:Bind()
+crews:Bind()
+items.onCrewRemove = function(player)
+	crews:Remove(player)
+end
 items:Start()
 game:GetService("RunService").Heartbeat:Connect(function(dt)
 	items:Step(dt)
 	damage:Step()
 	trucks:Step(dt)
+	crews:Step(dt)
+	jobs:Step(dt)
 end)
 task.spawn(function()
 	require(services.StudioHarness).Start(items, trucks)

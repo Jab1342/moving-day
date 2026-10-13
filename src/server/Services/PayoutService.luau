@@ -1,0 +1,76 @@
+--!nonstrict
+local Players = game:GetService("Players")
+local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+local Config = require(Shared.Config)
+local Payout = require(Shared.Logic.Payout)
+local PayoutService = {}
+PayoutService.__index = PayoutService
+function PayoutService.new(data, remotes)
+	return setmetatable({ data = data, remotes = remotes }, PayoutService)
+end
+function PayoutService:Award(job)
+	if not job.report then
+		local recipients = {}
+		for _, player in job.crew.members do
+			if player.Parent == Players and self.data:Get(player) then
+				table.insert(recipients, player.UserId)
+			end
+		end
+		if #recipients == 0 then
+			return nil, "NoRecipients"
+		end
+		local lines = {}
+		for _, uid in job.order do
+			local item = job.snapshots[uid]
+			local kept = if item.state == "Delivered"
+				then math.floor(item.def.value * item.hp / Config.ItemMaxHP)
+				else 0
+			table.insert(lines, {
+				itemUid = uid,
+				itemId = item.def.id,
+				valueKept = kept,
+				valueLost = item.def.value - kept,
+				blameUserId = item.blame,
+			})
+		end
+		job.report = Payout.compute({
+			jobId = job.id,
+			tier = job.tier,
+			elapsedSeconds = workspace:GetServerTimeNow() - job.startedAt,
+			assist = job.assist,
+			lines = lines,
+			memberUserIds = recipients,
+			nextJob = { tier = job.tier, lotId = job.crew.padId },
+		}, #recipients)
+		job.awarded = {}
+	end
+	for _, player in job.crew.members do
+		local share = job.report.shares[tostring(player.UserId)]
+		if share and not job.awarded[player.UserId] and self.data:Get(player) then
+			local ok = self.data:Update(player, function(profile)
+				profile.cash += share
+				profile.xp += job.report.xpEach
+				profile.stats.jobs += 1
+				profile.firstJobDone = true
+				for _, line in job.report.lines do
+					local item = job.snapshots[line.itemUid]
+					if item.state == "Delivered" then
+						profile.stats.delivered += 1
+						if item.hp == Config.ItemMaxHP then
+							profile.catalog[item.def.id] = true
+						end
+					elseif item.state == "Broken" then
+						profile.stats.broken += 1
+					end
+					profile.stats.moneyLost += line.valueLost
+				end
+			end)
+			if ok then
+				job.awarded[player.UserId] = true
+				self.remotes.Job.Payout:FireClient(player, job.report)
+			end
+		end
+	end
+	return job.report
+end
+return PayoutService
