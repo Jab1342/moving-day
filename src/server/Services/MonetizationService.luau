@@ -252,6 +252,22 @@ function MonetizationService:ProcessReceipt(receipt)
 			if not updated then
 				return pending
 			end
+			-- Log only the newly committed profile mutation, never a replay/save retry.
+			-- Economy only enqueues; engine API calls run outside ProcessReceipt.
+			if self.analytics then
+				local committed = self.data:Get(player)
+				if committed then
+					pcall(function()
+						self.analytics:Economy(
+							player,
+							Config.CashPackAmounts[sku],
+							committed.cash,
+							sku,
+							"IAP"
+						)
+					end)
+				end
+			end
 		end
 		if not self.data:SaveReceipt(player, id) then
 			return pending

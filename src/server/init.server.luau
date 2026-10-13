@@ -84,6 +84,7 @@ end
 antiExploit:Start()
 local data = require(services.DataService).new(remotes, require(script.Vendor.ProfileStore))
 local monetization = require(services.MonetizationService).new(data, nil, nil, remotes)
+monetization.analytics = analytics
 data.onProfilePublished = function(player)
 	monetization:Publish(player, true)
 end

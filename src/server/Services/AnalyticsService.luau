@@ -74,9 +74,11 @@ function AnalyticsService:Funnel(player, step)
 	self.seen[player] = seen
 	return true
 end
-function AnalyticsService:Economy(player, amount, balance, sku)
+function AnalyticsService:Economy(player, amount, balance, sku, transactionType)
+	transactionType = transactionType or "Gameplay"
 	if
-		type(amount) ~= "number"
+		(transactionType ~= "Gameplay" and transactionType ~= "IAP" and transactionType ~= "Shop")
+		or type(amount) ~= "number"
 		or amount == 0
 		or amount ~= amount
 		or math.abs(amount) == math.huge
@@ -97,7 +99,7 @@ function AnalyticsService:Economy(player, amount, balance, sku)
 		"Cash",
 		math.abs(amount),
 		balance,
-		"Gameplay",
+		transactionType,
 		sku
 	)
 end
