@@ -19,6 +19,8 @@ try {
     if ($LASTEXITCODE) { throw 'Item service tests failed' }
     & lune run tests/damage-service
     if ($LASTEXITCODE) { throw 'Damage service tests failed' }
+    & lune run tests/ragdoll
+    if ($LASTEXITCODE) { throw 'Ragdoll tests failed' }
     & lune run tests/truck-cargo
     if ($LASTEXITCODE) { throw 'Truck cargo tests failed' }
     & lune run tests/truck-upgrades
