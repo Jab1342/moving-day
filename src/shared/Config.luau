@@ -20,6 +20,8 @@ return table.freeze({
 	DollyLeashSlack = 3,
 	DollyLeashMinScale = 0,
 	DollyTrailStep = 0.5,
+	DollyMaxPitch = math.rad(45),
+	DollySlideMax = 1.5,
 	HipToGround = 3,
 	DollyTierSpeedScale = table.freeze({ 0.55, 0.70 }),
 	BedSettleSeconds = 1.0,
