@@ -36,7 +36,7 @@ function UpgradeService:Buy(player, id, tier)
 	if not self:AtShop(player) then
 		return false, "NotAtHQ"
 	end
-	-- STUB(Codex): JobService supplies this hook once real jobs replace the fixture.
+	-- Bootstrap supplies live crew/job membership.
 	if self.isInJob and self.isInJob(player) then
 		return false, "InJob"
 	end
