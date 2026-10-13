@@ -421,7 +421,11 @@ local function onStrap(_, inputState: Enum.UserInputState)
 		if ok then
 			toast(if action == "Strap" then "Strapped down" else "Wrapped")
 		else
-			toast(`Can't {string.lower(action)}: {reason or "try again"}`)
+			toast(
+				if reason == "Cancelled"
+					then `{action} cancelled`
+					else `Can't {string.lower(action)}: {reason or "try again"}`
+			)
 		end
 	end)
 	return Enum.ContextActionResult.Sink
