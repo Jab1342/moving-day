@@ -43,6 +43,7 @@ local DEFAULTS = {
 	HipToGround = 3, -- HumanoidRootPart centre to floor for the default rig
 	DollyLeashSlack = 3, -- studs a dolly load may lag before the walker is down to the minimum
 	DollyLeashMinScale = 0, -- a snagged load stops you; walking back toward it frees it
+	DollyLeashDeadband = 1, -- studs of normal follow lag behind its target before slowing
 	DollyTrailStep = 0.5, -- studs between recorded footsteps for the dolly trail
 	DollyMaxPitch = math.rad(45), -- steepest a dolly load tilts to follow stairs/ramps
 	DollySlideMax = 1.5, -- studs a dolly target may slide sideways to clear a jamb
@@ -835,13 +836,14 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 			yaw = 0
 		end
 		alignPos.MaxVelocity = tuning.MaxCarrySpeed
-		local reach
-		goal, reach = dollyGoal(model, root, hrp)
+		goal = dollyGoal(model, root, hrp)
 		-- Soft leash: if the load snags and lags, walking further away slows to a crawl
 		-- (instead of walking on into the server's drop); walking back toward it is full speed.
+		-- Lag is measured against the load's own target, past a deadband for normal follow lag.
 		local offset = root.Position - hrp.Position
 		local flatOffset = Vector3.new(offset.X, 0, offset.Z)
-		local lag = flatOffset.Magnitude - reach
+		local miss = goal.Position - root.Position
+		local lag = Vector3.new(miss.X, 0, miss.Z).Magnitude - tuning.DollyLeashDeadband
 		local _, humanoid = character()
 		local leaving = humanoid ~= nil
 			and flatOffset.Magnitude > 1e-3
