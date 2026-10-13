@@ -15,4 +15,4 @@ Claude A: sync this branch once, after the current Claude B stair work, and prio
 5. Use rebuilt stairs with PR21 generation for Starter/Family/Big; validate actual downstairs exit from upstairs item sockets. Remove only a furniture root while its Model remains: it becomes a broken manifest entry and cannot block payout; existing delivered items remain credited.
 6. Run only mocked receipt tests until real product IDs exist. Replay and delayed save must not duplicate cash or acknowledge an unsaved grant. Human owns actual purchase, saved rejoin, two/four-client and real phone gates.
 
-Still stubbed: missing paid IDs and prompt/verified-pass UI state, Insurance/CrewBoost persistent context, unavailable licensed audio sources. Product API creation remains a human handoff after HTTP403. Config.StudioUseMockData remains enabled. No changes to Studio content are made by Codex.
+Still stubbed: missing paid IDs and prompt/verified-pass UI state, Insurance/CrewBoost persistent context, unavailable licensed audio sources. Product API creation remains a human handoff after HTTP403. Config.ProfileStudioMock remains enabled. No changes to Studio content are made by Codex.
