@@ -147,8 +147,8 @@ function TruckService:Release(rec)
 	rec.pendingStrap = nil
 	rec.model:SetAttribute("Strapped", false)
 	self.items:SetState(rec, "Idle")
-	self.items:SetOwner(rec, nil, true)
-	self.items:Grace(rec)
+	self.items:SetOwner(rec, nil, false)
+	self.items:Grace(rec, Config.DropGraceSeconds)
 end
 
 function TruckService:Step(dt)

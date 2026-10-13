@@ -211,7 +211,9 @@ function ItemService:ApplyCarriers(rec)
 	if rec.a ~= 0 and not character(lead) then
 		return false
 	end
-	if not self:SetOwner(rec, lead, rec.a == 0) then
+	-- Explicit server ownership after release gives DamageService unsmoothed landing
+	-- samples; automatic ownership may immediately assign the dropped item back to its carrier.
+	if not self:SetOwner(rec, lead, false) then
 		return false
 	end
 	for _, part in rec.model:GetDescendants() do
