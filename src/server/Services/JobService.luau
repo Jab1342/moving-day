@@ -149,6 +149,14 @@ function JobService:StartJob(crew)
 		return nil
 	end
 	self:Push(job)
+	if self.analytics then
+		for _, player in crew.members do
+			local profile = self.data:Get(player)
+			if profile and profile.stats.jobs >= 1 then
+				self.analytics:Funnel(player, 8)
+			end
+		end
+	end
 	return job.id
 end
 function JobService:Removed(rec, broken)
