@@ -586,5 +586,12 @@
     "assetId": "128575198667670",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/PRP_BeaconChevron.fbx"
+  },
+  {
+    "name": "PRP_HomeownerHat",
+    "type": "Model",
+    "assetId": "120518432494253",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_HomeownerHat.fbx"
   }
 ]

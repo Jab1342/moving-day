@@ -497,5 +497,11 @@
     "operation": "operations/f58eb3bf-ec84-4141-b9b4-514074d50c18",
     "assetId": "128575198667670",
     "file": "assets/export/PRP_BeaconChevron.fbx"
+  },
+  "PRP_HomeownerHat": {
+    "status": "REGISTERED",
+    "operation": "operations/bc158695-64f6-4405-af33-05533c1c4295",
+    "assetId": "120518432494253",
+    "file": "assets/export/PRP_HomeownerHat.fbx"
   }
 }

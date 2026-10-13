@@ -374,7 +374,19 @@ def beacon_chevron():
     return p
 
 
+def homeowner_hat():  # straw sun hat with a red band; origin = where it sits on the head
+    brim = [(0.62, 0.0), (1.45, 0.02), (1.5, 0.1), (1.3, 0.14), (0.62, 0.12)]
+    crown = [(0.66, 0.0), (0.66, 0.5), (0.55, 0.72), (0.0, 0.78)]
+    band = [(0.68, 0.06), (0.69, 0.24), (0.0, 0.24)]
+    return [
+        lathe("tape", brim, seg=16, base=(0, 0, 0.02)),
+        lathe("wood_birch", crown, seg=14, base=(0, 0, 0.02)),
+        lathe("fab_red", band, seg=14, base=(0, 0, 0.04)),
+    ]
+
+
 P2 = {
+    "PRP_HomeownerHat": homeowner_hat,
     "PRP_BeaconChevron": beacon_chevron,
     "PRP_RampWedge": ramp_wedge,
     "PRP_RampRails": ramp_rails,
