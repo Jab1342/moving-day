@@ -218,7 +218,9 @@ local function step(rig: Rig)
 		setBrake(rig, tuning.CoastDecelG)
 	end
 
-	lockJump(math.abs(forwardSpeed) > tuning.ExitSpeed)
+	-- stay locked until a jump held through the stop is released, or it fires on unlock
+	local jumpHeld = savedJump ~= nil and driver ~= nil and driver.Jump
+	lockJump(math.abs(forwardSpeed) > tuning.ExitSpeed or jumpHeld == true)
 
 	local speedFactor = math.clamp(math.abs(forwardSpeed) / tuning.MaxSpeed, 0, 1)
 	local maxAngle = tuning.MaxSteerAngle

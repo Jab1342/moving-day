@@ -38,6 +38,9 @@ local DEFAULTS = {
 	PadHoldDistance = 3.5, -- gamepad: studs in front of the player
 	BedLiftRange = 14, -- near a truck bed, items lift to clear the tailgate
 	BedClearance = 1.4, -- studs above the bed floor for the item's underside
+	DollyGap = 1.5, -- studs between the player and the near edge of a dolly load
+	DollyDeckHeight = 1.1, -- dolly loads ride this high, enough to roll over 1-stud kerbs
+	HipToGround = 3, -- HumanoidRootPart centre to floor for the default rig
 }
 
 local CarryController = {}
@@ -58,6 +61,7 @@ local grabbing = false
 local dragGen = 0
 local toast: (text: string) -> () -- short on-screen hint, defined below
 local dollyTier = 0 -- PublicProfile.upgrades.Dolly
+local dollyAligned = false -- first dolly frame resets yaw to "along the walking direction"
 local dollyTierScales: { number } = { 0.55, 0.70 }
 
 local function loadTuning()
@@ -181,6 +185,7 @@ local function clearHeld()
 	end
 	held = nil
 	myGrip = 0
+	dollyAligned = false
 	screenPoint = nil
 	partnerPoint = nil
 	setWalkSpeed(1)
@@ -242,6 +247,14 @@ local function drop()
 	clearHeld()
 end
 
+-- Same rule as the server's RequestGrab: the grip attachment we'd take (Grip1/Grip2, or the
+-- root when the item has none) within GrabRange of the player.
+local function inGrabRange(model: Model, root: BasePart, hrp: BasePart): boolean
+	local grip = root:FindFirstChild(if freeGrip(model) == 2 then "Grip2" else "Grip1")
+	local point = if grip and grip:IsA("Attachment") then grip.WorldPosition else root.Position
+	return (point - hrp.Position).Magnitude <= tuning.GrabRange
+end
+
 -- Raycast that passes through parts Invisicam has faded (walls between camera and player).
 -- Returns the first solid hit and whether a faded part was skipped on the way.
 local function castThroughFaded(
@@ -286,8 +299,7 @@ local function attachDetector(model: Model)
 		end
 		local hit = hitFrame.Position
 		local root = itemRoot(model)
-		-- same rule as the server: item centre within GrabRange of the player
-		if not root or (root.Position - hrp.Position).Magnitude > tuning.GrabRange then
+		if not root or not inGrabRange(model, root, hrp) then
 			toast("Get closer to grab that")
 			return
 		end
@@ -366,7 +378,7 @@ local function watchSeeThroughClicks()
 		if not model or not root or not hrp or freeGrip(model) == 0 then
 			return
 		end
-		if (root.Position - hrp.Position).Magnitude > tuning.GrabRange then
+		if not inGrabRange(model, root, hrp) then
 			toast("Get closer to grab that")
 			return
 		end
@@ -423,7 +435,7 @@ local function nearestItem(): Model?
 		local model = part:FindFirstAncestorWhichIsA("Model")
 		if model and model:GetAttribute("ItemUid") and freeGrip(model) > 0 then
 			local root = itemRoot(model)
-			if root then
+			if root and inGrabRange(model, root, hrp) then
 				local offset = root.Position - hrp.Position
 				local score = offset.Magnitude - hrp.CFrame.LookVector:Dot(offset.Unit) * 3
 				if score < bestScore then
@@ -649,6 +661,27 @@ local function twoHandedCFrame(root: BasePart, mid: Vector3, toPartner: Vector3)
 	return CFrame.new(mid) * CFrame.Angles(0, worldYaw - localYaw, 0) * CFrame.new(-gripMid)
 end
 
+-- Dolly: the item rides centred in front of the player, long side along the walking
+-- direction (so it lines up with doors and the loading ramp), lifted off the floor like it
+-- sits on the dolly's deck. `yaw` turns it in quarter steps from there (Rotate).
+local function dollyGoal(model: Model, root: BasePart, hrp: BasePart): CFrame
+	local look = hrp.CFrame.LookVector
+	local flat = Vector3.new(look.X, 0, look.Z)
+	flat = if flat.Magnitude > 0.1 then flat.Unit else Vector3.new(0, 0, -1)
+	local boxCf, size = model:GetBoundingBox()
+	local longIsX = size.X >= size.Z
+	local base = if longIsX then math.atan2(-flat.Z, flat.X) else math.atan2(-flat.X, -flat.Z)
+	local quarterTurns = math.floor(yaw / (math.pi / 2) + 0.5) % 2
+	local halfDepth = if quarterTurns == 1
+		then math.min(size.X, size.Z) / 2
+		else math.max(size.X, size.Z) / 2
+	local centre = hrp.Position + flat * (halfDepth + tuning.DollyGap)
+	local rootAboveBottom = root.Position.Y - (boxCf.Y - size.Y / 2)
+	local groundY = hrp.Position.Y - tuning.HipToGround
+	return CFrame.new(centre.X, groundY + tuning.DollyDeckHeight + rootAboveBottom, centre.Z)
+		* CFrame.Angles(0, base + yaw, 0)
+end
+
 local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 	local alignPos = root:FindFirstChild("CarryAlignPosition") :: AlignPosition?
 	local alignOri = root:FindFirstChild("CarryAlignOrientation") :: AlignOrientation?
@@ -683,14 +716,20 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 		local point = steerPoint(hrp, grabWorldY)
 		goal = CFrame.new(point) * rotation * CFrame.new(-grabLocal)
 		goal = CFrame.new(goal.X, root.Position.Y, goal.Z) * rotation
-	else
-		setWalkSpeed(if onDolly then dollySpeedScale() else 1)
-		alignPos.MaxVelocity = tuning.MaxCarrySpeed
-		local planeY = if onDolly then hrp.Position.Y - 1.5 else holdY
-		goal = CFrame.new(steerPoint(hrp, planeY)) * rotation * CFrame.new(-grabLocal)
-		if not onDolly then
-			goal = liftForBed(model, root, goal)
+	elseif onDolly then
+		if not dollyAligned then
+			-- yaw becomes a quarter-turn offset from the walking direction
+			dollyAligned = true
+			yaw = 0
 		end
+		setWalkSpeed(dollySpeedScale())
+		alignPos.MaxVelocity = tuning.MaxCarrySpeed
+		goal = dollyGoal(model, root, hrp)
+	else
+		setWalkSpeed(1)
+		alignPos.MaxVelocity = tuning.MaxCarrySpeed
+		goal = CFrame.new(steerPoint(hrp, holdY)) * rotation * CFrame.new(-grabLocal)
+		goal = liftForBed(model, root, goal)
 	end
 	goal = clampReach(goal, hrp)
 	alignPos.Position = goal.Position
