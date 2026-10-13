@@ -77,12 +77,18 @@ end
 local services = script:WaitForChild("Services")
 local data = require(services.DataService).new(remotes, require(script.Vendor.ProfileStore))
 data:Start()
+local upgrades = require(services.UpgradeService).new(data, remotes)
+upgrades:Start()
 local runtime = folder(workspace, "MovingDayRuntime")
 local items = require(services.ItemService).new(folder(runtime, "Items"), remotes)
 local trucks = require(services.TruckService).new(folder(runtime, "Trucks"), items)
 local damage = require(services.DamageService).new(items)
 items.trucks = trucks
 items.damage = damage
+items.upgrades = upgrades
+trucks.strapSlotsForCrew = function(crewId)
+	return upgrades:StrapSlots(crewId)
+end
 items:Start()
 game:GetService("RunService").Heartbeat:Connect(function(dt)
 	items:Step(dt)

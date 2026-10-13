@@ -117,7 +117,10 @@ function TruckService:ReserveStrap(truck)
 			used += 1
 		end
 	end
-	if used >= truck.strapSlots then
+	local slots = if self.strapSlotsForCrew
+		then self.strapSlotsForCrew(truck.crewId)
+		else truck.strapSlots
+	if used >= slots then
 		return false
 	end
 	truck.pendingStraps += 1

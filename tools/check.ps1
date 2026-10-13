@@ -19,6 +19,8 @@ try {
     if ($LASTEXITCODE) { throw 'Item service tests failed' }
     & lune run tests/profile-data
     if ($LASTEXITCODE) { throw 'Profile data tests failed' }
+    & lune run tests/upgrades
+    if ($LASTEXITCODE) { throw 'Upgrade tests failed' }
     & rojo build -o build/moving-day.rbxlx
     if ($LASTEXITCODE) { throw 'Rojo build failed' }
     & rojo build fallback.project.json -o build/fallback.rbxlx
