@@ -472,5 +472,17 @@
     "operation": "operations/50214449-371c-492d-819b-5293171942f4",
     "assetId": "103449501563569",
     "file": "assets/export/PRP_Pallet.fbx"
+  },
+  "PRP_RampWedge": {
+    "status": "REGISTERED",
+    "operation": "operations/3963b28f-14e5-4eab-97df-3c8ee946d435",
+    "assetId": "106924156878308",
+    "file": "assets/export/PRP_RampWedge.fbx"
+  },
+  "PRP_RampRails": {
+    "status": "REGISTERED",
+    "operation": "operations/f8b4026a-0dbc-4e86-8b3b-b63beda3d1bb",
+    "assetId": "70840011041414",
+    "file": "assets/export/PRP_RampRails.fbx"
   }
 }

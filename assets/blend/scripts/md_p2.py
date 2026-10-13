@@ -313,7 +313,55 @@ def pallet():  # 4 x 0.55 x 4
     return p
 
 
+# ---- loading ramp upgrade: wedge collision mesh + visual rails --------------
+# High end at Blender y=0 (Roblox z=0, the tailgate) at bed-floor height; slopes down to the
+# ground at y=+RAMP_LEN (Roblox +Z, out the back). Studio sets the pivot at the high-end top centre.
+RAMP_LEN, RAMP_W, RAMP_H = 6.0, 5.0, 3.2
+
+
+def ramp_wedge():
+    deck = lambda f: "metal_brushed" if f.normal.z > 0.3 else "metal_gunmetal"
+    bm = bmesh.new()
+    w = RAMP_W / 2
+    v = [bm.verts.new(c) for c in (
+        (-w, 0, 0), (w, 0, 0), (w, RAMP_LEN, 0), (-w, RAMP_LEN, 0),  # bottom
+        (-w, 0, RAMP_H), (w, 0, RAMP_H),  # top edge at the truck
+    )]
+    for f in ((0, 3, 2, 1), (0, 1, 5, 4), (4, 5, 2, 3), (0, 4, 3), (1, 2, 5)):
+        bm.faces.new([v[i] for i in f])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    o = _obj(bm, "wedge")
+    paint(o, deck)
+    p = [o]
+    # tread strips on the slope
+    import math as _m
+    ang = _m.atan2(RAMP_H, RAMP_LEN)
+    for i in range(1, 8):
+        t = i / 8
+        y, z = t * RAMP_LEN, RAMP_H * (1 - t)
+        strip = box("grey_dark", (RAMP_W - 0.4, 0.12, 0.05), (0, 0, 0))
+        strip.data.transform(Matrix.Rotation(-ang, 4, "X"))
+        strip.data.transform(Matrix.Translation((0, y, z + 0.02)))
+        p.append(strip)
+    return p
+
+
+def ramp_rails():
+    import math as _m
+    ang = _m.atan2(RAMP_H, RAMP_LEN)
+    length = _m.hypot(RAMP_LEN, RAMP_H)
+    p = []
+    for x in (-(RAMP_W / 2) + 0.1, RAMP_W / 2 - 0.1):
+        r = box("hazard_orange", (0.2, length, 0.35), (0, length / 2, 0.175))
+        r.data.transform(Matrix.Rotation(-ang, 4, "X"))  # tilt down toward +Y
+        r.data.transform(Matrix.Translation((x, 0, RAMP_H)))
+        p.append(r)
+    return p
+
+
 P2 = {
+    "PRP_RampWedge": ramp_wedge,
+    "PRP_RampRails": ramp_rails,
     "PRP_TrafficCone": traffic_cone,
     "PRP_Pallet": pallet,
     "PRP_DoorInsert": door_insert,

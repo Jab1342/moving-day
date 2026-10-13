@@ -565,5 +565,19 @@
     "assetId": "103449501563569",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/PRP_Pallet.fbx"
+  },
+  {
+    "name": "PRP_RampWedge",
+    "type": "Model",
+    "assetId": "106924156878308",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_RampWedge.fbx"
+  },
+  {
+    "name": "PRP_RampRails",
+    "type": "Model",
+    "assetId": "70840011041414",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_RampRails.fbx"
   }
 ]
