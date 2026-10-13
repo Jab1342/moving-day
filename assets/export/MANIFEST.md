@@ -71,3 +71,11 @@ rotation in MeshPart.PivotOffset; fix on insert with `part.PivotOffset = CFrame.
 | PRP_Fireplace.fbx | 110304456914061 | RoomTemplates (replaces placeholder part) | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
 | TRK_Pickup_Body_Blue.fbx | 71286573606711 | Assets.Trucks | Hull (CanCollide=false, visual only) | clean | rig parts stay as collision; paint variant, same rig placement |
 | TRK_Pickup_Body_Yellow.fbx | 115156075815657 | Assets.Trucks | Hull (CanCollide=false, visual only) | clean | rig parts stay as collision; paint variant, same rig placement |
+| PRP_DoorInsert.fbx | 73049433537860 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| PRP_DoorFrameOpen.fbx | 120244037397616 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| PRP_WindowInsert.fbx | 131024323807739 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| PRP_YardSign.fbx | 138441082816700 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| PRP_TrafficCone.fbx | 106145664748298 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| PRP_Pallet.fbx | 103449501563569 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| PRP_RampWedge.fbx | 106924156878308 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| PRP_RampRails.fbx | 70840011041414 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |

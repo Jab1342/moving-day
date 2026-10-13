@@ -10,9 +10,11 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
@@ -55,6 +57,8 @@ local grabbing = false
 -- server answered is dropped instead of held.
 local dragGen = 0
 local toast: (text: string) -> () -- short on-screen hint, defined below
+local dollyTier = 0 -- PublicProfile.upgrades.Dolly
+local dollyTierScales: { number } = { 0.55, 0.70 }
 
 local function loadTuning()
 	local shared = ReplicatedStorage:FindFirstChild("Shared")
@@ -67,8 +71,17 @@ local function loadTuning()
 					tuning[key] = config[key]
 				end
 			end
+			if type(config.DollyTierSpeedScale) == "table" then
+				dollyTierScales = config.DollyTierSpeedScale
+			end
 		end
 	end
+end
+
+-- Dolly walk speed: tier 0 is Config.DollySpeedScale, bought tiers use DollyTierSpeedScale.
+local function dollySpeedScale(): number
+	local scale = dollyTier > 0 and dollyTierScales[math.min(dollyTier, #dollyTierScales)]
+	return if type(scale) == "number" then scale else tuning.DollySpeedScale
 end
 
 local function remote(path: string): Instance?
@@ -229,6 +242,29 @@ local function drop()
 	clearHeld()
 end
 
+-- Raycast that passes through parts Invisicam has faded (walls between camera and player).
+-- Returns the first solid hit and whether a faded part was skipped on the way.
+local function castThroughFaded(
+	origin: Vector3,
+	direction: Vector3,
+	exclude: { Instance }
+): (RaycastResult?, boolean)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local skipped = table.clone(exclude)
+	local passedFaded = false
+	for _ = 1, 6 do
+		params.FilterDescendantsInstances = skipped
+		local hit = Workspace:Raycast(origin, direction, params)
+		if not hit or hit.Instance.LocalTransparencyModifier <= 0.3 then
+			return hit, passedFaded
+		end
+		passedFaded = true
+		table.insert(skipped, hit.Instance)
+	end
+	return nil, passedFaded
+end
+
 -- DragDetector input on each furniture item (local only: RunLocally + Custom response).
 local function attachDetector(model: Model)
 	if model:FindFirstChild("MD_Drag") or not model:GetAttribute("ItemUid") then
@@ -284,6 +320,92 @@ local function watchFurniture()
 		consider(d)
 	end
 	Workspace.DescendantAdded:Connect(consider)
+end
+
+-- Invisicam fades walls between the camera and the player, but a faded wall still blocks the
+-- DragDetector's click ray, so furniture you can see through it can't be grabbed. For those
+-- clicks we cast our own ray that skips faded parts and run the same grab/drag/release flow.
+local seeThroughInput: InputObject? = nil
+
+local function itemBehindFadedPart(screen: Vector2): (Model?, Vector3?)
+	local camera = Workspace.CurrentCamera
+	if not camera then
+		return nil, nil
+	end
+	local ray = camera:ViewportPointToRay(screen.X, screen.Y)
+	local hit, passedFaded =
+		castThroughFaded(ray.Origin, ray.Direction * 200, { player.Character :: Instance })
+	-- only take over when a faded part was in the way; otherwise the DragDetector has it
+	if not hit or not passedFaded then
+		return nil, nil
+	end
+	local model = hit.Instance:FindFirstAncestorWhichIsA("Model")
+	while model and not model:GetAttribute("ItemUid") do
+		model = model:FindFirstAncestorWhichIsA("Model")
+	end
+	return model, if model then hit.Position else nil
+end
+
+local function watchSeeThroughClicks()
+	UserInputService.InputBegan:Connect(function(input, processed)
+		local kind = input.UserInputType
+		if
+			processed
+			or held
+			or grabbing
+			or seeThroughInput
+			or (kind ~= Enum.UserInputType.MouseButton1 and kind ~= Enum.UserInputType.Touch)
+		then
+			return
+		end
+		local inset = GuiService:GetGuiInset()
+		local screen = Vector2.new(input.Position.X, input.Position.Y) + inset
+		local model, hit = itemBehindFadedPart(screen)
+		local _, _, hrp = character()
+		local root = model and itemRoot(model)
+		if not model or not root or not hrp or freeGrip(model) == 0 then
+			return
+		end
+		if (root.Position - hrp.Position).Magnitude > tuning.GrabRange then
+			toast("Get closer to grab that")
+			return
+		end
+		seeThroughInput = input
+		dragGen += 1
+		task.spawn(grab, model, hit, screen, dragGen)
+	end)
+	UserInputService.InputChanged:Connect(function(input)
+		if not seeThroughInput or not held then
+			return
+		end
+		local kind = input.UserInputType
+		if
+			(
+				seeThroughInput.UserInputType == Enum.UserInputType.MouseButton1
+				and kind == Enum.UserInputType.MouseMovement
+			) or input == seeThroughInput
+		then
+			local inset = GuiService:GetGuiInset()
+			screenPoint = Vector2.new(input.Position.X, input.Position.Y) + inset
+		end
+	end)
+	UserInputService.InputEnded:Connect(function(input)
+		if
+			input ~= seeThroughInput
+			and not (
+				seeThroughInput
+				and seeThroughInput.UserInputType == Enum.UserInputType.MouseButton1
+				and input.UserInputType == Enum.UserInputType.MouseButton1
+			)
+		then
+			return
+		end
+		seeThroughInput = nil
+		dragGen += 1
+		if held then
+			drop()
+		end
+	end)
 end
 
 -- Nearest grabbable item in front of the player (gamepad path).
@@ -440,10 +562,11 @@ local function steerPoint(hrp: BasePart, planeY: number): Vector3
 	local point: Vector3
 	if screenPoint and camera then
 		local ray = camera:ViewportPointToRay(screenPoint.X, screenPoint.Y)
-		local params = RaycastParams.new()
-		params.FilterType = Enum.RaycastFilterType.Exclude
-		params.FilterDescendantsInstances = { player.Character :: Instance, held :: Instance }
-		local hit = Workspace:Raycast(ray.Origin, ray.Direction * 500, params)
+		local hit = castThroughFaded(
+			ray.Origin,
+			ray.Direction * 500,
+			{ player.Character :: Instance, held :: Instance }
+		)
 		if hit then
 			point = hit.Position
 		else
@@ -561,7 +684,7 @@ local function stepLead(model: Model, root: BasePart, hrp: BasePart)
 		goal = CFrame.new(point) * rotation * CFrame.new(-grabLocal)
 		goal = CFrame.new(goal.X, root.Position.Y, goal.Z) * rotation
 	else
-		setWalkSpeed(if onDolly then tuning.DollySpeedScale else 1)
+		setWalkSpeed(if onDolly then dollySpeedScale() else 1)
 		alignPos.MaxVelocity = tuning.MaxCarrySpeed
 		local planeY = if onDolly then hrp.Position.Y - 1.5 else holdY
 		goal = CFrame.new(steerPoint(hrp, planeY)) * rotation * CFrame.new(-grabLocal)
@@ -634,8 +757,18 @@ function CarryController.Start()
 	if relay and relay:IsA("UnreliableRemoteEvent") then
 		relay.OnClientEvent:Connect(onRelay)
 	end
+	task.spawn(function()
+		local profile = (remotes :: Folder)
+				:WaitForChild("Data")
+				:WaitForChild("Profile") :: RemoteEvent
+		profile.OnClientEvent:Connect(function(p)
+			local tier = type(p) == "table" and type(p.upgrades) == "table" and p.upgrades.Dolly
+			dollyTier = if type(tier) == "number" then tier else 0
+		end)
+	end)
 
 	watchFurniture()
+	watchSeeThroughClicks()
 	ContextActionService:BindAction("MD_PadGrab", onPadGrab, false, Enum.KeyCode.ButtonX)
 	-- Rotate and Strap only exist when they can do something, so touch screens stay clean.
 	local rotateBound, strapBound, strapTitle = false, false, ""

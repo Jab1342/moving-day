@@ -240,7 +240,134 @@ def fireplace():
     return p
 
 
+# ---- house exterior inserts for the 8 x 8 doorway gap (Roblox X=8, Y=8, Z=1) ----------
+
+def door_insert():  # closed front door filling the gap
+    p = [
+        box("offwhite", (1.8, 1, 8), (-3.1, 0, 4)),  # wall infill left
+        box("offwhite", (1.8, 1, 8), (3.1, 0, 4)),  # right
+        box("offwhite", (4.4, 1, 0.6), (0, 0, 7.7)),  # over the door
+        box("wood_oak", (0.25, 1.1, 7.4), (-2.075, 0, 3.7)),  # frame
+        box("wood_oak", (0.25, 1.1, 7.4), (2.075, 0, 3.7)),
+        box("wood_oak", (4.4, 1.1, 0.25), (0, 0, 7.275)),
+        box("fab_red", (3.9, 0.6, 7.15), (0, 0, 3.575)),  # door leaf
+        box("wood_mahogany", (1.4, 0.05, 2.4), (-0.85, -0.32, 4.9)),  # raised panels
+        box("wood_mahogany", (1.4, 0.05, 2.4), (0.85, -0.32, 4.9)),
+        box("wood_mahogany", (1.4, 0.05, 2.4), (-0.85, -0.32, 1.9)),
+        box("wood_mahogany", (1.4, 0.05, 2.4), (0.85, -0.32, 1.9)),
+        box("metal_brass", (0.2, 0.25, 0.2), (1.5, -0.4, 3.6)),  # knob
+    ]
+    return p
+
+
+def door_frame_open():  # passable front-door frame: trim only, opening stays clear
+    return [
+        box("offwhite", (1.5, 1, 8), (-3.25, 0, 4)),
+        box("offwhite", (1.5, 1, 8), (3.25, 0, 4)),
+        box("offwhite", (5.0, 1, 0.5), (0, 0, 7.75)),
+        box("wood_oak", (0.3, 1.15, 7.5), (-2.35, 0, 3.75)),
+        box("wood_oak", (0.3, 1.15, 7.5), (2.35, 0, 3.75)),
+        box("wood_oak", (5.0, 1.15, 0.3), (0, 0, 7.35)),
+    ]
+
+
+def window_insert():  # 8 x 5 x 1
+    return [
+        box("offwhite", (8, 1, 0.8), (0, 0, 0.4)),  # below sill
+        box("offwhite", (1.4, 1, 4.2), (-3.3, 0, 2.9)),
+        box("offwhite", (1.4, 1, 4.2), (3.3, 0, 2.9)),
+        box("offwhite", (5.2, 1, 0.6), (0, 0, 4.7)),
+        box("white", (5.4, 1.2, 0.2), (0, -0.1, 0.9)),  # sill
+        box("white", (5.2, 0.4, 3.6), (0, 0.1, 2.8)),  # frame back
+        box("glass", (2.35, 0.1, 3.2), (-1.27, -0.12, 2.8)),
+        box("glass", (2.35, 0.1, 3.2), (1.27, -0.12, 2.8)),
+    ]
+
+
+def yard_sign():  # realtor yard sign; the blank white face (Front, -Z) takes a "SOLD" TextLabel
+    return [
+        box("white", (0.3, 0.3, 5.0), (-1.8, 0, 2.5)),  # post
+        box("white", (3.6, 0.25, 0.25), (0, 0, 4.6)),  # cross arm
+        box("metal_gunmetal", (0.06, 0.06, 0.4), (-1.2, 0, 4.3)),  # hooks
+        box("metal_gunmetal", (0.06, 0.06, 0.4), (1.2, 0, 4.3)),
+        box("truck_red", (3.2, 0.12, 2.1), (0, 0, 3.05)),  # sign border
+        box("white", (2.9, 0.05, 1.8), (0, -0.08, 3.05)),  # blank face
+        box("truck_red", (3.2, 0.12, 0.6), (0, 0, 5.1)),  # rider on top (blank)
+    ]
+
+
+def traffic_cone():  # 0.9 x 1.5 x 0.9
+    return [
+        box("black", (0.9, 0.9, 0.1), (0, 0, 0.05)),
+        cyl("hazard_orange", 0.36, 1.4, (0, 0, 0.1), seg=10, r_top=0.05),
+        cyl("white", 0.255, 0.2, (0, 0, 0.62), seg=10, r_top=0.21),  # reflective band
+    ]
+
+
+def pallet():  # 4 x 0.55 x 4
+    p = []
+    for x in (-1.75, 0, 1.75):
+        p.append(box("wood_birch", (0.4, 4.0, 0.35), (x, 0, 0.175)))  # runners
+    for y in (-1.7, -0.85, 0, 0.85, 1.7):
+        p.append(box("wood_pale", (4.0, 0.55, 0.12), (0, y, 0.41)))  # deck boards
+    return p
+
+
+# ---- loading ramp upgrade: wedge collision mesh + visual rails --------------
+# High end at Blender y=0 (Roblox z=0, the tailgate) at bed-floor height; slopes down to the
+# ground at y=+RAMP_LEN (Roblox +Z, out the back). Studio sets the pivot at the high-end top centre.
+RAMP_LEN, RAMP_W, RAMP_H = 6.0, 5.0, 3.2
+
+
+def ramp_wedge():
+    deck = lambda f: "metal_brushed" if f.normal.z > 0.3 else "metal_gunmetal"
+    bm = bmesh.new()
+    w = RAMP_W / 2
+    v = [bm.verts.new(c) for c in (
+        (-w, 0, 0), (w, 0, 0), (w, RAMP_LEN, 0), (-w, RAMP_LEN, 0),  # bottom
+        (-w, 0, RAMP_H), (w, 0, RAMP_H),  # top edge at the truck
+    )]
+    for f in ((0, 3, 2, 1), (0, 1, 5, 4), (4, 5, 2, 3), (0, 4, 3), (1, 2, 5)):
+        bm.faces.new([v[i] for i in f])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    o = _obj(bm, "wedge")
+    paint(o, deck)
+    p = [o]
+    # tread strips on the slope
+    import math as _m
+    ang = _m.atan2(RAMP_H, RAMP_LEN)
+    for i in range(1, 8):
+        t = i / 8
+        y, z = t * RAMP_LEN, RAMP_H * (1 - t)
+        strip = box("grey_dark", (RAMP_W - 0.4, 0.12, 0.05), (0, 0, 0))
+        strip.data.transform(Matrix.Rotation(-ang, 4, "X"))
+        strip.data.transform(Matrix.Translation((0, y, z + 0.02)))
+        p.append(strip)
+    return p
+
+
+def ramp_rails():
+    import math as _m
+    ang = _m.atan2(RAMP_H, RAMP_LEN)
+    length = _m.hypot(RAMP_LEN, RAMP_H)
+    p = []
+    for x in (-(RAMP_W / 2) + 0.1, RAMP_W / 2 - 0.1):
+        r = box("hazard_orange", (0.2, length, 0.35), (0, length / 2, 0.175))
+        r.data.transform(Matrix.Rotation(-ang, 4, "X"))  # tilt down toward +Y
+        r.data.transform(Matrix.Translation((x, 0, RAMP_H)))
+        p.append(r)
+    return p
+
+
 P2 = {
+    "PRP_RampWedge": ramp_wedge,
+    "PRP_RampRails": ramp_rails,
+    "PRP_TrafficCone": traffic_cone,
+    "PRP_Pallet": pallet,
+    "PRP_DoorInsert": door_insert,
+    "PRP_DoorFrameOpen": door_frame_open,
+    "PRP_WindowInsert": window_insert,
+    "PRP_YardSign": yard_sign,
     "PRP_BathroomSink": bathroom_sink,
     "PRP_Fireplace": fireplace,
     "TRK_Pickup_Body_Blue": lambda: pickup_body("truck_blue"),
