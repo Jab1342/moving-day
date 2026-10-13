@@ -551,5 +551,19 @@
     "assetId": "127295002593232",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/FUR_StandingFan_Frac.fbx"
+  },
+  {
+    "name": "PRP_TrafficCone",
+    "type": "Model",
+    "assetId": "106145664748298",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_TrafficCone.fbx"
+  },
+  {
+    "name": "PRP_Pallet",
+    "type": "Model",
+    "assetId": "103449501563569",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/PRP_Pallet.fbx"
   }
 ]

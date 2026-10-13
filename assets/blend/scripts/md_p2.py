@@ -296,7 +296,26 @@ def yard_sign():  # realtor yard sign; the blank white face (Front, -Z) takes a 
     ]
 
 
+def traffic_cone():  # 0.9 x 1.5 x 0.9
+    return [
+        box("black", (0.9, 0.9, 0.1), (0, 0, 0.05)),
+        cyl("hazard_orange", 0.36, 1.4, (0, 0, 0.1), seg=10, r_top=0.05),
+        cyl("white", 0.255, 0.2, (0, 0, 0.62), seg=10, r_top=0.21),  # reflective band
+    ]
+
+
+def pallet():  # 4 x 0.55 x 4
+    p = []
+    for x in (-1.75, 0, 1.75):
+        p.append(box("wood_birch", (0.4, 4.0, 0.35), (x, 0, 0.175)))  # runners
+    for y in (-1.7, -0.85, 0, 0.85, 1.7):
+        p.append(box("wood_pale", (4.0, 0.55, 0.12), (0, y, 0.41)))  # deck boards
+    return p
+
+
 P2 = {
+    "PRP_TrafficCone": traffic_cone,
+    "PRP_Pallet": pallet,
     "PRP_DoorInsert": door_insert,
     "PRP_DoorFrameOpen": door_frame_open,
     "PRP_WindowInsert": window_insert,

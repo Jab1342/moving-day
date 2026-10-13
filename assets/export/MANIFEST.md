@@ -89,3 +89,5 @@ rotation in MeshPart.PivotOffset; fix on insert with `part.PivotOffset = CFrame.
 | FUR_WashingMachine_Frac.fbx | 97525032528144 | Assets.Fractured | Box | clean | 4-6 chunks, client-only debris |
 | FUR_FilingCabinet_Frac.fbx | 84313996168261 | Assets.Fractured | Box | clean | 4-6 chunks, client-only debris |
 | FUR_StandingFan_Frac.fbx | 127295002593232 | Assets.Fractured | Box | clean | 4-6 chunks, client-only debris |
+| PRP_TrafficCone.fbx | 106145664748298 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| PRP_Pallet.fbx | 103449501563569 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |

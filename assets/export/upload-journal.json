@@ -460,5 +460,17 @@
     "operation": "operations/fb13dcd4-e15e-4c3e-b01d-880ae6331b49",
     "assetId": "127295002593232",
     "file": "assets/export/FUR_StandingFan_Frac.fbx"
+  },
+  "PRP_TrafficCone": {
+    "status": "REGISTERED",
+    "operation": "operations/3cc6626d-2178-451f-8594-19ea563cf0a4",
+    "assetId": "106145664748298",
+    "file": "assets/export/PRP_TrafficCone.fbx"
+  },
+  "PRP_Pallet": {
+    "status": "REGISTERED",
+    "operation": "operations/50214449-371c-492d-819b-5293171942f4",
+    "assetId": "103449501563569",
+    "file": "assets/export/PRP_Pallet.fbx"
   }
 }
