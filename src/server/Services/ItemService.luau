@@ -57,6 +57,25 @@ function ItemService:Allowed(player, action, highRate)
 end
 
 function ItemService:Fire(rec, kind, info)
+	if self.analytics then
+		local actor = Players:GetPlayerByUserId(
+			if kind == "Broken" and rec.truck then rec.truck.driverId else rec.lastCarrier
+		)
+		if actor then
+			if kind == "Loaded" then
+				self.analytics:Funnel(actor, 3)
+			elseif kind == "Delivered" then
+				self.analytics:Funnel(actor, 5)
+			elseif kind == "Broken" then
+				self.analytics:Custom(
+					actor,
+					"ItemBroken",
+					1,
+					{ [Enum.AnalyticsCustomFieldKeys.CustomField01.Name] = rec.def.id }
+				)
+			end
+		end
+	end
 	for _, player in Players:GetPlayers() do
 		if player:GetAttribute("CrewId") == rec.crewId then
 			self.remotes.Job.ItemEvent:FireClient(
@@ -225,9 +244,14 @@ function ItemService:ApplyCarriers(rec)
 			crewCount += 1
 		end
 	end
+	local owner = Players:GetPlayerByUserId(rec.a)
+	local purchasedDolly = owner and self.upgrades and self.upgrades:DollyTier(owner) > 0
 	rec.model:SetAttribute(
 		"Dolly",
-		rec.def.carry == "Two" and rec.a ~= 0 and rec.b == 0 and crewCount == 1
+		rec.def.carry == "Two"
+			and rec.a ~= 0
+			and rec.b == 0
+			and (crewCount == 1 or purchasedDolly == true)
 	)
 	self:SetState(rec, if rec.a ~= 0 then "Carried" else "Idle")
 	position.Enabled = rec.a ~= 0
@@ -302,6 +326,9 @@ function ItemService:Grab(player, uid, grip)
 		return false, "OwnershipUnavailable"
 	end
 	rec.lastPivot = rec.model:GetPivot()
+	if self.analytics then
+		self.analytics:Funnel(player, 2)
+	end
 	return true, nil
 end
 
@@ -459,8 +486,10 @@ end
 
 function ItemService:Step(dt)
 	for _, rec in self.records do
-		if not rec.model.Parent then
-			self:Remove(rec, false)
+		if not rec.model.Parent or not rec.root.Parent then
+			-- FallenPartsDestroyHeight can remove the root but leave its Model behind.
+			-- Lost undelivered cargo is a completed loss, never an endless manifest entry.
+			self:Remove(rec, rec.state ~= "Delivered")
 			continue
 		end
 		if rec.a == 0 then
