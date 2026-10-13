@@ -30,10 +30,14 @@ local function partyId(player)
 	return if ok and type(value) == "string" then value else ""
 end
 function CrewService.new(remotes)
-	return setmetatable(
-		{ remotes = remotes, crews = {}, byPlayer = {}, buckets = {}, elapsed = 0 },
-		CrewService
-	)
+	return setmetatable({
+		remotes = remotes,
+		crews = {},
+		byPlayer = {},
+		buckets = {},
+		padExitRequired = {},
+		elapsed = 0,
+	}, CrewService)
 end
 function CrewService:StateFor(crew)
 	if not crew then
@@ -80,6 +84,47 @@ function CrewService:Add(crew, player)
 	table.insert(crew.members, player)
 	self.byPlayer[player] = crew
 	player:SetAttribute("CrewId", crew.id)
+	return true
+end
+function CrewService:PartyCrew(player)
+	local party = partyId(player)
+	if party == "" then
+		return nil
+	end
+	for _, crew in self.crews do
+		if not (crew.excluded and crew.excluded[player.UserId]) then
+			for _, member in crew.members do
+				if partyId(member) == party then
+					return crew
+				end
+			end
+		end
+	end
+	return nil
+end
+-- Internal only: late profile readiness must not split an existing Roblox party.
+function CrewService:JoinParty(player, crew)
+	if self:PartyCrew(player) ~= crew or crew.starting or not rootOf(player) then
+		return false
+	end
+	if crew.jobId and (not self.canJoinActive or not self.canJoinActive(crew)) then
+		return false
+	end
+	local lead = crew.members[1]
+	local root = lead and rootOf(lead)
+	local pad = padPart(crew.padId)
+	if not root or not pad or not self:Add(crew, player) then
+		return false
+	end
+	local target = if crew.jobId then root.CFrame else pad.CFrame
+	player.Character:PivotTo(
+		target * CFrame.new(Config.CrewPadMemberSpacing, Config.CrewPadSpawnHeight, 0)
+	)
+	self:Retime(crew)
+	self:Push(crew)
+	if self.onMemberAdded then
+		self.onMemberAdded(player, crew)
+	end
 	return true
 end
 function CrewService:Join(player, padId, firstSession)
@@ -144,6 +189,7 @@ function CrewService:Remove(player)
 		table.remove(crew.members, index)
 	end
 	self.byPlayer[player] = nil
+	self.padExitRequired[player] = crew.padId
 	if player.Parent == Players then
 		player:SetAttribute("CrewId", nil)
 		self.remotes.Crew.State:FireClient(player, self:StateFor(nil))
@@ -240,6 +286,8 @@ function CrewService:Action(player, action, arg)
 		if not target or target == player or self.byPlayer[target] ~= crew then
 			return false, "BadTarget"
 		end
+		crew.excluded = crew.excluded or {}
+		crew.excluded[target.UserId] = true
 		self:Remove(target)
 		return true
 	end
@@ -251,6 +299,34 @@ function CrewService:Step(dt)
 		return
 	end
 	self.elapsed = 0
+	for _, player in Players:GetPlayers() do
+		local root = rootOf(player)
+		local blockedPad = self.padExitRequired[player]
+		if blockedPad then
+			local pad = padPart(blockedPad)
+			if
+				root
+				and pad
+				and (root.Position - pad.Position).Magnitude > Config.CrewPadExitRange
+			then
+				self.padExitRequired[player] = nil
+			end
+		end
+		if not self.byPlayer[player] and root and not self.padExitRequired[player] then
+			local partyCrew = self:PartyCrew(player)
+			if partyCrew then
+				self:JoinParty(player, partyCrew)
+			elseif self.canAutoJoin and self.canAutoJoin(player) then
+				for padId = 1, Config.MaxCrews do
+					local pad = padPart(padId)
+					if pad and (root.Position - pad.Position).Magnitude <= Config.CrewPadRange then
+						self:Join(player, padId)
+						break
+					end
+				end
+			end
+		end
+	end
 	for player, crew in self.byPlayer do
 		if not crew.jobId and not crew.starting then
 			local root, pad = rootOf(player), padPart(crew.padId)
@@ -281,6 +357,7 @@ function CrewService:Bind()
 	Players.PlayerRemoving:Connect(function(player)
 		self.buckets[player] = nil
 		self:Remove(player)
+		self.padExitRequired[player] = nil
 	end)
 end
 return CrewService

@@ -223,6 +223,11 @@ function JobService:Step(dt)
 			and now() >= (self.retryAt[player] or 0)
 		then
 			self.retryAt[player] = now() + Config.CrewLaunchRetrySeconds
+			local party = self.crews:PartyCrew(player)
+			if party then
+				self.crews:JoinParty(player, party)
+				continue
+			end
 			for padId = 1, Config.MaxCrews do
 				if not self.crews.crews[padId] then
 					if self.crews:Join(player, padId, true) then
@@ -307,6 +312,20 @@ end
 function JobService:Bind()
 	self.crews.canJoin = function(player)
 		return self.data:Get(player) ~= nil
+	end
+	self.crews.canAutoJoin = function(player)
+		local profile = self.data:Get(player)
+		return profile ~= nil and profile.firstJobDone
+	end
+	self.crews.canJoinActive = function(crew)
+		local job = self.jobs[crew.id]
+		return job ~= nil and not job.closed and job.phase ~= "Payout"
+	end
+	self.crews.onMemberAdded = function(_, crew)
+		local job = self.jobs[crew.id]
+		if job then
+			self:Push(job)
+		end
 	end
 	self.crews:OnStart(function(crew)
 		return self:StartJob(crew)

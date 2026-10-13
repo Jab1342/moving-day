@@ -75,6 +75,7 @@ local module = luau.load(fs.readFile("src/server/Services/CrewService.luau"), {
 local function player(id, pad, party)
 	local root = {
 		Position = pads["CrewPad_" .. pad].Position + V.new(0, 3, 0),
+		CFrame = CF.new(pads["CrewPad_" .. pad].Position + V.new(0, 3, 0)),
 		IsA = function()
 			return true
 		end,
@@ -89,6 +90,7 @@ local function player(id, pad, party)
 	}
 	function char:PivotTo(cf)
 		root.Position = cf.Position
+		root.CFrame = cf
 	end
 	local p = {
 		UserId = id,
@@ -188,6 +190,50 @@ assert(grouped:Join(leader, 1), "Party leader joins")
 assert(grouped:CrewOf(party) == grouped:CrewOf(leader), "Party automatically shares crew")
 grouped:Step(Config.CrewPollSeconds)
 assert(grouped:CrewOf(party) ~= nil, "Remote party member moved to pad, not immediately removed")
+local activeParty = grouped:CrewOf(leader)
+grouped:OnStart(function()
+	return "party-job"
+end)
+assert(grouped:Launch(activeParty), "Party begins job")
+local late = player(103, 4, "party")
+assert(not grouped:JoinParty(late, activeParty), "Active party requires job service approval")
+grouped.canJoinActive = function()
+	return true
+end
+local joinedLate
+grouped.onMemberAdded = function(p)
+	joinedLate = p
+end
+assert(grouped:JoinParty(late, activeParty), "Late profile joins its active party")
+assert(
+	grouped:CrewOf(late) == activeParty and joinedLate == late,
+	"Late join pushes job state hook"
+)
+assert(
+	(late.root.Position - leader.root.Position).Magnitude < 10,
+	"Late party arrives beside leader"
+)
+assert(grouped:Action(leader, "Kick", late.UserId), "Leader can remove late party member")
+assert(grouped:PartyCrew(late) == nil, "Kicked party member cannot auto-rejoin same crew")
+roster = {}
+local walker = player(200, 2)
+local walking = module.new(remotes)
+walking.canAutoJoin = function()
+	return true
+end
+walking:OnStart(function()
+	return "walk-job"
+end)
+walking:Step(Config.CrewPollSeconds)
+assert(walking:CrewOf(walker).jobId == "walk-job", "Step onto pad creates and starts solo crew")
+walking:Remove(walker)
+walking:Step(Config.CrewPollSeconds)
+assert(walking:CrewOf(walker) == nil, "Removal does not immediately rejoin from the same pad")
+walker.root.Position = V.new(999, 0, 0)
+walking:Step(Config.CrewPollSeconds)
+walker.root.Position = pads.CrewPad_2.Position
+walking:Step(Config.CrewPollSeconds)
+assert(walking:CrewOf(walker), "Exiting and re-entering enables pad again")
 local successes = 0
 for _ = 1, 100 do
 	if grouped:Action(leader, "BadAction") then
