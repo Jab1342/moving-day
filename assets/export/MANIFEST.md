@@ -75,3 +75,17 @@ rotation in MeshPart.PivotOffset; fix on insert with `part.PivotOffset = CFrame.
 | PRP_DoorFrameOpen.fbx | 120244037397616 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
 | PRP_WindowInsert.fbx | 131024323807739 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
 | PRP_YardSign.fbx | 138441082816700 | Assets.Props | Box | clean | decoration: anchored, CanCollide/CanTouch/CanQuery off |
+| FUR_Armchair.fbx | 85360752411365 | Assets.Furniture | Hull | clean |  |
+| FUR_Desk.fbx | 85806758234329 | Assets.Furniture | Hull | clean |  |
+| FUR_OfficeChair.fbx | 88332855736579 | Assets.Furniture | Hull | clean |  |
+| FUR_Dresser.fbx | 127022826765970 | Assets.Furniture | Hull | clean |  |
+| FUR_WashingMachine.fbx | 97603539173504 | Assets.Furniture | Hull | clean |  |
+| FUR_FilingCabinet.fbx | 137662702924818 | Assets.Furniture | Hull | clean |  |
+| FUR_StandingFan.fbx | 109291859049710 | Assets.Furniture | Hull | clean |  |
+| FUR_Armchair_Frac.fbx | 109470322890810 | Assets.Fractured | Box | clean | 4-6 chunks, client-only debris |
+| FUR_Desk_Frac.fbx | 110742741020572 | Assets.Fractured | Box | clean | 4-6 chunks, client-only debris |
+| FUR_OfficeChair_Frac.fbx | 107866442084429 | Assets.Fractured | Box | clean | 4-6 chunks, client-only debris |
+| FUR_Dresser_Frac.fbx | 107410535315202 | Assets.Fractured | Box | clean | 4-6 chunks, client-only debris |
+| FUR_WashingMachine_Frac.fbx | 97525032528144 | Assets.Fractured | Box | clean | 4-6 chunks, client-only debris |
+| FUR_FilingCabinet_Frac.fbx | 84313996168261 | Assets.Fractured | Box | clean | 4-6 chunks, client-only debris |
+| FUR_StandingFan_Frac.fbx | 127295002593232 | Assets.Fractured | Box | clean | 4-6 chunks, client-only debris |

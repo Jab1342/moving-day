@@ -224,6 +224,99 @@ def mirror():
     ]
 
 
+# ---- batch 2: second neighbourhood + office moves -------------------------
+
+def armchair():  # 3 x 3.5 x 3
+    p = []
+    for x in (-1.25, 1.25):
+        for y in (-1.2, 1.2):
+            p.append(cyl("wood_walnut", 0.13, 0.3, (x, y, 0), seg=6))
+    p += [
+        box("fab_mustard", (3, 3, 0.9), (0, 0, 0.75), bevel=0.08),
+        box("fab_cream", (2.0, 2.2, 0.5), (0, -0.35, 1.45), bevel=0.1),
+        box("fab_mustard", (3, 0.7, 2.3), (0, 1.15, 2.35), bevel=0.12),
+        box("fab_cream", (2.0, 0.5, 1.4), (0, 0.55, 2.35), bevel=0.1),
+        box("fab_mustard", (0.5, 3, 1.3), (-1.25, 0, 1.85), bevel=0.1),
+        box("fab_mustard", (0.5, 3, 1.3), (1.25, 0, 1.85), bevel=0.1),
+    ]
+    return p
+
+
+def desk():  # 5 x 2.6 x 2.5
+    p = [
+        box("wood_oak", (5, 2.5, 0.2), (0, 0, 2.5), bevel=0.03),
+        box("wood_honey", (1.6, 2.3, 2.4), (-1.6, 0, 1.2)),
+        box("wood_honey", (3.2, 0.1, 1.2), (0.85, 1.1, 1.8)),  # modesty panel
+    ]
+    for x in (2.3,):
+        for y in (-1.0, 1.0):
+            p.append(box("wood_honey", (0.2, 0.2, 2.4), (x, y, 1.2)))
+    for z in (0.45, 1.2, 1.95):
+        p.append(box("wood_birch", (1.4, 0.05, 0.65), (-1.6, -1.17, z)))
+        p.append(box("metal_chrome", (0.5, 0.06, 0.08), (-1.6, -1.21, z + 0.1)))
+    return p
+
+
+def office_chair():  # 2 x 3.8 x 2
+    p = [
+        box("charcoal", (1.9, 0.22, 0.15), (0, 0, 0.32)),  # star base
+        box("charcoal", (0.22, 1.9, 0.15), (0, 0, 0.32)),
+        cyl("metal_chrome", 0.12, 1.2, (0, 0, 0.4), seg=8),  # gas column
+        box("charcoal", (1.8, 1.8, 0.3), (0, -0.05, 1.75), bevel=0.06),  # seat
+        box("charcoal", (1.7, 0.3, 1.8), (0, 0.8, 2.9), bevel=0.08),  # back
+        box("grey_dark", (0.4, 0.2, 1.1), (0, 0.75, 1.95)),  # back strut
+    ]
+    for x, y in ((0.85, 0), (-0.85, 0), (0, 0.85), (0, -0.85)):
+        p.append(cyl("rubber", 0.14, 0.25, (x, y, 0), seg=6))  # casters
+    for x in (-0.85, 0.85):
+        p.append(box("grey_dark", (0.12, 0.12, 0.45), (x, 0.1, 2.12)))
+        p.append(box("grey_dark", (0.18, 1.0, 0.1), (x, 0.0, 2.38)))  # armrests
+    return p
+
+
+def dresser():  # 4 x 3.5 x 1.8
+    p = [
+        box("wood_honey", (3.9, 1.75, 3.2), (0, 0.025, 1.9), bevel=0.04),
+        box("wood_oak", (4, 1.8, 0.1), (0, 0, 3.45)),
+    ]
+    for x in (-1.75, 1.75):
+        for y in (-0.7, 0.7):
+            p.append(box("wood_walnut", (0.3, 0.3, 0.3), (x, y, 0.15)))
+    for z in (0.85, 1.9, 2.95):
+        for x in (-0.97, 0.97):
+            p.append(box("wood_birch", (1.85, 0.05, 0.95), (x, -0.87, z)))
+            p.append(box("metal_brass", (0.4, 0.06, 0.08), (x, -0.9, z)))
+    return p
+
+
+def washing_machine():  # 2.6 x 3.4 x 2.6
+    return [
+        box("appliance_white", (2.6, 2.5, 3.4), (0, 0.05, 1.7), bevel=0.08),
+        box("grey_light", (2.6, 0.05, 0.5), (0, -1.21, 3.05)),  # control strip
+        cyl("grey_dark", 0.16, 0.08, (0.8, -1.29, 3.05), seg=8, axis="Y"),  # dial (axis Y extends +Y from base)
+        cyl("metal_chrome", 0.82, 0.1, (0, -1.3, 1.55), seg=12, axis="Y"),  # door ring
+        cyl("screen_off", 0.62, 0.05, (0, -1.32, 1.55), seg=12, axis="Y"),  # door glass
+    ]
+
+
+def filing_cabinet():  # 1.6 x 4.5 x 2
+    p = [box("grey_mid", (1.6, 1.95, 4.5), (0, 0.025, 2.25), bevel=0.04)]
+    for z in (0.65, 1.75, 2.85, 3.95):
+        p.append(box("grey_light", (1.45, 0.05, 1.0), (0, -0.97, z)))
+        p.append(box("metal_chrome", (0.5, 0.06, 0.1), (0, -1.0, z + 0.15)))
+    return p
+
+
+def standing_fan():  # 1.4 x 4.5 x 1.4
+    blades = lambda f: "fab_sky" if f.normal.y < -0.9 else "grey_light"
+    return [
+        cyl("grey_dark", 0.7, 0.12, (0, 0, 0), seg=12),
+        cyl("metal_chrome", 0.07, 3.3, (0, 0.15, 0.12), seg=6),
+        cyl("white", 0.26, 0.6, (0, -0.2, 3.8), seg=8, axis="Y"),  # motor housing
+        cyl(blades, 0.7, 0.3, (0, -0.7, 3.8), seg=14, axis="Y"),  # guard + blades
+    ]
+
+
 BUILDERS = {
     "FUR_Couch": couch,
     "FUR_CardboardBox": cardboard_box,
@@ -240,6 +333,13 @@ BUILDERS = {
     "FUR_Microwave": microwave,
     "FUR_PottedPlant": potted_plant,
     "FUR_Mirror": mirror,
+    "FUR_Armchair": armchair,
+    "FUR_Desk": desk,
+    "FUR_OfficeChair": office_chair,
+    "FUR_Dresser": dresser,
+    "FUR_WashingMachine": washing_machine,
+    "FUR_FilingCabinet": filing_cabinet,
+    "FUR_StandingFan": standing_fan,
 }
 
 # name -> (chunk count, swatch for the freshly cut faces)
@@ -259,6 +359,13 @@ FRACTURE = {
     "FUR_Microwave": (4, "grey_light"),
     "FUR_PottedPlant": (4, "soil"),
     "FUR_Mirror": (5, "glass"),
+    "FUR_Armchair": (5, "fab_cream"),
+    "FUR_Desk": (5, "wood_pale"),
+    "FUR_OfficeChair": (4, "grey_light"),
+    "FUR_Dresser": (5, "wood_pale"),
+    "FUR_WashingMachine": (5, "grey_light"),
+    "FUR_FilingCabinet": (4, "grey_light"),
+    "FUR_StandingFan": (4, "grey_light"),
 }
 
 

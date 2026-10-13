@@ -453,5 +453,103 @@
     "assetId": "138441082816700",
     "uploadedBy": "ClaudeB",
     "file": "assets/export/PRP_YardSign.fbx"
+  },
+  {
+    "name": "FUR_Armchair",
+    "type": "Model",
+    "assetId": "85360752411365",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Armchair.fbx"
+  },
+  {
+    "name": "FUR_Desk",
+    "type": "Model",
+    "assetId": "85806758234329",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Desk.fbx"
+  },
+  {
+    "name": "FUR_OfficeChair",
+    "type": "Model",
+    "assetId": "88332855736579",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_OfficeChair.fbx"
+  },
+  {
+    "name": "FUR_Dresser",
+    "type": "Model",
+    "assetId": "127022826765970",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Dresser.fbx"
+  },
+  {
+    "name": "FUR_WashingMachine",
+    "type": "Model",
+    "assetId": "97603539173504",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_WashingMachine.fbx"
+  },
+  {
+    "name": "FUR_FilingCabinet",
+    "type": "Model",
+    "assetId": "137662702924818",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_FilingCabinet.fbx"
+  },
+  {
+    "name": "FUR_StandingFan",
+    "type": "Model",
+    "assetId": "109291859049710",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_StandingFan.fbx"
+  },
+  {
+    "name": "FUR_Armchair_Frac",
+    "type": "Model",
+    "assetId": "109470322890810",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Armchair_Frac.fbx"
+  },
+  {
+    "name": "FUR_Desk_Frac",
+    "type": "Model",
+    "assetId": "110742741020572",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Desk_Frac.fbx"
+  },
+  {
+    "name": "FUR_OfficeChair_Frac",
+    "type": "Model",
+    "assetId": "107866442084429",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_OfficeChair_Frac.fbx"
+  },
+  {
+    "name": "FUR_Dresser_Frac",
+    "type": "Model",
+    "assetId": "107410535315202",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_Dresser_Frac.fbx"
+  },
+  {
+    "name": "FUR_WashingMachine_Frac",
+    "type": "Model",
+    "assetId": "97525032528144",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_WashingMachine_Frac.fbx"
+  },
+  {
+    "name": "FUR_FilingCabinet_Frac",
+    "type": "Model",
+    "assetId": "84313996168261",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_FilingCabinet_Frac.fbx"
+  },
+  {
+    "name": "FUR_StandingFan_Frac",
+    "type": "Model",
+    "assetId": "127295002593232",
+    "uploadedBy": "ClaudeB",
+    "file": "assets/export/FUR_StandingFan_Frac.fbx"
   }
 ]

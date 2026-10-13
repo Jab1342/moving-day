@@ -376,5 +376,89 @@
     "operation": "operations/d256ed91-1543-49bf-b6f9-d0166166d286",
     "assetId": "138441082816700",
     "file": "assets/export/PRP_YardSign.fbx"
+  },
+  "FUR_Armchair": {
+    "status": "REGISTERED",
+    "operation": "operations/5d05a097-445e-4767-9018-4d6bdc0df283",
+    "assetId": "85360752411365",
+    "file": "assets/export/FUR_Armchair.fbx"
+  },
+  "FUR_Desk": {
+    "status": "REGISTERED",
+    "operation": "operations/c7670be7-24c2-43d4-8c95-3eecc9ed4931",
+    "assetId": "85806758234329",
+    "file": "assets/export/FUR_Desk.fbx"
+  },
+  "FUR_OfficeChair": {
+    "status": "REGISTERED",
+    "operation": "operations/2c2bebcc-cd26-4b5d-bf74-17ab26b6c939",
+    "assetId": "88332855736579",
+    "file": "assets/export/FUR_OfficeChair.fbx"
+  },
+  "FUR_Dresser": {
+    "status": "REGISTERED",
+    "operation": "operations/413b13b0-ab0a-4a2c-91a9-9f4f39d8600a",
+    "assetId": "127022826765970",
+    "file": "assets/export/FUR_Dresser.fbx"
+  },
+  "FUR_WashingMachine": {
+    "status": "REGISTERED",
+    "operation": "operations/e0dcef70-f976-4a06-8d6e-c5700364ca4c",
+    "assetId": "97603539173504",
+    "file": "assets/export/FUR_WashingMachine.fbx"
+  },
+  "FUR_FilingCabinet": {
+    "status": "REGISTERED",
+    "operation": "operations/d1473153-04dc-4dba-8b80-a33179e7333b",
+    "assetId": "137662702924818",
+    "file": "assets/export/FUR_FilingCabinet.fbx"
+  },
+  "FUR_StandingFan": {
+    "status": "REGISTERED",
+    "operation": "operations/7068670b-c733-41be-8fbc-49891fc49ed8",
+    "assetId": "109291859049710",
+    "file": "assets/export/FUR_StandingFan.fbx"
+  },
+  "FUR_Armchair_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/423e10b3-afbb-4448-b13c-b3c7e6e5edd9",
+    "assetId": "109470322890810",
+    "file": "assets/export/FUR_Armchair_Frac.fbx"
+  },
+  "FUR_Desk_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/d6848dd9-a421-460b-87b2-6a96fc5dbe18",
+    "assetId": "110742741020572",
+    "file": "assets/export/FUR_Desk_Frac.fbx"
+  },
+  "FUR_OfficeChair_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/73861bba-4b8c-4362-af7b-6b0089ed08af",
+    "assetId": "107866442084429",
+    "file": "assets/export/FUR_OfficeChair_Frac.fbx"
+  },
+  "FUR_Dresser_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/9cbde26a-4827-4b06-b747-ef171b703f99",
+    "assetId": "107410535315202",
+    "file": "assets/export/FUR_Dresser_Frac.fbx"
+  },
+  "FUR_WashingMachine_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/3f790506-547a-425c-be00-d3e2658a9d45",
+    "assetId": "97525032528144",
+    "file": "assets/export/FUR_WashingMachine_Frac.fbx"
+  },
+  "FUR_FilingCabinet_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/141eb3e1-7b1d-4e95-81c2-d35c2486e595",
+    "assetId": "84313996168261",
+    "file": "assets/export/FUR_FilingCabinet_Frac.fbx"
+  },
+  "FUR_StandingFan_Frac": {
+    "status": "REGISTERED",
+    "operation": "operations/fb13dcd4-e15e-4c3e-b01d-880ae6331b49",
+    "assetId": "127295002593232",
+    "file": "assets/export/FUR_StandingFan_Frac.fbx"
   }
 }
