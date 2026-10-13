@@ -1,16 +1,30 @@
 --!strict
--- Schema from ClaudeA board 1791847199; pure metadata, no place geometry.
--- STUB(ClaudeA): confirm per-template socket counts against authored templates.
--- JobGen is not wired into runtime until this catalogue is confirmed.
+-- Authored room metadata confirmed by ClaudeA board 1791849793.
+-- All rooms occupy one 24x24 cell; stairs reserve the same cell on both floors.
+local counts = {
+	Bathroom_A = { 2, 0 },
+	Bathroom_B = { 2, 0 },
+	Bedroom_A = { 2, 2 },
+	Bedroom_B = { 2, 1 },
+	Hallway_A = { 2, 0 },
+	Hallway_B = { 1, 0 },
+	Kitchen_A = { 3, 1 },
+	Kitchen_B = { 2, 1 },
+	LivingRoom_A = { 2, 3 },
+	LivingRoom_B = { 2, 2 },
+	Stairs_A = { 2, 0 },
+	Stairs_B = { 2, 0 },
+}
 local rooms = {}
-for _, roomType in { "Kitchen", "Bedroom", "Bathroom", "LivingRoom", "Hallway", "Stairs" } do
-	for _, variant in { "A", "B" } do
-		local isStairs = roomType == "Stairs"
-		rooms[roomType .. "_" .. variant] = {
-			floors = if isStairs then 2 else 1,
-			small = if isStairs then {} else { "Item_Small_1", "Item_Small_2", "Item_Small_3" },
-			large = if isStairs then {} else { "Item_Large_1", "Item_Large_2" },
-		}
+for name, sizes in counts do
+	local def =
+		{ floors = if string.sub(name, 1, 6) == "Stairs" then 2 else 1, small = {}, large = {} }
+	for index = 1, sizes[1] do
+		table.insert(def.small, "Item_Small_" .. index)
 	end
+	for index = 1, sizes[2] do
+		table.insert(def.large, "Item_Large_" .. index)
+	end
+	rooms[name] = def
 end
 return rooms

@@ -69,6 +69,36 @@ function JobGen.generate(seed: number, tier: string)
 		local c = frontier[pick(#frontier)]
 		place(ordinary[pick(#ordinary)], c[1], c[2], c[3])
 	end
+	-- Some authored rooms (bathrooms/hallways) cannot hold large furniture.
+	-- Replace the lowest-capacity ordinary room until the whole manifest fits.
+	-- Footprints/doors stay identical, so this preserves the connected layout.
+	local richest = ordinary[1]
+	for _, name in ordinary do
+		local a, b = RoomDefs[name], RoomDefs[richest]
+		if #a.small + #a.large > #b.small + #b.large then
+			richest = name
+		end
+	end
+	for _ = 1, #rooms + 1 do
+		local capacity, largeCount, poorest, lowest = 0, 0, nil, math.huge
+		for index, room in rooms do
+			local def = RoomDefs[room.template]
+			local size = #def.small + #def.large
+			capacity += size
+			largeCount += #def.large
+			if def.floors == 1 and size < lowest then
+				poorest, lowest = index, size
+			end
+		end
+		if capacity >= Config.ItemCount[tier] and largeCount > 0 then
+			break
+		end
+		assert(
+			poorest and rooms[poorest].template ~= richest,
+			"Room catalogue cannot fit tier manifest"
+		)
+		rooms[poorest].template = richest
+	end
 	local small, large = {}, {}
 	for roomIndex, room in rooms do
 		for _, size in { "small", "large" } do
