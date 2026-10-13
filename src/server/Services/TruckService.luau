@@ -367,6 +367,9 @@ function TruckService:Step(dt)
 			self:UpdateDriver(truck)
 		end
 		local velocity = truck.bed.AssemblyLinearVelocity
+		if driver and self.analytics and velocity.Magnitude >= Config.AnalyticsDriveMinSpeed then
+			self.analytics:Funnel(driver, 4)
+		end
 		local acceleration = if dt > 0
 			then (velocity - truck.previousVelocity) / dt
 			else Vector3.zero

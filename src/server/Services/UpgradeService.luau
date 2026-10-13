@@ -46,23 +46,36 @@ function UpgradeService:Buy(player, id, tier)
 			return false, "NotReady"
 		end
 	end
-	return self.data:Update(player, function(profile)
+	local charged = 0
+	local success, failure = self.data:Update(player, function(profile)
 		local ok, reason, price = Rules.purchase(profile, id, tier)
 		if not ok then
 			return false, reason
 		end
 		profile.cash -= price
 		profile.upgrades[id] = tier
+		charged = price
 	end)
+	if success and self.analytics then
+		self.analytics:Funnel(player, 7)
+		self.analytics:Economy(player, -charged, self.data:Get(player).cash, id .. ":" .. tier)
+	end
+	return success, failure
 end
 function UpgradeService:PayWrap(player)
-	return self.data:Update(player, function(profile)
+	local charged = 0
+	local success, failure = self.data:Update(player, function(profile)
 		local ok, reason, price = Rules.wrap(profile)
 		if not ok then
 			return false, reason
 		end
 		profile.cash -= price
+		charged = price
 	end)
+	if success and self.analytics then
+		self.analytics:Economy(player, -charged, self.data:Get(player).cash, "MovingBlanketUse")
+	end
+	return success, failure
 end
 function UpgradeService:StrapSlots(crewId)
 	-- Crew benefits from the highest currently-present member tier, never summed.
