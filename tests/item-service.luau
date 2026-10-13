@@ -193,9 +193,24 @@ assert(
 )
 assert(root.owner == p1 and root.CollisionGroup == "Carried", "Ownership and collision")
 assert(events[#events] == "enable", "Ownership before constraints")
+assert(
+	model:GetAttribute("Dolly") == false,
+	"Unpaid crew member hauling alone has no purchased dolly"
+)
+items.upgrades = {
+	DollyTier = function(_, candidate)
+		return if candidate == p1 then 1 else 0
+	end,
+}
+assert(
+	items:ApplyCarriers(rec) and model:GetAttribute("Dolly"),
+	"Purchased dolly works while alone on a grip in a crew"
+)
 assert(not items:Grab(p1, "item", 2), "No double grip")
 ownerSet = false
 assert(items:Grab(p2, "item", 2), "Second grab")
+assert(not model:GetAttribute("Dolly"), "Two carriers switch away from dolly")
+items.upgrades = nil
 items:Relay(p3, "item", V.zero)
 assert(relay == nil, "Noncarrier relay rejected")
 items:Relay(p2, "item", V.new(0 / 0, 0, 0))
