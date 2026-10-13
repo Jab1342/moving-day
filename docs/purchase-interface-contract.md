@@ -1,6 +1,6 @@
 # Proposed purchase interface
 
-Codex approves this proposal; Claude A approval is required before merge. It adds no working purchase prompts or paid effects. Existing server startup creates the new remote and returns NotReady until the approved implementation is installed. IDs remain absent until actual products/passes exist.
+Approved by Codex and Claude A (DevBoard 1791856800_ClaudeA). It adds no working purchase prompts or paid effects. Existing server startup creates the new remote and returns NotReady until the approved implementation is installed. IDs remain absent until actual products/passes exist. Pass keys stay stable as requested by Claude A; the client retains Job.State.jobId for the payout Insurance request.
 
 `Monetization.RequestPurchase(sku, jobId?) -> (ok, reason?)` takes a semantic SKU, never a price, amount or product ID. Pass keys are VIPForeman, DoublePay and HornRadio; product keys are InsuranceClaim, CrewBoost, Cash500, Cash1800 and Cash5500. MonetizationService owns prompt validation and the Roblox prompt call. Returning true means a prompt was requested, not that a purchase succeeded. Only ProcessReceipt grants products; pass ownership is verified through Roblox's server API outside receipt processing.
 

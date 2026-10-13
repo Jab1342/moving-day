@@ -15,6 +15,7 @@ _here = os.path.dirname(__file__)
 exec(open(os.path.join(_here, "md_trucks.py")).read(), globals())
 
 GROUND_TO_BED = 3.2  # pickup rig: wheels touch y=-2.4, bed floor top y=+0.8
+BOX_INNER = 7.5  # box truck cargo height (floor top to roof underside); tallest items are 7
 
 
 def dolly():
@@ -71,16 +72,20 @@ def box_truck_body(cab="truck_blue", box_paint="truck_white"):
             bpy.data.objects.remove(o, do_unlink=True)
         else:
             keep.append(o)
+    # Interior is BOX_INNER tall so 7-stud items (fridge, grandfather clock) load upright.
+    wall_h = BOX_INNER
+    wall_y = 0.8 + wall_h / 2
+    roof_y = 0.8 + wall_h + 0.15
     keep += [
         box("nearblack", (6.2, 23.4, 0.8), (0, 3.8, 0)),  # chassis rail z -8..15.6
         box("grey_dark", (6.4, 15.0, 0.4), (0, 8.0, 0.6)),  # cargo floor (top at 0.8)
-        box(box_paint, (0.3, 15.4, 6.1), (-3.35, 8.0, 3.85)),
-        box(box_paint, (0.3, 15.4, 6.1), (3.35, 8.0, 3.85)),
-        box(box_paint, (7.0, 0.3, 6.1), (0, 0.35, 3.85)),  # front wall
-        box(box_paint, (7.0, 15.4, 0.3), (0, 8.0, 7.05), bevel=0.06),  # roof
+        box(box_paint, (0.3, 15.4, wall_h), (-3.35, 8.0, wall_y)),
+        box(box_paint, (0.3, 15.4, wall_h), (3.35, 8.0, wall_y)),
+        box(box_paint, (7.0, 0.3, wall_h), (0, 0.35, wall_y)),  # front wall
+        box(box_paint, (7.0, 15.4, 0.3), (0, 8.0, roof_y), bevel=0.06),  # roof
         box("hazard_orange", (0.03, 15.0, 0.5), (-3.51, 8.0, 2.6)),  # side stripes
         box("hazard_orange", (0.03, 15.0, 0.5), (3.51, 8.0, 2.6)),
-        box("grey_light", (6.4, 0.5, 0.7), (0, 15.45, 6.55)),  # rolled-up door
+        box("grey_light", (6.4, 0.5, 0.7), (0, 15.45, roof_y - 0.5)),  # rolled-up door
         box("grey_dark", (7.0, 0.5, 0.3), (0, 15.85, 0.3)),  # rear step
         box("taillight", (0.32, 0.1, 0.8), (-3.35, 15.73, 1.6)),
         box("taillight", (0.32, 0.1, 0.8), (3.35, 15.73, 1.6)),
