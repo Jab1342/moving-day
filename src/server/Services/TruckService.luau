@@ -41,10 +41,12 @@ function TruckService:CanUseUpgrade(id)
 	elseif id == "LoadingRamp" then
 		local folder = ServerStorage:FindFirstChild("Upgrades")
 		local ramp = folder and folder:FindFirstChild("LoadingRamp")
-		local mount = pickup
-			and pickup.PrimaryPart
-			and pickup.PrimaryPart:FindFirstChild("RampMount")
-		local boxMount = box and box.PrimaryPart and box.PrimaryPart:FindFirstChild("RampMount")
+		local mount = if valid(pickup) == true
+			then pickup.PrimaryPart:FindFirstChild("RampMount")
+			else nil
+		local boxMount = if valid(box) == true
+			then box.PrimaryPart:FindFirstChild("RampMount")
+			else nil
 		return valid(pickup) == true
 			and valid(box) == true
 			and ramp ~= nil

@@ -206,6 +206,21 @@ box.children.DriverSeat = node("Part")
 assert(not service:CanUseUpgrade("BoxTruck"), "Invalid seat cannot unlock truck purchases")
 box.children.DriverSeat = node("VehicleSeat")
 local mount = box.PrimaryPart.children.RampMount
+local invalidTemplate = node("Folder")
+setmetatable(invalidTemplate, {
+	__index = function(_, key)
+		if key == "PrimaryPart" then
+			error("PrimaryPart is not valid on a Folder")
+		end
+		return nil
+	end,
+})
+templates.children.TRK_Pickup = invalidTemplate
+assert(
+	not service:CanUseUpgrade("LoadingRamp"),
+	"Wrong-class pickup rejects without property errors"
+)
+templates.children.TRK_Pickup = pickup
 box.PrimaryPart.children.RampMount = nil
 assert(not service:CanUseUpgrade("LoadingRamp"), "Ramp must work with both truck variants")
 box.PrimaryPart.children.RampMount = mount
