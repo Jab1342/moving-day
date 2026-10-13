@@ -1,9 +1,9 @@
 --!strict
--- Authored ramp-side ground plugs are obstructed (ClaudeB QA 1791853754).
+-- Authored ramp-side plugs are obstructed on both floors (ClaudeB QA 1791858283).
 -- Cardinal vectors are house-local, after the room's positive-Y quarter rotation.
 local DoorRules = {}
 function DoorRules.canExit(room, dx, dz, floor)
-	if floor ~= room.floor then
+	if floor < room.floor or floor > room.floor + 1 then
 		return true
 	end
 	local blockedX = if room.template == "Stairs_A"

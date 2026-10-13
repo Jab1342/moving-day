@@ -21,10 +21,11 @@ for q, blocked in { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } } do
 			"Both walls stay shut at blocked ramp side"
 		)
 		assert(
-			DoorRules.connected(room, neighbor, 1),
-			"Upper landing doors are not ramp-side blocked"
+			not DoorRules.connected(room, neighbor, 1),
+			"Ramp-side upper doorway opens onto the stairwell hole and must stay closed"
 		)
 		assert(DoorRules.canExit(room, -dx, -dz, 0), "Opposite ground door remains usable")
+		assert(DoorRules.canExit(room, -dx, -dz, 1), "Opposite upper lane remains usable")
 	end
 end
 
