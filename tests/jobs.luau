@@ -188,6 +188,9 @@ function items:Spawn(id, crewId, cf)
 		GetAttribute = function(_, key)
 			return attrs[key]
 		end,
+		SetAttribute = function(_, key, value)
+			attrs[key] = value
+		end,
 		GetDescendants = function()
 			return { root }
 		end,
@@ -312,9 +315,28 @@ assert(
 crew.members, crews.crews[1] = { player }, crew
 assert(jobs:StartJob(crew), "Returning crew starts next job")
 job = jobs.jobs[crew.id]
-for _, rec in table.clone(items.records) do
+for index, uid in job.order do
+	local rec = items.records[uid]
+	if index == 1 then
+		rec.lastCarrier = 99
+	elseif index == 2 then
+		rec.lastCarrier, rec.truck = 99, { driverId = 55 }
+	elseif index == 3 then
+		rec.model:SetAttribute("BlameUserId", 77)
+		rec.lastCarrier = 99
+	elseif index == 4 then
+		rec.lastCarrier = -12
+	end
 	items:Remove(rec, true)
 end
+assert(job.snapshots[job.order[1]].blame == 99, "Zero sentinel falls back to last carrier")
+assert(job.snapshots[job.order[2]].blame == 55, "Lost truck cargo falls back to driver")
+assert(job.snapshots[job.order[3]].blame == 77, "Explicit impact blame is preserved")
+assert(job.snapshots[job.order[4]].blame == -12, "Studio player identities remain valid")
+assert(
+	job.snapshots[job.order[5]].blame == 0 and job.snapshots[job.order[5]].hp == 0,
+	"Unassigned loss has zero value and unknown blame"
+)
 jobs:Step(Config.JobPollSeconds)
 assert(
 	job.phase == "Payout" and data.saved.cash == balance + Config.JobFee.Starter,

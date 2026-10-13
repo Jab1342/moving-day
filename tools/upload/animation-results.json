@@ -1,12 +1,12 @@
 [
   {
-    "name": "ANIM_Carry",
+    "name": "ANIM_Strap",
     "status": "UPLOAD_PASS",
-    "assetId": "70718766583193"
+    "assetId": "90693162364539"
   },
   {
-    "name": "ANIM_CarryTwo",
+    "name": "ANIM_Recover",
     "status": "UPLOAD_PASS",
-    "assetId": "75293060457689"
+    "assetId": "131746353444789"
   }
 ]

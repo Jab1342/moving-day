@@ -41,7 +41,7 @@ function UpgradeService:Buy(player, id, tier)
 		return false, "InJob"
 	end
 	-- Do not charge for upgrades whose physical effects are not implemented yet.
-	if id ~= "Straps" and id ~= "MovingBlankets" then
+	if id ~= "Straps" and id ~= "MovingBlankets" and id ~= "Dolly" then
 		return false, "NotReady"
 	end
 	local charged = 0
@@ -59,6 +59,10 @@ function UpgradeService:Buy(player, id, tier)
 		self.analytics:Economy(player, -charged, self.data:Get(player).cash, id .. ":" .. tier)
 	end
 	return success, failure
+end
+function UpgradeService:DollyTier(player)
+	local profile = self.data:Get(player)
+	return if profile then profile.upgrades.Dolly or 0 else 0
 end
 function UpgradeService:PayWrap(player)
 	local charged = 0

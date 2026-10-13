@@ -84,6 +84,8 @@ end
 antiExploit:Start()
 local data = require(services.DataService).new(remotes, require(script.Vendor.ProfileStore))
 data:Start()
+local monetization = require(services.MonetizationService).new(data)
+monetization:Start()
 local upgrades = require(services.UpgradeService).new(data, remotes)
 upgrades.analytics = analytics
 upgrades:Start()
