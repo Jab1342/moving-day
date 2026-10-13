@@ -3,6 +3,7 @@ local Config = if script then require(script.Parent.Parent.Config) else require(
 local RoomDefs = if script then require(script.Parent.Parent.RoomDefs) else require("../RoomDefs")
 local ItemDefs = if script then require(script.Parent.Parent.ItemDefs) else require("../ItemDefs")
 local JobGen = {}
+local DoorRules = if script then require(script.Parent.DoorRules) else require("./DoorRules")
 local directions = { { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 } }
 
 local function cellKey(x, z, floor)
@@ -34,10 +35,14 @@ function JobGen.generate(seed: number, tier: string)
 			assert(not occupied[cellKey(x, z, f)], "Overlapping room")
 			occupied[cellKey(x, z, f)] = true
 		end
-		table.insert(
-			rooms,
+		local room =
 			{ template = template, gridX = x, gridZ = z, floor = floor, quarterTurns = pick(4) - 1 }
-		)
+		-- A narrow footprint can expose only the stair room to the street.
+		-- Orient its ramp side away from the street before attaching other rooms.
+		if not DoorRules.canExit(room, 0, -1, floor) then
+			room.quarterTurns = (room.quarterTurns + 1) % 4
+		end
+		table.insert(rooms, room)
 	end
 	if tier == "Starter" then
 		place(ordinary[pick(#ordinary)], 0, 0, 0)
@@ -61,6 +66,7 @@ function JobGen.generate(seed: number, tier: string)
 					local key = cellKey(x, z, floor)
 					if
 						floor == desiredFloor
+						and DoorRules.canExit(room, d[1], d[2], floor)
 						and not occupied[key]
 						and not seen[key]
 						and (floor == 0 or occupied[cellKey(x, z, 0)])
