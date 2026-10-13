@@ -3,6 +3,8 @@ $movingDayRoot = Split-Path $PSScriptRoot -Parent
 Push-Location $movingDayRoot
 try {
     New-Item -ItemType Directory -Force build | Out-Null
+    $profileStoreHash = (Get-FileHash src/server/Vendor/ProfileStore.luau -Algorithm SHA256).Hash
+    if ($profileStoreHash -ne 'AD43737203688B8E88CAB34EBE8C483000C157E53BFB41E35F1B49EE89D0C95F') { throw 'Pinned ProfileStore bytes changed' }
     & stylua --check src tests tools/board
     if ($LASTEXITCODE) { throw 'StyLua failed' }
     & selene src tests tools/board
@@ -15,6 +17,8 @@ try {
     if ($LASTEXITCODE) { throw 'Server logic tests failed' }
     & lune run tests/item-service
     if ($LASTEXITCODE) { throw 'Item service tests failed' }
+    & lune run tests/profile-data
+    if ($LASTEXITCODE) { throw 'Profile data tests failed' }
     & rojo build -o build/moving-day.rbxlx
     if ($LASTEXITCODE) { throw 'Rojo build failed' }
     & rojo build fallback.project.json -o build/fallback.rbxlx

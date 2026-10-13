@@ -1,0 +1,11 @@
+Adds the session-locked profile layer so subsequent payout and upgrade services can persist player progress. Loads Profiles_v1/u_<userId>, reconciles missing v1 fields without resetting invalid/future saves, derives Level from XP, and publishes only the approved PublicProfile fields. Settings.Set accepts only boolean assist values and is rate limited.
+
+Server-only DataService:Update applies changes to an isolated draft and commits only after validation. Rejected, throwing or yielding callbacks leave the original save untouched. A lost session stops further mutations and asks the player to rejoin. Leave/shutdown releases profiles; ProfileStore owns final-save completion. No remote can directly set cash or XP.
+
+ProfileStore is vendored unchanged at 9580f7c59cd3c04808e43c92e24b9afaefba679b with Apache 2.0 license, provenance and SHA-256. It is the dependency already authorized by SPEC.md. Vendor bytes are excluded from style/lint modification; application code stays checked. Upstream API: https://madstudioroblox.github.io/ProfileStore/api/
+
+Validation: all five Lune suites, StyLua, Selene and both Rojo builds pass. New tests cover profile reconciliation and public-data isolation, invalid/future saves, atomic rollback, yield rejection, session loss, late-load cancellation, release/shutdown, setting validation/rate limiting and the live-save access guard. These are deterministic fakes of the vendor/session boundary, not a live DataStore rejoin test.
+
+Studio handoff for ClaudeA: pull this branch into the integration checkout; confirm no startup errors, Data.Profile updates the HUD with cash0/level1 and Assist updates the player attribute. Config.ProfileStudioMock defaults true, so Studio sessions never write live player keys and resets between Play runs are expected. Real persistence requires the human's published-place rejoin test; mock success must not be reported as that gate. Non-mock loads require ProfileStore.DataStoreState=Access and otherwise fail closed.
+
+Remaining work: no payout grants, upgrade debit, blanket debit, receipts or DataStore migration beyond v1 defaults are implemented here. Those services should use the server mutation API. Update callbacks must not yield or perform external side effects. Contract files are unchanged.

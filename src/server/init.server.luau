@@ -75,6 +75,8 @@ for path, definition in definitions do
 end
 
 local services = script:WaitForChild("Services")
+local data = require(services.DataService).new(remotes, require(script.Vendor.ProfileStore))
+data:Start()
 local runtime = folder(workspace, "MovingDayRuntime")
 local items = require(services.ItemService).new(folder(runtime, "Items"), remotes)
 local trucks = require(services.TruckService).new(folder(runtime, "Trucks"), items)
